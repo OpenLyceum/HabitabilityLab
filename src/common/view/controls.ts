@@ -164,7 +164,7 @@ export function createCheckbox(
 ): Checkbox {
   return new Checkbox(
     property,
-    new Text(labelProperty, { font: FONTS.LABEL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 180 }),
+    new RichText(labelProperty, { font: FONTS.LABEL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 190 }),
     combineOptions<CheckboxOptions>({ accessibleName: labelProperty }, HABITABILITY_LAB_CHECKBOX_OPTIONS, options),
   );
 }
@@ -228,7 +228,11 @@ export function createPushButton(
 }
 
 /** One choice of a {@link createRadioGroup}. */
-export type RadioChoice<T> = { readonly value: T; readonly labelProperty: TReadOnlyProperty<string> };
+export type RadioChoice<T> = {
+  readonly value: T;
+  /** Localized label, or a plain string for proper names (planets). */
+  readonly labelProperty: TReadOnlyProperty<string> | string;
+};
 
 /** A vertical group of themed radio buttons with text labels. */
 export function createRadioGroup<T>(
@@ -241,6 +245,7 @@ export function createRadioGroup<T>(
     property,
     choices.map((choice) => ({
       value: choice.value,
+      options: { accessibleName: choice.labelProperty },
       createNode: () =>
         new RichText(choice.labelProperty, {
           font: FONTS.LABEL,

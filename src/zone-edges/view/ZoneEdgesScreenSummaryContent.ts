@@ -1,40 +1,53 @@
 /**
  * ZoneEdgesScreenSummaryContent.ts
  *
- * The accessible screen summary read by screen readers (SceneryStack's
- * Interactive Description). It appears at the top of the parallel DOM and gives
- * a non-visual user a way to orient themselves and to re-read the simulation's
- * current state at any time.
- *
- * A summary has four regions (all optional, but provide at least the first
- * three in every sim for consistency across OpenLyceum):
- *   - playAreaContent       — what the play area contains
- *   - controlAreaContent    — what the controls do
- *   - currentDetailsContent — a LIVE paragraph describing current state
- *   - interactionHintContent — a short hint on how to get started
- *
- * ── Making "current details" live ─────────────────────────────────────────────
- * The template has no model state, so currentDetails is a static string. In a
- * real sim, build a DerivedProperty over the relevant model Properties and pass
- * it as `currentDetailsContent` so the paragraph updates as the sim runs.
- * See LunarLander/src/.../LunarLanderScreenSummaryContent.ts for the pattern.
- * If that DerivedProperty (or any Multilink) is owned by a short-lived object,
- * dispose it on teardown — see the commented dispose() stub in ZoneEdgesScreenView.
+ * The accessible screen summary for the Zone Edges screen. Its current-details
+ * paragraph stays live: the star's temperature, the conservative zone's extent,
+ * and where the selected planet falls.
  */
+
+import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
+import { StringUtils } from "scenerystack/phetcommon";
 import { ScreenSummaryContent } from "scenerystack/sim";
+import { formatSignificant, toPlainText } from "../../common/view/chartUtils.js";
+import { bodyNameProperty } from "../../common/view/formatters.js";
+import { zoneStatusDependencies, zoneStatusStringProperty } from "../../common/view/zoneStatusView.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { ZoneEdgesModel } from "../model/ZoneEdgesModel.js";
 
 export class ZoneEdgesScreenSummaryContent extends ScreenSummaryContent {
-  // `model` is unused in the template but kept in the signature so real sims can
-  // derive a live currentDetailsContent from it without changing call sites.
-  public constructor(_model: ZoneEdgesModel) {
+  public constructor(model: ZoneEdgesModel) {
     const a11y = StringManager.getInstance().getZoneEdgesA11yStrings();
+    const plain = (value: number, digits: number): string => toPlainText(formatSignificant(value, digits));
 
     super({
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: a11y.currentDetailsStringProperty,
+      currentDetailsContent: new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
+        temperature: new DerivedProperty([model.starTemperatureProperty], (t) => String(Math.round(t))),
+        inner: new DerivedProperty([model.distancesProperty], (d) => plain(d.runawayGreenhouse, 2)),
+        outer: new DerivedProperty([model.distancesProperty], (d) => plain(d.maximumGreenhouse, 2)),
+        planet: DerivedProperty.deriveAny(
+          [
+            model.selectedPlanetProperty,
+            model.selectedStatusProperty,
+            a11y.planetDetailsPatternStringProperty,
+            ...zoneStatusDependencies(),
+          ],
+          () => {
+            const planet = model.selectedPlanetProperty.value;
+            const status = model.selectedStatusProperty.value;
+            if (!(planet && status)) {
+              return "";
+            }
+            return StringUtils.fillIn(a11y.planetDetailsPatternStringProperty.value, {
+              name: planet.bodyKey ? bodyNameProperty(planet.bodyKey).value : planet.name,
+              starlight: plain(planet.insolation, 3),
+              status: zoneStatusStringProperty(status).value,
+            });
+          },
+        ),
+      }),
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });
   }

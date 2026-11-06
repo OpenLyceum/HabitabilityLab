@@ -110,6 +110,14 @@ export class StringManager {
     return stringProperties.greenhouse;
   }
 
+  public getZoneEdgesStrings() {
+    return stringProperties.zoneEdges;
+  }
+
+  public getAgingStarStrings() {
+    return stringProperties.agingStar;
+  }
+
   /** Accessibility strings for the Energy Balance screen. */
   public getEnergyBalanceA11yStrings() {
     return stringProperties.a11y.energyBalance;

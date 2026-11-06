@@ -273,7 +273,7 @@ age ≥ t_lock(d). The uncertainty is at least a factor of 10.
 - Playback (play/pause/step, speed) and a draggable age cursor.
 
 **Presets:** Sun with Venus, Earth and Mars (d₀ 0.723, 1.0, 1.524 AU); a 0.3 M☉ red dwarf with a
-planet at 0.12 AU; Kepler-442 (0.6 M☉ track, 0.41 AU); Kepler-452 (1.0 M☉ track, 1.05 AU);
+planet at 0.16 AU; Kepler-442 (0.6 M☉ track, 0.41 AU); Kepler-452 (1.0 M☉ track, 1.05 AU);
 a 2 M☉ A star with a planet at 5 AU. Stars snap to the nearest catalog mass.
 
 **Teaching points:** the faint young Sun (Earth's bare-rock T_eq at ZAMS is 236 K, yet geology

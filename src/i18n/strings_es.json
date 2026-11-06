@@ -44,9 +44,13 @@
         "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
         "interactionHint": "Explora la simulación interactuando con sus controles."
       },
-      "currentDetails": "La simulación está en su estado inicial.",
+      "currentDetailsPattern": "Star at {{temperature}} kelvin. The conservative zone runs from {{inner}} to {{outer}} AU. {{planet}}",
+      "planetDetailsPattern": "{{name}} receives {{starlight}} times Earth's starlight: {{status}}.",
       "controls": {
-        "exampleControl": "Control de ejemplo"
+        "system": "Star",
+        "planets": "Planet",
+        "planetMass": "Planet mass for the inner edge",
+        "explanation": "Explanation of the habitable-zone edges"
       }
     },
     "agingStar": {
@@ -55,9 +59,13 @@
         "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
         "interactionHint": "Explora la simulación interactuando con sus controles."
       },
-      "currentDetails": "La simulación está en su estado inicial.",
+      "currentDetailsPattern": "Age {{age}}. The star is a {{stage}} with {{luminosity}} times the Sun's luminosity. The planet at {{distance}} AU is {{status}}.",
       "controls": {
-        "exampleControl": "Control de ejemplo"
+        "preset": "Star and planet preset",
+        "starMass": "Star mass",
+        "age": "Age of the star",
+        "chzDuration": "Duration for the continuously habitable zone",
+        "explanation": "Explanation of the aging star"
       }
     },
     "escape": {
@@ -119,7 +127,16 @@
     "star": "Star",
     "explanationButton": "What's going on?",
     "temperaturePattern": "{{kelvin}} ({{celsius}})",
-    "notToScale": "Sizes not to scale"
+    "notToScale": "Sizes not to scale",
+    "zoneStatus": {
+      "tooHot": "Too hot: closer than every edge",
+      "optimisticInner": "Optimistic zone only (between “recent Venus” and the runaway greenhouse)",
+      "conservative": "In the conservative habitable zone",
+      "optimisticOuter": "Optimistic zone only (between the maximum greenhouse and “early Mars”)",
+      "tooCold": "Too cold: beyond every edge"
+    },
+    "conservativeZone": "Conservative zone",
+    "optimisticZone": "Optimistic zone"
   },
   "energyBalance": {
     "planet": "Planet",
@@ -194,5 +211,96 @@
     "explanation3": "Warm is not enough for liquid water: the air must also press hard enough. Below the <b>triple point</b> (611 Pa, about 0.006 bar) water goes straight from ice to vapour. Mars sits right at that pressure.",
     "explanation4": "This is a teaching model: real greenhouse warming depends on which gases absorb at which wavelengths, on clouds, and on convection.",
     "backRadiation": "Infrared sent back down"
+  },
+  "zoneEdges": {
+    "system": "Star",
+    "mainSequenceStar": "Any main-sequence star",
+    "solarSystem": "Sun (Solar System)",
+    "starTemperature": "Star temperature",
+    "starPattern": "{{type}} star: {{temperature}}, {{luminosity}}",
+    "planetMass": "Planet mass for the inner edge",
+    "showArchive": "All archive planets under 2 R<sub>⊕</sub>",
+    "diagramTitle": "Starlight and star temperature",
+    "starlightAxis": "Starlight received (Earth = 1, log scale)",
+    "starTemperatureAxis": "Star temperature (K)",
+    "systemTitle": "Top view, to scale",
+    "planets": "Planets",
+    "noPlanets": "Choose a real star to see its planets.",
+    "radiusPattern": "Radius: {{value}}",
+    "massPattern": "Mass: {{value}} ({{source}})",
+    "massUnknown": "Mass: not measured",
+    "measured": "measured",
+    "estimated": "estimated from the radius",
+    "minimum": "minimum mass",
+    "starlightPattern": "Starlight: {{value}}",
+    "orbitPattern": "Orbit: {{value}}",
+    "outsideFit": "Below 2600 K the fits stop: edges drawn for 2600 K.",
+    "recentVenus": "Recent Venus",
+    "runawayGreenhouse": "Runaway greenhouse",
+    "maximumGreenhouse": "Maximum greenhouse",
+    "earlyMars": "Early Mars",
+    "equation": "d = √( L / S<sub>eff</sub>(T<sub>★</sub>) )",
+    "explanationTitle": "The edges of the habitable zone",
+    "explanation1": "The <b>habitable zone</b> is the range of distances where a rocky planet with water and a CO₂ atmosphere could keep liquid water on its surface. Its edges come from climate models (Kopparapu et al. 2013, 2014).",
+    "explanation2": "<b>Inner edge — runaway greenhouse:</b> with too much starlight, warm oceans put so much water vapour in the air that the planet cannot radiate the extra heat. The oceans boil away. <b>Outer edge — maximum greenhouse:</b> far out, adding CO₂ eventually reflects more starlight than it traps, so no atmosphere keeps the surface above freezing.",
+    "explanation3": "The <b>optimistic</b> edges come from history: Venus may have kept water until about a billion years ago, and Mars had liquid water 3.8 billion years ago.",
+    "explanation4": "The zone tilts on the diagram because a cooler star gives more of its light in the infrared, which water and CO₂ absorb well: a planet around a red dwarf warms with less total starlight. A heavier planet can sit a little closer in.",
+    "conservativeRangePattern": "Conservative zone: {{inner}} to {{outer}}",
+    "optimisticRangePattern": "Optimistic zone: {{inner}} to {{outer}}"
+  },
+  "agingStar": {
+    "preset": "Star and planet",
+    "sunVenus": "Sun and Venus",
+    "sunEarth": "Sun and Earth",
+    "sunMars": "Sun and Mars",
+    "redDwarf": "Red dwarf (0.3 M<sub>☉</sub>), planet at 0.12 AU",
+    "kepler442": "Kepler-442 (0.6 M<sub>☉</sub> track)",
+    "kepler452": "Kepler-452 (1 M<sub>☉</sub> track)",
+    "aStar": "A star (2 M<sub>☉</sub>), planet at 5 AU",
+    "starMass": "Star mass",
+    "distance": "Planet's starting distance",
+    "chzDuration": "Habitable for the last",
+    "zoomLate": "Zoom in on the late stages",
+    "logScale": "Log distance scale",
+    "agePattern": "Age: {{value}}",
+    "stagePattern": "Stage: {{value}}",
+    "stage": {
+      "mainSequence": "Main sequence",
+      "subgiant": "Subgiant",
+      "redGiant": "Red giant",
+      "heliumBurning": "Helium-burning giant",
+      "asymptoticGiant": "Asymptotic giant",
+      "heliumStar": "Helium star",
+      "whiteDwarf": "White dwarf",
+      "neutronStar": "Neutron star",
+      "blackHole": "Black hole"
+    },
+    "starPattern": "Star: {{luminosity}}, {{temperature}}, radius {{radius}}",
+    "planetPattern": "Planet's orbit: {{distance}}, starlight {{starlight}}",
+    "bareRockPattern": "Bare-rock temperature: {{value}}",
+    "timeInZonePattern": "Time in the conservative zone so far: {{value}}",
+    "locked": "An Earth-like planet here is tidally locked.",
+    "notLocked": "Not yet tidally locked.",
+    "engulfed": "The star has swallowed the planet.",
+    "extrapolated": "Star outside 2600–7200 K: edges extrapolated.",
+    "chzPattern": "Habitable for the last {{duration}}",
+    "lockDistance": "Tidal-lock distance",
+    "scaleBarPattern": "{{value}}",
+    "systemTitle": "Top view",
+    "hrTitle": "HR diagram",
+    "hrTemperatureAxis": "Temperature (K)",
+    "luminosityAxis": "Luminosity (L<sub>☉</sub>)",
+    "ageAxis": "Age (billions of years)",
+    "ageAxisMyr": "Age (millions of years)",
+    "msEnd": "End of main sequence",
+    "sunToday": "Sun today",
+    "universeAge": "Age of the universe",
+    "lockMarker": "Locked",
+    "engulfMarker": "Engulfed",
+    "explanationTitle": "An aging star",
+    "explanation1": "Stars brighten as they age on the main sequence, so the habitable zone moves outward. The Sun was about 26 % dimmer 4.6 billion years ago, yet Earth had liquid water: the <b>faint young Sun</b> puzzle, solved by a stronger early greenhouse.",
+    "explanation2": "The <b>continuously habitable zone</b> (hatched) holds the distances that stayed habitable for the whole of the chosen time. A planet needs a long stay for life to develop.",
+    "explanation3": "Light stars live much longer than heavy ones: a 0.3 M<sub>☉</sub> red dwarf stays on the main sequence for about 400 billion years, a 2 M<sub>☉</sub> star for about one billion. But a red dwarf's zone is so close that planets there are tidally locked, keeping one face to the star.",
+    "explanation4": "As a star swells into a giant it loses mass and its planets' orbits widen. This model ignores the tidal drag that pulls planets in, so it is generous: here Earth survives the Sun's giant phases."
   }
 }

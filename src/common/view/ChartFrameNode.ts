@@ -50,23 +50,26 @@ export function formatLogTick(value: number): string {
   return formatSignificant(value, 2);
 }
 
-/** Tick values for an axis: 1-2-5 or decade steps on a log axis, nice steps on a linear one. */
-export function axisTicks(axis: AxisSpec, targetDivisions: number): Tick[] {
+/**
+ * Tick values for an axis drawn `lengthPx` long. On a log axis the labels are at 1, 2 and 5 × 10ⁿ
+ * when a decade is wide, at every decade otherwise (every other one when decades are very narrow),
+ * with unlabelled minor gridlines at 2–9 when there is room. A linear axis gets nice steps.
+ */
+export function axisTicks(axis: AxisSpec, targetDivisions: number, lengthPx = 300): Tick[] {
   const ticks: Tick[] = [];
   if (axis.log) {
     const lowDecade = Math.floor(Math.log10(axis.min) + 1e-9);
     const highDecade = Math.ceil(Math.log10(axis.max) - 1e-9);
-    const decades = Math.log10(axis.max / axis.min);
-    const decadeStep = decades > 9 ? 2 : 1;
+    const pxPerDecade = lengthPx / Math.log10(axis.max / axis.min);
+    const decadeStep = pxPerDecade < 22 ? 2 : 1;
     for (let n = lowDecade; n <= highDecade; n++) {
       for (const m of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
         const value = m * 10 ** n;
         if (value < axis.min * (1 - 1e-9) || value > axis.max * (1 + 1e-9)) {
           continue;
         }
-        const label = decades <= 2.5 ? m === 1 || m === 2 || m === 5 : m === 1 && n % decadeStep === 0;
-        // Minor gridlines (2–9) only where the axis is short enough for them not to crowd.
-        if (m === 1 || decades <= 4) {
+        const label = pxPerDecade >= 140 ? m === 1 || m === 2 || m === 5 : m === 1 && n % decadeStep === 0;
+        if (m === 1 || pxPerDecade >= 60) {
           ticks.push({ value: value, label: label });
         }
       }
@@ -246,7 +249,7 @@ export class ChartFrameNode extends Node {
     const makeLabel = (text: string): RichText =>
       new RichText(text, { font: FONTS.TICK_LABEL, fill: HabitabilityLabColors.textColorProperty });
 
-    const xTicks = axisTicks(this.xAxis, this.targetDivisions);
+    const xTicks = axisTicks(this.xAxis, this.targetDivisions, this.viewWidth);
     const xDecimals = this.xAxis.log
       ? 0
       : decimalPlacesForStep(niceStep(this.xAxis.max - this.xAxis.min, this.targetDivisions));
@@ -261,7 +264,7 @@ export class ChartFrameNode extends Node {
         labels.push(label);
       }
     }
-    const yTicks = axisTicks(this.yAxis, this.targetDivisions);
+    const yTicks = axisTicks(this.yAxis, this.targetDivisions, this.viewHeight);
     const yDecimals = this.yAxis.log
       ? 0
       : decimalPlacesForStep(niceStep(this.yAxis.max - this.yAxis.min, this.targetDivisions));

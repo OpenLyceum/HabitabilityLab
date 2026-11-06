@@ -1,44 +1,81 @@
 /**
  * AgingStarScreenView.ts
  *
- * The top-level view for the simulation screen.
- *
- * All visual nodes are added here. Follow these conventions:
- *   - Use this.layoutBounds for positioning (never magic pixel values)
- *   - Keep a ResetAllButton that calls model.reset() and this.reset()
- *   - Override step(dt) for frame-by-frame animation
- *
- * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. HabitabilityLabControlPanel.ts)
- * 2. Instantiate them here and call this.addChild(...)
- * 3. Link them to model properties:
- *      model.isRunningProperty.link( isRunning => { ... } );
- *
- * ── Layout bounds ─────────────────────────────────────────────────────────────
- * SceneryStack uses a virtual 1024×618 coordinate space by default.
- * this.layoutBounds gives you the full rectangle; use it for alignment:
- *   center, minX, maxX, minY, maxY, width, height
+ * The Aging Star screen (doc/model.md §4):
+ *  - top left: a to-scale top view of the star, its zones, the continuously
+ *    habitable zone, the tidal-lock distance and the planet;
+ *  - top middle: the HR diagram and the readouts;
+ *  - bottom: the timeline of the star's life with the planet's zone status;
+ *  - right: presets, star mass, the planet's starting distance, the duration
+ *    for the continuously habitable zone, the zoom toggle, an explanation, and
+ *    the time controls.
  */
 
+import { DerivedProperty, Multilink, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
-import { Node, Rectangle, Text } from "scenerystack/scenery";
-import { ResetAllButton } from "scenerystack/scenery-phet";
+import { HBox, Node, Rectangle, RichText, Text, VBox } from "scenerystack/scenery";
+import { ResetAllButton, TimeControlNode, TimeSpeed } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
-import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/HabitabilityLabButtonOptions.js";
+import { ComboBox } from "scenerystack/sun";
+import {
+  FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS,
+  FLAT_RESET_ALL_BUTTON_OPTIONS,
+  HABITABILITY_LAB_COMBO_BOX_OPTIONS,
+  LIGHT_SURFACE_TEXT_FILL,
+  TIME_CONTROL_SPEED_RADIO_OPTIONS,
+} from "../../common/HabitabilityLabButtonOptions.js";
+import { HabitabilityLabPanel } from "../../common/HabitabilityLabPanel.js";
+import { TRACK_MASSES } from "../../common/model/stellarTracks.js";
+import { formatSignificant } from "../../common/view/chartUtils.js";
+import {
+  createCheckbox,
+  createExplanationButton,
+  createExplanationRow,
+  createNumberControl,
+  createRadioGroup,
+  createReadout,
+  createTitle,
+} from "../../common/view/controls.js";
+import {
+  formatAge,
+  formatAU,
+  formatKelvin,
+  formatStarlight,
+  formatTemperature,
+  unitDependencies,
+  valueWithUnits,
+} from "../../common/view/formatters.js";
+import { zoneStatusColor, zoneStatusDependencies, zoneStatusStringProperty } from "../../common/view/zoneStatusView.js";
 import HabitabilityLabColors from "../../HabitabilityLabColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../HabitabilityLabConstants.js";
+import {
+  AGING_DISTANCE_RANGE,
+  CHZ_DURATIONS_MYR,
+  CONTROL_PANEL_WIDTH,
+  FONTS,
+  SCREEN_VIEW_MARGIN,
+} from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import type { AgingStarModel } from "../model/AgingStarModel.js";
+import { AGING_PRESETS, type AgingStarModel } from "../model/AgingStarModel.js";
 import { AgingStarScreenSummaryContent } from "./AgingStarScreenSummaryContent.js";
+import { AgingSystemViewNode } from "./AgingSystemViewNode.js";
+import { HRDiagramNode } from "./HRDiagramNode.js";
+import { TimelineNode } from "./TimelineNode.js";
 
 export type AgingStarScreenViewOptions = ScreenViewOptions;
 
+const SYSTEM_SIZE = 290;
+const HR_WIDTH = 250;
+const HR_HEIGHT = 135;
+const TIMELINE_HEIGHT = 95;
+const READOUT_WIDTH = 330;
+
+/** Seconds advanced by one press of the step button (a two-hundredth of the window). */
+const STEP_SECONDS = 0.2;
+
 export class AgingStarScreenView extends ScreenView {
+  private readonly systemView: AgingSystemViewNode;
+
   public constructor(model: AgingStarModel, providedOptions?: AgingStarScreenViewOptions) {
-    // ── Accessibility: screen summary ───────────────────────────────────────────
-    // The screen summary is the first thing a screen-reader user encounters. It
-    // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See AgingStarScreenSummaryContent for the four content regions.
     const options = optionize<AgingStarScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new AgingStarScreenSummaryContent(model),
@@ -47,114 +84,337 @@ export class AgingStarScreenView extends ScreenView {
     );
     super(options);
 
-    // ── Background ────────────────────────────────────────────────────────────
-    // A full-screen rectangle that follows the active color profile.
-    // Replace or remove once you add real content.
-    const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: HabitabilityLabColors.backgroundColorProperty,
+    const stringManager = StringManager.getInstance();
+    const strings = stringManager.getAgingStarStrings();
+    const units = stringManager.getUnits();
+    const a11y = stringManager.getAgingStarA11yStrings();
+    const bounds = this.layoutBounds;
+    const listParent = new Node();
+
+    // ── Controls (right) ──────────────────────────────────────────────────────
+    const presetLabels: Record<(typeof AGING_PRESETS)[number], TReadOnlyProperty<string>> = {
+      sunVenus: strings.sunVenusStringProperty,
+      sunEarth: strings.sunEarthStringProperty,
+      sunMars: strings.sunMarsStringProperty,
+      redDwarf: strings.redDwarfStringProperty,
+      kepler442: strings.kepler442StringProperty,
+      kepler452: strings.kepler452StringProperty,
+      aStar: strings.aStarStringProperty,
+      custom: stringManager.getCommonStrings().customStringProperty,
+    };
+    const presetRadios = createRadioGroup(
+      model.presetProperty,
+      AGING_PRESETS.map((preset) => ({ value: preset, labelProperty: presetLabels[preset] })),
+      a11y.controls.presetStringProperty,
+      CONTROL_PANEL_WIDTH - 30,
+    );
+    const massLabel = (mass: number): TReadOnlyProperty<string> =>
+      new DerivedProperty([units.solarMassesStringProperty, units.valueUnitsPatternStringProperty], () =>
+        valueWithUnits(String(mass), units.solarMassesStringProperty.value),
+      );
+    const massComboBox = new ComboBox(
+      model.trackMassProperty,
+      TRACK_MASSES.map((mass) => ({
+        value: mass,
+        createNode: () => new RichText(massLabel(mass), { font: FONTS.LABEL, fill: LIGHT_SURFACE_TEXT_FILL }),
+        accessibleName: massLabel(mass),
+      })),
+      listParent,
+      { ...HABITABILITY_LAB_COMBO_BOX_OPTIONS, accessibleName: a11y.controls.starMassStringProperty, yMargin: 3 },
+    );
+    const distanceControl = createNumberControl(
+      strings.distanceStringProperty,
+      model.distanceProperty,
+      AGING_DISTANCE_RANGE,
+      {
+        logarithmic: true,
+        unitsProperty: units.auStringProperty,
+        significantFigures: 3,
+      },
+    );
+    const chzRadios = new HBox({
+      spacing: 6,
+      children: [
+        createRadioGroup(
+          model.chzDurationProperty,
+          CHZ_DURATIONS_MYR.map((myr) => ({
+            value: myr,
+            labelProperty: new DerivedProperty([units.gyrStringProperty, units.valueUnitsPatternStringProperty], () =>
+              valueWithUnits(String(myr / 1000), units.gyrStringProperty.value),
+            ),
+          })),
+          a11y.controls.chzDurationStringProperty,
+        ),
+      ],
     });
-    this.addChild(backgroundRect);
+    const zoomCheckbox = createCheckbox(model.zoomLateProperty, strings.zoomLateStringProperty);
+    const explanationButton = createExplanationButton(
+      strings.explanationTitleStringProperty,
+      [
+        strings.explanation1StringProperty,
+        strings.explanation2StringProperty,
+        strings.explanation3StringProperty,
+        strings.explanation4StringProperty,
+      ],
+      a11y.controls.explanationStringProperty,
+    );
+    const controlPanel = new HabitabilityLabPanel(
+      new VBox({
+        spacing: 6,
+        align: "left",
+        children: [
+          createTitle(strings.presetStringProperty),
+          presetRadios,
+          new HBox({
+            spacing: 8,
+            children: [
+              new Text(strings.starMassStringProperty, {
+                font: FONTS.LABEL,
+                fill: HabitabilityLabColors.textColorProperty,
+                maxWidth: 100,
+              }),
+              massComboBox,
+            ],
+          }),
+          distanceControl,
+          new Text(strings.chzDurationStringProperty, {
+            font: FONTS.LABEL,
+            fill: HabitabilityLabColors.textColorProperty,
+            maxWidth: CONTROL_PANEL_WIDTH,
+          }),
+          chzRadios,
+          zoomCheckbox,
+          createExplanationRow(explanationButton),
+        ],
+      }),
+      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+    );
+    controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
+    controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
 
-    // ── Placeholder label ─────────────────────────────────────────────────────
-    // Replace this with your actual simulation content.
-    const placeholderText = new Text(StringManager.getInstance().getScreenNames().agingStarStringProperty, {
-      font: "bold 36px sans-serif",
-      fill: HabitabilityLabColors.textColorProperty,
-      center: this.layoutBounds.center,
+    // ── Top view (top left) ───────────────────────────────────────────────────
+    this.systemView = new AgingSystemViewNode(model, SYSTEM_SIZE);
+    this.systemView.left = bounds.minX + SCREEN_VIEW_MARGIN;
+    this.systemView.top = bounds.minY + SCREEN_VIEW_MARGIN;
+
+    // Legend under the top view.
+    const legendItem = (
+      fill: typeof HabitabilityLabColors.conservativeZoneColorProperty,
+      label: TReadOnlyProperty<string>,
+      dashed = false,
+    ): HBox =>
+      new HBox({
+        spacing: 4,
+        children: [
+          dashed
+            ? new Rectangle(0, 0, 14, 3, { fill: fill })
+            : new Rectangle(0, 0, 14, 9, {
+                fill: fill,
+                opacity: fill === HabitabilityLabColors.continuousZoneColorProperty ? 0.6 : 1,
+              }),
+          new RichText(label, { font: FONTS.SMALL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 120 }),
+        ],
+      });
+    const common = stringManager.getCommonStrings();
+    const chzLabel = new PatternStringProperty(strings.chzPatternStringProperty, {
+      duration: DerivedProperty.deriveAny([model.chzDurationProperty, ...unitDependencies()], () =>
+        formatAge(model.chzDurationProperty.value),
+      ),
     });
-    this.addChild(placeholderText);
+    const legend = new VBox({
+      spacing: 2,
+      align: "left",
+      children: [
+        new HBox({
+          spacing: 10,
+          children: [
+            legendItem(HabitabilityLabColors.conservativeZoneColorProperty, common.conservativeZoneStringProperty),
+            legendItem(HabitabilityLabColors.optimisticZoneColorProperty, common.optimisticZoneStringProperty),
+          ],
+        }),
+        new HBox({
+          spacing: 10,
+          children: [
+            legendItem(HabitabilityLabColors.continuousZoneColorProperty, chzLabel),
+            legendItem(HabitabilityLabColors.tidalLockColorProperty, strings.lockDistanceStringProperty, true),
+          ],
+        }),
+      ],
+    });
+    legend.left = this.systemView.left;
+    legend.top = this.systemView.bottom + 4;
 
-    // ── Accessibility: per-control names ────────────────────────────────────────
-    // EVERY interactive node must carry an `accessibleName` (and an
-    // `accessibleHelpText` where useful), sourced from the StringManager `a11y`
-    // string group — never a hard-coded English literal. Sun/scenery-phet controls
-    // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
-    // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // Example (uncomment and adapt when you add a real control):
-    //
-    //   const a11y = StringManager.getInstance().getAgingStarA11yStrings();
-    //   const exampleButton = new RectangularPushButton({
-    //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
-    //     content: someIcon,
-    //     listener: () => model.doSomething(),
-    //     accessibleName: a11y.controls.exampleControlStringProperty,
-    //   });
-    //   this.addChild(exampleButton);
+    // ── HR diagram and readouts (top middle) ──────────────────────────────────
+    const hrDiagram = new HRDiagramNode(model, HR_WIDTH, HR_HEIGHT);
+    hrDiagram.left = this.systemView.right + 62;
+    hrDiagram.top = this.systemView.top + 4;
 
-    // ── Reset All button ──────────────────────────────────────────────────────
-    // Always position at bottom-right (PhET convention).
+    const dependencies = unitDependencies();
+    const derived = (format: () => string, extra: TReadOnlyProperty<unknown>[]): TReadOnlyProperty<string> =>
+      DerivedProperty.deriveAny([...extra, ...dependencies], format);
+    const stageNames = strings.stage;
+    const ageText = createReadout(
+      new PatternStringProperty(strings.agePatternStringProperty, {
+        value: derived(() => formatAge(model.ageProperty.value), [model.ageProperty]),
+      }),
+      READOUT_WIDTH,
+    );
+    ageText.font = FONTS.TITLE;
+    const stageText = createReadout(
+      new PatternStringProperty(strings.stagePatternStringProperty, {
+        value: DerivedProperty.deriveAny(
+          [model.stageProperty, ...Object.values(stageNames)],
+          () => stageNames[`${model.stageProperty.value}StringProperty`].value,
+        ),
+      }),
+      READOUT_WIDTH,
+    );
+    const starText = createReadout(
+      new PatternStringProperty(strings.starPatternStringProperty, {
+        luminosity: derived(
+          () =>
+            valueWithUnits(
+              formatSignificant(model.starProperty.value.luminosity, 3),
+              units.solarLuminosityStringProperty.value,
+            ),
+          [model.starProperty, units.solarLuminosityStringProperty],
+        ),
+        temperature: derived(() => formatKelvin(model.starProperty.value.temperature), [model.starProperty]),
+        radius: derived(
+          () =>
+            valueWithUnits(formatSignificant(model.starProperty.value.radius, 3), units.solarRadiiStringProperty.value),
+          [model.starProperty, units.solarRadiiStringProperty],
+        ),
+      }),
+      READOUT_WIDTH,
+    );
+    const planetText = createReadout(
+      new PatternStringProperty(strings.planetPatternStringProperty, {
+        distance: derived(() => formatAU(model.planetDistanceProperty.value), [model.planetDistanceProperty]),
+        starlight: derived(() => formatStarlight(model.starlightProperty.value), [model.starlightProperty]),
+      }),
+      READOUT_WIDTH,
+    );
+    const bareRockText = createReadout(
+      new PatternStringProperty(strings.bareRockPatternStringProperty, {
+        value: derived(
+          () => formatTemperature(model.bareRockTemperatureProperty.value),
+          [model.bareRockTemperatureProperty],
+        ),
+      }),
+      READOUT_WIDTH,
+    );
+    const statusText = new RichText("", { font: FONTS.TITLE, lineWrap: READOUT_WIDTH });
+    Multilink.multilinkAny(
+      [model.statusProperty, model.engulfedProperty, strings.engulfedStringProperty, ...zoneStatusDependencies()],
+      () => {
+        if (model.engulfedProperty.value) {
+          statusText.string = strings.engulfedStringProperty.value;
+          statusText.fill = HabitabilityLabColors.tooHotColorProperty;
+        } else {
+          statusText.string = zoneStatusStringProperty(model.statusProperty.value).value;
+          statusText.fill = zoneStatusColor(model.statusProperty.value);
+        }
+      },
+    );
+    const timeInZoneText = createReadout(
+      new PatternStringProperty(strings.timeInZonePatternStringProperty, {
+        value: derived(() => formatAge(model.timeInZoneProperty.value), [model.timeInZoneProperty]),
+      }),
+      READOUT_WIDTH,
+    );
+    const lockText = createReadout(
+      new DerivedProperty(
+        [model.lockedProperty, strings.lockedStringProperty, strings.notLockedStringProperty],
+        (locked, yes, no) => (locked ? yes : no),
+      ),
+      READOUT_WIDTH,
+    );
+    lockText.fill = HabitabilityLabColors.tidalLockColorProperty;
+    const extrapolatedText = new RichText(strings.extrapolatedStringProperty, {
+      font: FONTS.SMALL,
+      fill: HabitabilityLabColors.mutedTextColorProperty,
+      maxWidth: READOUT_WIDTH,
+      visibleProperty: model.extrapolatedProperty,
+    });
+    const readouts = new VBox({
+      spacing: 2,
+      align: "left",
+      children: [
+        ageText,
+        stageText,
+        starText,
+        planetText,
+        bareRockText,
+        statusText,
+        timeInZoneText,
+        lockText,
+        extrapolatedText,
+      ],
+    });
+    readouts.left = this.systemView.right + 16;
+    readouts.top = hrDiagram.bottom + 34;
+
+    // ── Timeline (bottom) ─────────────────────────────────────────────────────
+    const timelineLeft = this.systemView.left + 58;
+    const timeline = new TimelineNode(model, controlPanel.left - 20 - timelineLeft, TIMELINE_HEIGHT);
+    timeline.left = timelineLeft;
+    timeline.bottom = bounds.maxY - SCREEN_VIEW_MARGIN - 32;
+
+    // ── Time controls and Reset All ───────────────────────────────────────────
+    const timeControlNode = new TimeControlNode(model.timer.isPlayingProperty, {
+      timeSpeedProperty: model.timeSpeedProperty,
+      timeSpeeds: [TimeSpeed.FAST, TimeSpeed.NORMAL, TimeSpeed.SLOW],
+      ...TIME_CONTROL_SPEED_RADIO_OPTIONS,
+      playPauseStepButtonOptions: {
+        ...FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS,
+        stepForwardButtonOptions: {
+          ...FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS.stepForwardButtonOptions,
+          listener: () => model.advance(STEP_SECONDS),
+        },
+      },
+    });
     const resetAllButton = new ResetAllButton({
       ...FLAT_RESET_ALL_BUTTON_OPTIONS,
       listener: () => {
+        this.interruptSubtreeInput();
         model.reset();
-        this.reset();
       },
-      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
-      bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
+      right: bounds.maxX - SCREEN_VIEW_MARGIN,
+      bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    this.addChild(resetAllButton);
+    timeControlNode.right = resetAllButton.left - 20;
+    timeControlNode.centerY = resetAllButton.centerY;
 
-    // ── Accessibility: keyboard / reading traversal order ───────────────────────
-    // Make the parallel DOM (Tab order and screen-reader reading order)
-    // deterministic and independent of child z-order. ScreenView throws if you
-    // set pdomOrder on itself, so add a lightweight wrapper Node that "borrows"
-    // the interactive nodes in the order a user should reach them — Reset All
-    // last. Non-interactive decoration (background, placeholder) is omitted.
+    this.children = [
+      this.systemView,
+      legend,
+      hrDiagram,
+      readouts,
+      timeline,
+      controlPanel,
+      timeControlNode,
+      resetAllButton,
+      listParent,
+    ];
     this.addChild(
       new Node({
         pdomOrder: [
-          // TODO: add the sim's interactive nodes here, in traversal order
+          presetRadios,
+          massComboBox,
+          distanceControl,
+          chzRadios,
+          zoomCheckbox,
+          timeline.cursorNode,
+          explanationButton,
+          timeControlNode,
           resetAllButton,
         ],
       }),
     );
   }
 
-  /**
-   * Resets view-side state (animations, panel visibility, etc.).
-   * Called by the Reset All button listener.
-   */
-  public reset(): void {
-    // TODO: reset any view-side state here
+  public override step(dt: number): void {
+    this.systemView.step(dt);
   }
-
-  /**
-   * Steps the view forward by dt seconds for animation.
-   * @param _dt - elapsed time in seconds
-   */
-  public override step(_dt: number): void {
-    // TODO: implement animation updates here
-  }
-
-  // ── Accessibility / listeners: dispose ─────────────────────────────────────
-  // ScreenView is `isDisposable: false` and lives for the whole sim, so this
-  // class rarely needs dispose(). Child Nodes (and a live currentDetails
-  // DerivedProperty you own on a short-lived object) do. When you add
-  // DerivedProperty / Multilink / Property.link against model state, keep the
-  // references and tear them down — forks copy what they see. Pattern:
-  //
-  // private readonly disposeAgingStarScreenView: () => void;
-  //
-  // // in the constructor, after creating the listeners:
-  // const statusMultilink = Multilink.multilink(
-  //   [model.someProperty, model.otherProperty],
-  //   (a, b) => { /* update view from model */ },
-  // );
-  // const detailsProperty = new DerivedProperty(
-  //   [model.stateProperty],
-  //   (state) => `State: ${state}`,
-  // ); // → pass as currentDetailsContent in AgingStarScreenSummaryContent
-  // const onExternal = (v: number) => { /* … */ };
-  // model.externalProperty.link(onExternal); // Property you do NOT own
-  //
-  // this.disposeAgingStarScreenView = () => {
-  //   statusMultilink.dispose();                 // Multilink you created
-  //   detailsProperty.dispose();                 // DerivedProperty you created
-  //   model.externalProperty.unlink(onExternal); // undo external link
-  // };
-  //
-  // public override dispose(): void {
-  //   this.disposeAgingStarScreenView();
-  //   super.dispose();
-  // }
 }
