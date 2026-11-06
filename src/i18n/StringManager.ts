@@ -118,6 +118,10 @@ export class StringManager {
     return stringProperties.agingStar;
   }
 
+  public getEscapeStrings() {
+    return stringProperties.escape;
+  }
+
   /** Accessibility strings for the Energy Balance screen. */
   public getEnergyBalanceA11yStrings() {
     return stringProperties.a11y.energyBalance;

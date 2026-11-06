@@ -94,3 +94,24 @@ export function bodyNameProperty(key: BodyKey): TReadOnlyProperty<string> {
   const bodies = StringManager.getInstance().getCommonStrings().bodies;
   return bodies[`${key}StringProperty`];
 }
+
+/**
+ * A fraction given as its log₁₀, readable across hundreds of decades: plainly down to 10⁻⁴
+ * ("0.14"), as a power of ten below ("1.2 × 10<sup>−6</sup>", rich text).
+ */
+export function formatPowerFraction(log10: number): string {
+  if (!Number.isFinite(log10)) {
+    return "0";
+  }
+  if (log10 >= -4) {
+    return formatSignificant(10 ** log10, 2);
+  }
+  const exponent = Math.floor(log10);
+  let mantissa = Number((10 ** (log10 - exponent)).toPrecision(2));
+  let shown = exponent;
+  if (mantissa >= 10) {
+    mantissa = 1;
+    shown += 1;
+  }
+  return `${mantissa} × 10<sup>${String(shown).replace("-", "−")}</sup>`;
+}

@@ -74,9 +74,13 @@
         "controlArea": "La zone de contrôle comporte un bouton Tout réinitialiser qui ramène la simulation à son état initial.",
         "interactionHint": "Explorez la simulation en interagissant avec ses commandes."
       },
-      "currentDetails": "La simulation est dans son état initial.",
+      "currentDetailsPattern": "{{gas}} at {{temperature}} kelvin with an escape speed of {{escapeSpeed}} kilometres per second: escape speed is {{ratio}} times the typical speed. {{verdict}}",
+      "shorelineDetails": "The cosmic shoreline view is showing.",
       "controls": {
-        "exampleControl": "Contrôle d'exemple"
+        "view": "View",
+        "body": "Body preset",
+        "gas": "Gas",
+        "explanation": "Explanation of atmospheric escape"
       }
     }
   },
@@ -302,5 +306,66 @@
     "explanation2": "The <b>continuously habitable zone</b> (hatched) holds the distances that stayed habitable for the whole of the chosen time. A planet needs a long stay for life to develop.",
     "explanation3": "Light stars live much longer than heavy ones: a 0.3 M<sub>☉</sub> red dwarf stays on the main sequence for about 400 billion years, a 2 M<sub>☉</sub> star for about one billion. But a red dwarf's zone is so close that planets there are tidally locked, keeping one face to the star.",
     "explanation4": "As a star swells into a giant it loses mass and its planets' orbits widen. This model ignores the tidal drag that pulls planets in, so it is generous: here Earth survives the Sun's giant phases."
+  },
+  "escape": {
+    "view": "View",
+    "moleculesView": "Molecules",
+    "shorelineView": "Cosmic shoreline",
+    "body": "Body",
+    "gas": "Gas",
+    "gases": {
+      "h2": "H<sub>2</sub> (hydrogen)",
+      "he": "He (helium)",
+      "h2o": "H<sub>2</sub>O (water)",
+      "n2": "N<sub>2</sub> (nitrogen)",
+      "o2": "O<sub>2</sub> (oxygen)",
+      "co2": "CO<sub>2</sub> (carbon dioxide)"
+    },
+    "gasFormulas": {
+      "h2": "H<sub>2</sub>",
+      "he": "He",
+      "h2o": "H<sub>2</sub>O",
+      "n2": "N<sub>2</sub>",
+      "o2": "O<sub>2</sub>",
+      "co2": "CO<sub>2</sub>"
+    },
+    "escapeSpeed": "Escape speed",
+    "temperature": "Upper-atmosphere temperature",
+    "atmosphereTitle": "Molecules above the surface",
+    "altitudeNote": "Height on a stretched scale",
+    "escapedPattern": "Escaped: {{count}}",
+    "distributionTitle": "Molecular speeds",
+    "speedAxis": "Speed (km/s)",
+    "fractionAxis": "Share of molecules",
+    "vEsc": "v<sub>esc</sub>",
+    "vRms": "v<sub>rms</sub>",
+    "rmsPattern": "Typical speed v<sub>rms</sub>: {{value}}",
+    "ratioPattern": "Escape speed ÷ typical speed: {{value}}",
+    "fractionPattern": "Share faster than escape speed: {{value}}",
+    "jeansPattern": "Jeans parameter λ: {{value}}",
+    "retained": "Kept for billions of years (v<sub>esc</sub> > 6 v<sub>rms</sub>)",
+    "lost": "Leaks away over time (v<sub>esc</sub> < 6 v<sub>rms</sub>)",
+    "keptPattern": "Kept: {{gases}}",
+    "lostPattern": "Lost: {{gases}}",
+    "none": "none",
+    "shorelineTitle": "Who keeps an atmosphere?",
+    "shorelineSpeedAxis": "Escape speed (km/s, log scale)",
+    "shorelineStarlightAxis": "Starlight received (Earth = 1, log scale)",
+    "shoreline": "Cosmic shoreline",
+    "atmosphereSide": "Atmospheres",
+    "bareSide": "Bare rock",
+    "hasAtmosphere": "Solar System: atmosphere",
+    "noAtmosphere": "Solar System: none",
+    "showExoplanets": "Exoplanets with measured mass and radius",
+    "redDwarfHosts": "Host cooler than 4000 K",
+    "otherHosts": "Hotter host",
+    "shorelineNote": "Red dwarfs give off much more X-ray and ultraviolet light for their brightness, so the line is probably higher for their planets.",
+    "equation": "fraction = erfc(√λ) + 2√(λ/π) e<sup>−λ</sup>,  λ = (v<sub>esc</sub>/v<sub>p</sub>)²",
+    "shorelineEquation": "S = (v<sub>esc</sub> / 6.5 km/s)<sup>4</sup>",
+    "explanationTitle": "Keeping an atmosphere",
+    "explanation1": "Gas molecules move at a spread of speeds, faster when the gas is hotter and when the molecules are lighter. The few that are faster than the planet's <b>escape speed</b> and heading up leave for good, and the others refill the fast tail, so the gas slowly leaks away.",
+    "explanation2": "A rule of thumb: a gas stays for billions of years if the escape speed is more than six times its typical speed v<sub>rms</sub>. With the hot upper atmosphere of Earth (about 1000 K), Earth keeps nitrogen, oxygen and water but loses hydrogen and helium.",
+    "explanation3": "Thermal escape is not the only way to lose air: the solar wind and chemistry in the upper atmosphere stripped most of Mars's. The <b>cosmic shoreline</b> (Zahnle & Catling 2017) sums all of it up from observation: bodies with atmospheres sit where escape speed is high for the starlight they get; the dividing line runs as S ∝ v<sub>esc</sub><sup>4</sup>.",
+    "explanation4": "The line here is drawn by eye through the Solar System, as in the original. JWST finds no thick atmosphere on TRAPPIST-1 b and c, although they sit above it: red dwarfs' strong X-ray and ultraviolet light probably moves the line up for their planets."
   }
 }

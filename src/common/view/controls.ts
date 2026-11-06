@@ -232,6 +232,8 @@ export type RadioChoice<T> = {
   readonly value: T;
   /** Localized label, or a plain string for proper names (planets). */
   readonly labelProperty: TReadOnlyProperty<string> | string;
+  /** Accessible name when the visible label is abbreviated (default: the label). */
+  readonly accessibleNameProperty?: TReadOnlyProperty<string>;
 };
 
 /** A vertical group of themed radio buttons with text labels. */
@@ -245,7 +247,7 @@ export function createRadioGroup<T>(
     property,
     choices.map((choice) => ({
       value: choice.value,
-      options: { accessibleName: choice.labelProperty },
+      options: { accessibleName: choice.accessibleNameProperty ?? choice.labelProperty },
       createNode: () =>
         new RichText(choice.labelProperty, {
           font: FONTS.LABEL,

@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import { AgingStarModel, computeHistory, continuouslyHabitableZone } from "../src/aging-star/model/AgingStarModel.js";
 import { nearestTrack } from "../src/common/model/stellarTracks.js";
 import { EnergyBalanceModel } from "../src/energy-balance/model/EnergyBalanceModel.js";
+import { EscapeModel } from "../src/escape/model/EscapeModel.js";
 import { GreenhouseModel } from "../src/greenhouse/model/GreenhouseModel.js";
 import { ZoneEdgesModel } from "../src/zone-edges/model/ZoneEdgesModel.js";
 
@@ -113,5 +114,37 @@ describe("Aging Star", () => {
     expect(model.statusProperty.value).toBe("conservative");
     model.distanceProperty.value = 0.2;
     expect(model.presetProperty.value).toBe("custom");
+  });
+});
+
+describe("Escape model", () => {
+  it("keeps Earth's air and loses the Moon's", () => {
+    const model = new EscapeModel();
+    expect(model.retainedProperty.value).toBe(true);
+    expect(model.retainedGasesProperty.value).toEqual(["h2o", "n2", "o2", "co2"]);
+    model.presetProperty.value = "moon";
+    model.gasProperty.value = "h2";
+    expect(model.retainedProperty.value).toBe(false);
+    expect(10 ** model.log10EscapingFractionProperty.value).toBeCloseTo(0.139, 2);
+    model.temperatureProperty.value = 300;
+    expect(model.presetProperty.value).toBe("custom");
+  });
+
+  it("lets fast molecules escape and keeps slow ones bound", () => {
+    const model = new EscapeModel();
+    model.presetProperty.value = "moon";
+    model.gasProperty.value = "h2";
+    for (let i = 0; i < 200; i++) {
+      model.step(0.05);
+    }
+    expect(model.escapedCountProperty.value).toBeGreaterThan(0);
+    for (const molecule of model.molecules) {
+      expect(molecule.r).toBeGreaterThanOrEqual(0.99);
+    }
+    model.reset();
+    for (let i = 0; i < 200; i++) {
+      model.step(0.05);
+    }
+    expect(model.escapedCountProperty.value).toBe(0);
   });
 });

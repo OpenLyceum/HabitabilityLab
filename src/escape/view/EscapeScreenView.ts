@@ -1,44 +1,62 @@
 /**
  * EscapeScreenView.ts
  *
- * The top-level view for the simulation screen.
- *
- * All visual nodes are added here. Follow these conventions:
- *   - Use this.layoutBounds for positioning (never magic pixel values)
- *   - Keep a ResetAllButton that calls model.reset() and this.reset()
- *   - Override step(dt) for frame-by-frame animation
- *
- * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. HabitabilityLabControlPanel.ts)
- * 2. Instantiate them here and call this.addChild(...)
- * 3. Link them to model properties:
- *      model.isRunningProperty.link( isRunning => { ... } );
- *
- * ── Layout bounds ─────────────────────────────────────────────────────────────
- * SceneryStack uses a virtual 1024×618 coordinate space by default.
- * this.layoutBounds gives you the full rectangle; use it for alignment:
- *   center, minX, maxX, minY, maxY, width, height
+ * The Escape screen (doc/model.md §5), with two views:
+ *  - Molecules: molecules rising from the surface (left), their speed
+ *    distribution with the escape speed (middle), readouts and the verdict for
+ *    every gas; body presets, gas, escape speed and temperature on the right.
+ *  - Cosmic shoreline: escape speed against starlight for the Solar System and
+ *    exoplanets, with the dividing line.
  */
 
+import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
-import { Node, Rectangle, Text } from "scenerystack/scenery";
+import { HBox, Node, RichText, VBox } from "scenerystack/scenery";
 import { ResetAllButton } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
 import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/HabitabilityLabButtonOptions.js";
+import { HabitabilityLabPanel } from "../../common/HabitabilityLabPanel.js";
+import { formatSignificant } from "../../common/view/chartUtils.js";
+import {
+  createCheckbox,
+  createEquationNode,
+  createExplanationButton,
+  createExplanationRow,
+  createNumberControl,
+  createRadioGroup,
+  createReadout,
+  createTitle,
+} from "../../common/view/controls.js";
+import {
+  bodyNameProperty,
+  formatPowerFraction,
+  unitDependencies,
+  valueWithUnits,
+} from "../../common/view/formatters.js";
 import HabitabilityLabColors from "../../HabitabilityLabColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../HabitabilityLabConstants.js";
+import {
+  CONTROL_PANEL_WIDTH,
+  ESCAPE_SPEED_RANGE,
+  FONTS,
+  GAS_TEMPERATURE_RANGE,
+  SCREEN_VIEW_MARGIN,
+} from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import type { EscapeModel } from "../model/EscapeModel.js";
+import { ESCAPE_PRESETS, type EscapeModel, GASES } from "../model/EscapeModel.js";
 import { EscapeScreenSummaryContent } from "./EscapeScreenSummaryContent.js";
+import { MoleculesNode } from "./MoleculesNode.js";
+import { ShorelineNode } from "./ShorelineNode.js";
+import { SpeedDistributionNode } from "./SpeedDistributionNode.js";
 
 export type EscapeScreenViewOptions = ScreenViewOptions;
 
+const MOLECULES_WIDTH = 210;
+const DISTRIBUTION_WIDTH = 360;
+const DISTRIBUTION_HEIGHT = 200;
+const READOUT_WIDTH = 420;
+
 export class EscapeScreenView extends ScreenView {
   public constructor(model: EscapeModel, providedOptions?: EscapeScreenViewOptions) {
-    // ── Accessibility: screen summary ───────────────────────────────────────────
-    // The screen summary is the first thing a screen-reader user encounters. It
-    // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See EscapeScreenSummaryContent for the four content regions.
     const options = optionize<EscapeScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new EscapeScreenSummaryContent(model),
@@ -47,114 +65,256 @@ export class EscapeScreenView extends ScreenView {
     );
     super(options);
 
-    // ── Background ────────────────────────────────────────────────────────────
-    // A full-screen rectangle that follows the active color profile.
-    // Replace or remove once you add real content.
-    const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: HabitabilityLabColors.backgroundColorProperty,
+    const stringManager = StringManager.getInstance();
+    const strings = stringManager.getEscapeStrings();
+    const units = stringManager.getUnits();
+    const a11y = stringManager.getEscapeA11yStrings();
+    const bounds = this.layoutBounds;
+    const moleculesVisibleProperty = new DerivedProperty([model.viewProperty], (view) => view === "molecules");
+    const shorelineVisibleProperty = new DerivedProperty([model.viewProperty], (view) => view === "shoreline");
+
+    // ── Controls (right) ──────────────────────────────────────────────────────
+    const viewRadios = createRadioGroup(
+      model.viewProperty,
+      [
+        { value: "molecules" as const, labelProperty: strings.moleculesViewStringProperty },
+        { value: "shoreline" as const, labelProperty: strings.shorelineViewStringProperty },
+      ],
+      a11y.controls.viewStringProperty,
+    );
+    const bodyRadios = createRadioGroup(
+      model.presetProperty,
+      ESCAPE_PRESETS.map((preset) => ({
+        value: preset,
+        labelProperty:
+          preset === "custom" ? stringManager.getCommonStrings().customStringProperty : bodyNameProperty(preset),
+      })),
+      a11y.controls.bodyStringProperty,
+    );
+    const gasNames = strings.gases;
+    const gasRadios = createRadioGroup(
+      model.gasProperty,
+      GASES.map((gas) => ({
+        value: gas,
+        labelProperty: strings.gasFormulas[`${gas}StringProperty`],
+        accessibleNameProperty: gasNames[`${gas}StringProperty`],
+      })),
+      a11y.controls.gasStringProperty,
+      80,
+    );
+    const escapeSpeedControl = createNumberControl(
+      strings.escapeSpeedStringProperty,
+      model.escapeSpeedProperty,
+      ESCAPE_SPEED_RANGE,
+      { logarithmic: true, unitsProperty: units.kmPerSecondStringProperty, significantFigures: 3 },
+    );
+    const temperatureControl = createNumberControl(
+      strings.temperatureStringProperty,
+      model.temperatureProperty,
+      GAS_TEMPERATURE_RANGE,
+      { logarithmic: true, unitsProperty: units.kelvinStringProperty, significantFigures: 3 },
+    );
+    const exoplanetsCheckbox = createCheckbox(model.showExoplanetsProperty, strings.showExoplanetsStringProperty);
+    const shorelineNote = new RichText(strings.shorelineNoteStringProperty, {
+      font: FONTS.SMALL,
+      fill: HabitabilityLabColors.mutedTextColorProperty,
+      lineWrap: CONTROL_PANEL_WIDTH,
     });
-    this.addChild(backgroundRect);
+    const explanationButton = createExplanationButton(
+      strings.explanationTitleStringProperty,
+      [
+        strings.explanation1StringProperty,
+        strings.explanation2StringProperty,
+        strings.explanation3StringProperty,
+        strings.explanation4StringProperty,
+      ],
+      a11y.controls.explanationStringProperty,
+    );
 
-    // ── Placeholder label ─────────────────────────────────────────────────────
-    // Replace this with your actual simulation content.
-    const placeholderText = new Text(StringManager.getInstance().getScreenNames().escapeStringProperty, {
-      font: "bold 36px sans-serif",
-      fill: HabitabilityLabColors.textColorProperty,
-      center: this.layoutBounds.center,
+    // Bodies and gases side by side, so the panel fits above Reset All.
+    const moleculeControls = new VBox({
+      spacing: 6,
+      align: "left",
+      visibleProperty: moleculesVisibleProperty,
+      children: [
+        new HBox({
+          spacing: 18,
+          align: "top",
+          children: [
+            new VBox({
+              spacing: 6,
+              align: "left",
+              children: [createTitle(strings.bodyStringProperty, 110), bodyRadios],
+            }),
+            new VBox({ spacing: 6, align: "left", children: [createTitle(strings.gasStringProperty, 90), gasRadios] }),
+          ],
+        }),
+        escapeSpeedControl,
+        temperatureControl,
+        createEquationNode(strings.equationStringProperty, CONTROL_PANEL_WIDTH),
+      ],
     });
-    this.addChild(placeholderText);
+    const shorelineControls = new VBox({
+      spacing: 8,
+      align: "left",
+      visibleProperty: shorelineVisibleProperty,
+      children: [
+        exoplanetsCheckbox,
+        shorelineNote,
+        createEquationNode(strings.shorelineEquationStringProperty, CONTROL_PANEL_WIDTH),
+      ],
+    });
+    const controlPanel = new HabitabilityLabPanel(
+      new VBox({
+        spacing: 8,
+        align: "left",
+        children: [
+          createTitle(strings.viewStringProperty),
+          viewRadios,
+          moleculeControls,
+          shorelineControls,
+          createExplanationRow(explanationButton),
+        ],
+      }),
+      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+    );
+    controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
+    controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
 
-    // ── Accessibility: per-control names ────────────────────────────────────────
-    // EVERY interactive node must carry an `accessibleName` (and an
-    // `accessibleHelpText` where useful), sourced from the StringManager `a11y`
-    // string group — never a hard-coded English literal. Sun/scenery-phet controls
-    // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
-    // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // Example (uncomment and adapt when you add a real control):
-    //
-    //   const a11y = StringManager.getInstance().getEscapeA11yStrings();
-    //   const exampleButton = new RectangularPushButton({
-    //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
-    //     content: someIcon,
-    //     listener: () => model.doSomething(),
-    //     accessibleName: a11y.controls.exampleControlStringProperty,
-    //   });
-    //   this.addChild(exampleButton);
+    // ── Molecules view ────────────────────────────────────────────────────────
+    const moleculesTitle = createTitle(strings.atmosphereTitleStringProperty, MOLECULES_WIDTH);
+    const molecules = new MoleculesNode(model, MOLECULES_WIDTH, bounds.height - 2 * SCREEN_VIEW_MARGIN - 28);
+    moleculesTitle.left = bounds.minX + SCREEN_VIEW_MARGIN;
+    moleculesTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
+    molecules.left = moleculesTitle.left;
+    molecules.top = moleculesTitle.bottom + 8;
 
-    // ── Reset All button ──────────────────────────────────────────────────────
-    // Always position at bottom-right (PhET convention).
+    const distributionTitle = createTitle(strings.distributionTitleStringProperty, DISTRIBUTION_WIDTH);
+    const distribution = new SpeedDistributionNode(model, DISTRIBUTION_WIDTH, DISTRIBUTION_HEIGHT);
+    distribution.left = molecules.right + 70;
+    distribution.top = molecules.top;
+    distributionTitle.left = distribution.left;
+    distributionTitle.top = moleculesTitle.top;
+
+    const dependencies = unitDependencies();
+    const speed = (property: TReadOnlyProperty<number>): TReadOnlyProperty<string> =>
+      DerivedProperty.deriveAny([property, units.kmPerSecondStringProperty, ...dependencies], () =>
+        valueWithUnits(formatSignificant(property.value, 3), units.kmPerSecondStringProperty.value),
+      );
+    const gasFormulas = strings.gasFormulas;
+    const gasList = (keep: boolean): TReadOnlyProperty<string> =>
+      DerivedProperty.deriveAny(
+        [model.retainedGasesProperty, strings.noneStringProperty, ...Object.values(gasFormulas)],
+        () => {
+          const list = GASES.filter((gas) => model.retainedGasesProperty.value.includes(gas) === keep).map(
+            (gas) => gasFormulas[`${gas}StringProperty`].value,
+          );
+          return list.length > 0 ? list.join(", ") : strings.noneStringProperty.value;
+        },
+      );
+    const verdictText = new RichText(
+      new DerivedProperty(
+        [model.retainedProperty, strings.retainedStringProperty, strings.lostStringProperty],
+        (retained, kept, lost) => (retained ? kept : lost),
+      ),
+      { font: FONTS.TITLE, maxWidth: READOUT_WIDTH },
+    );
+    model.retainedProperty.link((retained) => {
+      verdictText.fill = retained
+        ? HabitabilityLabColors.habitableColorProperty
+        : HabitabilityLabColors.escapingColorProperty;
+    });
+    const readouts = new HabitabilityLabPanel(
+      new VBox({
+        spacing: 4,
+        align: "left",
+        children: [
+          createReadout(
+            new PatternStringProperty(strings.rmsPatternStringProperty, { value: speed(model.rmsSpeedProperty) }),
+            READOUT_WIDTH,
+          ),
+          createReadout(
+            new PatternStringProperty(strings.ratioPatternStringProperty, {
+              value: DerivedProperty.deriveAny([model.escapeSpeedProperty, model.rmsSpeedProperty], () =>
+                formatSignificant(model.escapeSpeedProperty.value / model.rmsSpeedProperty.value, 3),
+              ),
+            }),
+            READOUT_WIDTH,
+          ),
+          createReadout(
+            new PatternStringProperty(strings.jeansPatternStringProperty, {
+              value: new DerivedProperty([model.jeansParameterProperty], (lambda) => formatSignificant(lambda, 3)),
+            }),
+            READOUT_WIDTH,
+          ),
+          createReadout(
+            new PatternStringProperty(strings.fractionPatternStringProperty, {
+              value: new DerivedProperty([model.log10EscapingFractionProperty], (log) => formatPowerFraction(log)),
+            }),
+            READOUT_WIDTH,
+          ),
+          verdictText,
+          createReadout(
+            new PatternStringProperty(strings.keptPatternStringProperty, { gases: gasList(true) }),
+            READOUT_WIDTH,
+          ),
+          createReadout(
+            new PatternStringProperty(strings.lostPatternStringProperty, { gases: gasList(false) }),
+            READOUT_WIDTH,
+          ),
+        ],
+      }),
+      { minWidth: READOUT_WIDTH + 24, maxWidth: READOUT_WIDTH + 24 },
+    );
+    readouts.left = distribution.left - 50;
+    readouts.top = distribution.bottom + 50;
+
+    const moleculesView = new Node({
+      visibleProperty: moleculesVisibleProperty,
+      children: [moleculesTitle, molecules, distributionTitle, distribution, readouts],
+    });
+
+    // ── Shoreline view ────────────────────────────────────────────────────────
+    const shorelineTitle = createTitle(strings.shorelineTitleStringProperty, 400);
+    const shorelineLeft = bounds.minX + SCREEN_VIEW_MARGIN + 66;
+    const shoreline = new ShorelineNode(
+      model,
+      controlPanel.left - 24 - shorelineLeft,
+      bounds.height - 2 * SCREEN_VIEW_MARGIN - 80,
+    );
+    shorelineTitle.left = shorelineLeft;
+    shorelineTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
+    shoreline.left = shorelineLeft;
+    shoreline.top = shorelineTitle.bottom + 10;
+    const shorelineView = new Node({
+      visibleProperty: shorelineVisibleProperty,
+      children: [shorelineTitle, shoreline],
+    });
+
     const resetAllButton = new ResetAllButton({
       ...FLAT_RESET_ALL_BUTTON_OPTIONS,
       listener: () => {
+        this.interruptSubtreeInput();
         model.reset();
-        this.reset();
       },
-      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
-      bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
+      right: bounds.maxX - SCREEN_VIEW_MARGIN,
+      bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    this.addChild(resetAllButton);
 
-    // ── Accessibility: keyboard / reading traversal order ───────────────────────
-    // Make the parallel DOM (Tab order and screen-reader reading order)
-    // deterministic and independent of child z-order. ScreenView throws if you
-    // set pdomOrder on itself, so add a lightweight wrapper Node that "borrows"
-    // the interactive nodes in the order a user should reach them — Reset All
-    // last. Non-interactive decoration (background, placeholder) is omitted.
+    this.children = [moleculesView, shorelineView, controlPanel, resetAllButton];
     this.addChild(
       new Node({
         pdomOrder: [
-          // TODO: add the sim's interactive nodes here, in traversal order
+          viewRadios,
+          bodyRadios,
+          gasRadios,
+          escapeSpeedControl,
+          temperatureControl,
+          exoplanetsCheckbox,
+          explanationButton,
           resetAllButton,
         ],
       }),
     );
   }
-
-  /**
-   * Resets view-side state (animations, panel visibility, etc.).
-   * Called by the Reset All button listener.
-   */
-  public reset(): void {
-    // TODO: reset any view-side state here
-  }
-
-  /**
-   * Steps the view forward by dt seconds for animation.
-   * @param _dt - elapsed time in seconds
-   */
-  public override step(_dt: number): void {
-    // TODO: implement animation updates here
-  }
-
-  // ── Accessibility / listeners: dispose ─────────────────────────────────────
-  // ScreenView is `isDisposable: false` and lives for the whole sim, so this
-  // class rarely needs dispose(). Child Nodes (and a live currentDetails
-  // DerivedProperty you own on a short-lived object) do. When you add
-  // DerivedProperty / Multilink / Property.link against model state, keep the
-  // references and tear them down — forks copy what they see. Pattern:
-  //
-  // private readonly disposeEscapeScreenView: () => void;
-  //
-  // // in the constructor, after creating the listeners:
-  // const statusMultilink = Multilink.multilink(
-  //   [model.someProperty, model.otherProperty],
-  //   (a, b) => { /* update view from model */ },
-  // );
-  // const detailsProperty = new DerivedProperty(
-  //   [model.stateProperty],
-  //   (state) => `State: ${state}`,
-  // ); // → pass as currentDetailsContent in EscapeScreenSummaryContent
-  // const onExternal = (v: number) => { /* … */ };
-  // model.externalProperty.link(onExternal); // Property you do NOT own
-  //
-  // this.disposeEscapeScreenView = () => {
-  //   statusMultilink.dispose();                 // Multilink you created
-  //   detailsProperty.dispose();                 // DerivedProperty you created
-  //   model.externalProperty.unlink(onExternal); // undo external link
-  // };
-  //
-  // public override dispose(): void {
-  //   this.disposeEscapeScreenView();
-  //   super.dispose();
-  // }
 }
