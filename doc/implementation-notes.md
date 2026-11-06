@@ -1,135 +1,60 @@
-# Implementation Notes - Habitability Lab
+# Implementation notes — Habitability Lab
 
-Developer-facing notes on the **SceneryStackTemplate** scaffold. **Replace and expand this file when
-forking** to describe your sim's real architecture (see Stern Gerlach or Light Propagation for
-target quality). Until then, this documents what the template provides out of the box.
+Developer-facing notes. The physics is in [model.md](./model.md).
 
-## Architecture Overview
-
-SceneryStackTemplate is the fleet-canonical starting point for new SceneryStack sims (one or N screens).
-It demonstrates Model–View separation, color profiles, localization, reset behavior, accessibility
-reference wiring, and reusable common components — **without** domain physics.
+## Architecture
 
 ```
 main.ts
-  └─ EnergyBalanceScreen             (Screen<EnergyBalanceModel, EnergyBalanceScreenView>)
-       ├─ EnergyBalanceModel          state + logic  (src/energy-balance/model/)  ← stub: add physics here
-       └─ EnergyBalanceScreenView     visuals        (src/energy-balance/view/)
-            ├─ EnergyBalanceScreenSummaryContent     (PDOM overview — reference a11y pattern)
-            └─ EnergyBalanceKeyboardHelpContent      (keyboard help dialog)
+  ├─ EnergyBalanceScreen   EnergyBalanceModel  ─ EnergyBalanceScreenView
+  ├─ GreenhouseScreen      GreenhouseModel     ─ GreenhouseScreenView
+  ├─ ZoneEdgesScreen       ZoneEdgesModel      ─ ZoneEdgesScreenView
+  ├─ AgingStarScreen       AgingStarModel      ─ AgingStarScreenView
+  └─ EscapeScreen          EscapeModel         ─ EscapeScreenView
 
-src/common/
-  ├─ HabitabilityLabPanel.ts           pre-themed panel (uses HabitabilityLabColors)
-  ├─ HabitabilityLabButtonOptions.ts   flat button / combo-box option bundles
-  └─ TimeModel.ts          composable play/pause + elapsed time
-
-src/preferences/
-  ├─ HabitabilityLabPreferencesModel   sim-specific pref state
-  ├─ HabitabilityLabPreferencesNode    pref UI in Preferences → Simulation
-  └─ habitabilityLabQueryParameters    QueryStringMachine declarations
+src/common/model/   pure physics (no scenery): climate, water, habitableZone, stellarTracks,
+                    tidalLock, escape, planets (+ data/planets.json, data/shzStars.ts)
+src/common/view/    ChartFrameNode, controls, formatters, fluxArrows, StarNode, zoneStatusView
+src/preferences/    "Show equations" preference (query parameter ?showEquations)
 ```
 
-Data flows Model → View through AXON `Property` objects (`.link()` / `.lazyLink()`). The view never
-integrates physics; the model never imports scenery.
+The five screen models are independent; nothing is shared at run time except the preferences
+singleton (`habitabilityLabPreferences`).
 
-## Forking checklist
+## Decisions
 
-### Automated rename + scaffold (recommended)
+- **Presets mark themselves "custom".** Each preset-driven model sets its sliders inside an
+  `applyingPreset` guard; any other change to those sliders switches the preset to `custom`
+  (and, on Energy Balance, hides the measured temperature).
+- **Energy Balance integrates in years.** `stepTemperature` sub-steps so each step is under a fifth
+  of the local relaxation time C/(4σT³); dt is capped at 0.1 s of wall time so a background tab does
+  not jump decades. The history keeps the last 30 years and is drawn against "years from now", so
+  the axis never scrolls; the temperature axis steps through 300–1000 K.
+- **One chart frame for everything.** `ChartFrameNode` maps with its own log/reversed axes
+  instead of a bamboo `ChartTransform` (which cannot reverse or log). Callers draw with
+  `polyline` and redraw on `axesChangedEmitter`. Log ticks label 1-2-5 when a decade is wider than
+  140 px, otherwise only decades (every other decade below 22 px).
+- **Zone Edges luminosity.** Real hosts get L = S·a² from their own planet's starlight and orbit,
+  so the planets land exactly on the archive's insolation; the slider star uses the dwarf table.
+  The planet radio group is rebuilt (and the old one disposed) when the star changes.
+- **Aging Star history.** `computeHistory` runs once per (track, starting distance) over the table
+  rows: zone status, engulfment age (R★ ≥ d), lock age (age ≥ t_lock(d, M)), cumulative time in the
+  conservative zone. Readouts interpolate within it; the continuously habitable zone scans rows in
+  the window. The top view eases its scale towards the outer edge or the planet (3 s⁻¹), but jumps
+  when the track or distance changes. The timeline window is the whole life, or from 90 % of the
+  main sequence when zoomed; playback crosses the window in 40 s.
+- **Escape swarm.** 160 molecules, velocity-Verlet in r'' = −1/(2r²) with time scaled so a
+  typical hop takes 1.6 s; molecules returning to the surface are relaunched with a fresh speed,
+  escapers are counted at r = 3 R. Any change of gas, speed or temperature restarts the swarm.
+  `log10FractionFasterThan` switches to the asymptotic form above λ = 600 to stay finite.
+- **Strings bound to text.** Never set `.string` on a `Text`/`RichText` created from a localized
+  `StringProperty`: it writes through to the shared property. Value labels start from `""`.
 
-```sh
-npm run rename -- --id my-sim --name "My Simulation"
-npm run scaffold-screens -- --screens Intro,Lab   # or omit --screens for one screen
-npm run check
-```
+## Testing
 
-Or from the workspace: `Baton/scripts/create-sim.sh --repo MySim --name "My Simulation"`.
-
-`scripts/rename-sim.ts` updates sim-level identifiers (package id, Colors, Preferences).
-`scripts/scaffold-screens.ts` emits fleet-named screen folders and wires main/strings/icons.
-
-### Manual steps (after rename/scaffold or if skipping the scripts)
-
-1. **`doc/model.md`** — educator physics (equations, ranges, simplifications).
-2. **`doc/implementation-notes.md`** — this file, rewritten for your architecture.
-3. **Screen model(s)** — real Properties, `step(dt)`, `reset()`; compose `TimeModel` if animated.
-4. **Screen view(s)** — play area + controls; wire `ResetAllButton` to `model.reset()`.
-5. **`*Colors.ts`** — sim palette (default + projector profiles).
-6. **Locale JSON** — title, strings, `a11y` keys; register locales in `init.ts`.
-7. **`public/icons/icon.svg`** → `npm run icons`; align theme color in `index.html` / vite config.
-8. **`tests/setup.ts`** — `init({ name: … })` must match `package.json` name after rename.
-9. **`AGENTS.md`** — sim-specific file map and pitfalls for AI assistants.
-
-## Common components (keep when forking)
-
-### HabitabilityLabPanel
-
-Every control panel should use `HabitabilityLabPanel` so projector-mode switching is automatic:
-
-```typescript
-import { HabitabilityLabPanel } from "../../common/HabitabilityLabPanel.js";
-const panel = new HabitabilityLabPanel(content);
-const panelWide = new HabitabilityLabPanel(content, { xMargin: 20 });
-```
-
-### TimeModel
-
-Compose into your screen model for animation (do not subclass `TimeModel`):
-
-```typescript
-export class MyModel implements TModel {
-  public readonly timer = new TimeModel();  // pass true to auto-play on startup
-
-  public step(dt: number): void {
-    this.timer.step(dt);
-    // physics uses this.timer.timeProperty.value
-  }
-  public reset(): void { this.timer.reset(); /* restore initial state */ }
-}
-```
-
-Wire `TimeControlNode` to `model.timer.isPlayingProperty` in the view.
-
-### HabitabilityLabButtonOptions
-
-Spread flat button options into every push/round button and `TimeControlNode` (see `AGENTS.md`).
-Use `HABITABILITY_LAB_COMBO_BOX_OPTIONS` + `LIGHT_SURFACE_TEXT_FILL` for light control surfaces on dark panels.
-
-## Accessibility (reference implementation)
-
-The template is the **canonical OpenLyceum a11y reference**:
-
-- PDOM `accessibleName` on interactive nodes (prefer live `StringProperty`s).
-- `EnergyBalanceScreenSummaryContent` with a live `currentDetailsContent` `DerivedProperty` over model state.
-- Explicit `pdomOrder` + `EnergyBalanceKeyboardHelpContent`.
-- Strings under `a11y` in locale JSON → `StringManager.getEnergyBalanceA11yStrings()`.
-
-Full checklist: [Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
-
-## Testing (fleet layout — keep when forking)
-
-| Path | Purpose |
-|---|---|
-| `vitest.config.ts` | `happy-dom`; `setupFiles: ["./tests/setup.ts"]`; `execArgv: ["--expose-gc"]` |
-| `tests/setup.ts` | Canvas/AudioContext mocks + `init()` before SceneryStack imports |
-| `tests/TimeModel.test.ts` | **Replace** with real model/physics tests mirroring `src/` |
-| `tests/memory-leak.test.ts` | WeakRef + `forceGC` dispose regression |
-| `tests/fuzz/fuzz.spec.ts` | Optional Playwright smoke via `?fuzz` |
-
-Run `npm test`. Expand `memory-leak.test.ts` when adding runtime-created nodes or Property links.
-
-## Multi-screen simulations
-
-Default is single-screen. To add screens, see **`doc/multi-screen.md`**: per-screen folders mirroring
-`src/energy-balance/`, `StringManager` screen-name getters, optional shared root model, a shared
-`src/common/HabitabilityLabScreenIcons.ts` module (`create{Screen}Icon()` factories wired as
-`homeScreenIcon` / `navigationBarIcon`), and register all screens in `main.ts`.
-
-## PWA
-
-After `npm run build`, the sim is installable offline via Workbox (`dist/manifest.webmanifest`).
-
-## Known template stubs (remove when forking)
-
-- `EnergyBalanceModel.step()` / `reset()` — empty placeholders until you add physics.
-- Placeholder play-area content in `EnergyBalanceScreenView` — replace with real UI.
-- `tests/TimeModel.test.ts` — sample only; add tests for your model under `tests/`.
+- `tests/physics.test.ts` pins the numbers quoted in `model.md` (T_eq, τ for the planets, IAPWS
+  check values, Kopparapu distances for the Sun, the Sun's track, lock times, Jeans escape, the
+  shoreline classification of the Solar System).
+- `tests/screenModels.test.ts` exercises each screen model (presets, settling, history, CHZ,
+  playback, molecule escape).
+- `tests/memory-leak.test.ts` and the Playwright fuzz smoke come from the template.

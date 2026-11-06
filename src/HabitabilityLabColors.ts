@@ -78,6 +78,12 @@ const HabitabilityLabColors = {
     projector: "#555555",
   }),
 
+  /** Bottom of the Escape screen's sky, just above the ground (top is spaceColorProperty). */
+  lowSkyColorProperty: new ProfileColorProperty(HabitabilityLabNamespace, "lowSky", {
+    default: "#1b2a4a",
+    projector: "#1b2a4a",
+  }),
+
   /** Background of the space views (kept dark in both profiles so stars and glows read). */
   spaceColorProperty: new ProfileColorProperty(HabitabilityLabNamespace, "space", {
     default: "#05070f",

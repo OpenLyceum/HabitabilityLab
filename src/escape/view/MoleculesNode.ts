@@ -30,7 +30,9 @@ export class MoleculesNode extends Node {
     const strings = StringManager.getInstance().getEscapeStrings();
 
     const sky = new Rectangle(0, 0, width, height, {
-      fill: new LinearGradient(0, 0, 0, height).addColorStop(0, "#03040a").addColorStop(1, "#1b2a4a"),
+      fill: new LinearGradient(0, 0, 0, height)
+        .addColorStop(0, HabitabilityLabColors.spaceColorProperty)
+        .addColorStop(1, HabitabilityLabColors.lowSkyColorProperty),
       stroke: HabitabilityLabColors.spaceBorderColorProperty,
       cornerRadius: 4,
     });

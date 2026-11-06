@@ -59,7 +59,7 @@
         "controlArea": "The control area has star-and-planet presets, the star mass, the planet's starting distance, the duration for the continuously habitable zone, a zoom toggle, time controls and a Reset All button.",
         "interactionHint": "Play the star's life and watch the habitable zone move past the planet."
       },
-      "currentDetailsPattern": "Age {{age}}. The star is a {{stage}} with {{luminosity}} times the Sun's luminosity. The planet at {{distance}} AU is {{status}}.",
+      "currentDetailsPattern": "Age {{age}}. The star is a {{stage}} with {{luminosity}} times the Sun's luminosity. Planet at {{distance}} AU: {{status}}.",
       "controls": {
         "preset": "Star and planet preset",
         "starMass": "Star mass",
@@ -140,7 +140,15 @@
       "tooCold": "Too cold: beyond every edge"
     },
     "conservativeZone": "Conservative zone",
-    "optimisticZone": "Optimistic zone"
+    "optimisticZone": "Optimistic zone",
+    "keyboardHelp": {
+      "planetHeading": "Planet",
+      "movePlanet": "Move the planet closer or farther",
+      "movePlanetFine": "Move the planet in smaller steps",
+      "ageHeading": "Age cursor",
+      "moveAge": "Move through the star's life",
+      "moveAgeFine": "Move in smaller steps"
+    }
   },
   "energyBalance": {
     "planet": "Planet",

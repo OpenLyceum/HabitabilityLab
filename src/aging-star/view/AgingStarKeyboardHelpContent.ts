@@ -1,30 +1,43 @@
 /**
  * AgingStarKeyboardHelpContent.ts
  *
- * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * The template's only interactions are buttons and Reset All, so a single
- * basic-actions section covers the available keyboard controls. When the sim
- * grows, fill the right column (pattern stubbed below).
+ * Keyboard-help dialog for the Aging Star screen: the age cursor, the star-mass
+ * list and basic actions on the left; the distance slider and time controls on
+ * the right.
  */
 
 import {
   BasicActionsKeyboardHelpSection,
-  // SliderControlsKeyboardHelpSection,
-  // TimeControlsKeyboardHelpSection,
+  ComboBoxKeyboardHelpSection,
+  KeyboardHelpIconFactory,
+  KeyboardHelpSection,
+  KeyboardHelpSectionRow,
+  SliderControlsKeyboardHelpSection,
+  TimeControlsKeyboardHelpSection,
   TwoColumnKeyboardHelpContent,
 } from "scenerystack/scenery-phet";
+import { StringManager } from "../../i18n/StringManager.js";
 
 export class AgingStarKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
   public constructor() {
-    const leftColumn = [new BasicActionsKeyboardHelpSection()];
-
-    // Right column — uncomment when the sim adds sliders and/or TimeControlNode:
-    // const rightColumn = [
-    //   new SliderControlsKeyboardHelpSection(),
-    //   // new TimeControlsKeyboardHelpSection(),
-    // ];
-    const rightColumn: never[] = [];
-
-    super(leftColumn, rightColumn);
+    const help = StringManager.getInstance().getCommonStrings().keyboardHelp;
+    const ageSection = new KeyboardHelpSection(help.ageHeadingStringProperty, [
+      KeyboardHelpSectionRow.labelWithIcon(
+        help.moveAgeStringProperty,
+        KeyboardHelpIconFactory.leftRightArrowKeysRowIcon(),
+      ),
+      KeyboardHelpSectionRow.labelWithIcon(
+        help.moveAgeFineStringProperty,
+        KeyboardHelpIconFactory.shiftPlusIcon(KeyboardHelpIconFactory.leftRightArrowKeysRowIcon()),
+      ),
+    ]);
+    super(
+      [
+        ageSection,
+        new ComboBoxKeyboardHelpSection(),
+        new BasicActionsKeyboardHelpSection({ withCheckboxContent: true }),
+      ],
+      [new SliderControlsKeyboardHelpSection(), new TimeControlsKeyboardHelpSection()],
+    );
   }
 }

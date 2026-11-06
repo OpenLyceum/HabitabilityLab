@@ -33,6 +33,7 @@ import {
   createTitle,
 } from "../../common/view/controls.js";
 import { bodyNameProperty, formatKelvin, formatTemperature, unitDependencies } from "../../common/view/formatters.js";
+import HabitabilityLabColors from "../../HabitabilityLabColors.js";
 import {
   ALBEDO_RANGE,
   CONTROL_PANEL_WIDTH,
@@ -207,8 +208,8 @@ export class EnergyBalanceScreenView extends ScreenView {
     const measuredVisibleProperty = new DerivedProperty([model.measuredTemperatureProperty], (t) => t !== null);
     measuredText.visibleProperty = measuredVisibleProperty;
     gapText.visibleProperty = measuredVisibleProperty;
-    gapText.fill = "#ce93d8";
-    measuredText.fill = gapText.fill;
+    gapText.fill = HabitabilityLabColors.measuredColorProperty;
+    measuredText.fill = HabitabilityLabColors.measuredColorProperty;
     const jumpButton = createPushButton(
       strings.jumpToEquilibriumStringProperty,
       () => model.jumpToEquilibrium(),

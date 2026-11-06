@@ -6,8 +6,7 @@
  * to the parent Screen class.
  *
  * Registered in the screens array in src/main.ts. Its home-screen and navigation-bar
- * icons come from createEscapeIcon() in src/common/HabitabilityLabScreenIcons.ts
- * (see doc/multi-screen.md).
+ * icons come from createEscapeIcon() in src/common/HabitabilityLabScreenIcons.ts.
  */
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";

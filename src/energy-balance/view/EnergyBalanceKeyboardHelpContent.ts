@@ -1,30 +1,38 @@
 /**
  * EnergyBalanceKeyboardHelpContent.ts
  *
- * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * The template's only interactions are buttons and Reset All, so a single
- * basic-actions section covers the available keyboard controls. When the sim
- * grows, fill the right column (pattern stubbed below).
+ * Keyboard-help dialog for the Energy Balance screen: moving the planet, radio
+ * buttons and the jump button on the left; the sliders and time controls on
+ * the right.
  */
 
 import {
   BasicActionsKeyboardHelpSection,
-  // SliderControlsKeyboardHelpSection,
-  // TimeControlsKeyboardHelpSection,
+  KeyboardHelpIconFactory,
+  KeyboardHelpSection,
+  KeyboardHelpSectionRow,
+  SliderControlsKeyboardHelpSection,
+  TimeControlsKeyboardHelpSection,
   TwoColumnKeyboardHelpContent,
 } from "scenerystack/scenery-phet";
+import { StringManager } from "../../i18n/StringManager.js";
 
 export class EnergyBalanceKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
   public constructor() {
-    const leftColumn = [new BasicActionsKeyboardHelpSection()];
-
-    // Right column — uncomment when the sim adds sliders and/or TimeControlNode:
-    // const rightColumn = [
-    //   new SliderControlsKeyboardHelpSection(),
-    //   // new TimeControlsKeyboardHelpSection(),
-    // ];
-    const rightColumn: never[] = [];
-
-    super(leftColumn, rightColumn);
+    const help = StringManager.getInstance().getCommonStrings().keyboardHelp;
+    const planetSection = new KeyboardHelpSection(help.planetHeadingStringProperty, [
+      KeyboardHelpSectionRow.labelWithIcon(
+        help.movePlanetStringProperty,
+        KeyboardHelpIconFactory.leftRightArrowKeysRowIcon(),
+      ),
+      KeyboardHelpSectionRow.labelWithIcon(
+        help.movePlanetFineStringProperty,
+        KeyboardHelpIconFactory.shiftPlusIcon(KeyboardHelpIconFactory.leftRightArrowKeysRowIcon()),
+      ),
+    ]);
+    super(
+      [planetSection, new BasicActionsKeyboardHelpSection()],
+      [new SliderControlsKeyboardHelpSection(), new TimeControlsKeyboardHelpSection()],
+    );
   }
 }
