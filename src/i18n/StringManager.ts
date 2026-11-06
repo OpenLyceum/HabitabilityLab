@@ -50,7 +50,7 @@ const stringProperties = LocalizedString.getNestedStringProperties({
  * Keep this in sync with the `a11y` key in `strings_en.json` — a locale key
  * rename that is not mirrored here fails at the getter return (not silently).
  */
-export type SimA11yStrings = {
+export type HabitabilityLabA11yStrings = {
   readonly screenSummary: {
     readonly playAreaStringProperty: ReadOnlyProperty<string>;
     readonly controlAreaStringProperty: ReadOnlyProperty<string>;
@@ -64,9 +64,9 @@ export type SimA11yStrings = {
 
 /**
  * Explicit Preferences → Simulation labels from {@link StringManager.getPreferences}.
- * Same sync rule as {@link SimA11yStrings}.
+ * Same sync rule as {@link HabitabilityLabA11yStrings}.
  */
-export type SimPreferenceStrings = {
+export type HabitabilityLabPreferenceStrings = {
   readonly titleStringProperty: ReadOnlyProperty<string>;
   readonly exampleToggleStringProperty: ReadOnlyProperty<string>;
 };
@@ -103,34 +103,50 @@ export class StringManager {
    * Each property updates automatically when the locale changes.
    */
   public getScreenNames(): {
-    readonly simStringProperty: ReadOnlyProperty<string>;
+    readonly energyBalanceStringProperty: ReadOnlyProperty<string>;
+    readonly greenhouseStringProperty: ReadOnlyProperty<string>;
+    readonly zoneEdgesStringProperty: ReadOnlyProperty<string>;
+    readonly agingStarStringProperty: ReadOnlyProperty<string>;
+    readonly escapeStringProperty: ReadOnlyProperty<string>;
   } {
     return {
-      simStringProperty: stringProperties.screens.simStringProperty,
+      energyBalanceStringProperty: stringProperties.screens.energyBalanceStringProperty,
+      greenhouseStringProperty: stringProperties.screens.greenhouseStringProperty,
+      zoneEdgesStringProperty: stringProperties.screens.zoneEdgesStringProperty,
+      agingStarStringProperty: stringProperties.screens.agingStarStringProperty,
+      escapeStringProperty: stringProperties.screens.escapeStringProperty,
     };
   }
 
-  /**
-   * Accessibility (Interactive Description) StringProperties.
-   *
-   * Returns the reactive `a11y` string tree used by the parallel DOM:
-   *   - `screenSummary.*` — play-area / control-area overview and an interaction
-   *     hint, read by `SimScreenSummaryContent`.
-   *   - `currentDetails` — a paragraph describing the simulation's current state.
-   *     In a real sim, derive a live version from model Properties (see
-   *     LunarLander's ScreenSummaryContent for the canonical pattern).
-   *
-   * Add `accessibleName` / `accessibleHelpText` strings for individual controls
-   * to the `a11y` group too, then read them through this same nested tree.
-   */
-  public getA11yStrings(): SimA11yStrings {
-    return stringProperties.a11y;
+  /** Accessibility strings for the Energy Balance screen. */
+  public getEnergyBalanceA11yStrings() {
+    return stringProperties.a11y.energyBalance;
+  }
+
+  /** Accessibility strings for the Greenhouse screen. */
+  public getGreenhouseA11yStrings() {
+    return stringProperties.a11y.greenhouse;
+  }
+
+  /** Accessibility strings for the Zone Edges screen. */
+  public getZoneEdgesA11yStrings() {
+    return stringProperties.a11y.zoneEdges;
+  }
+
+  /** Accessibility strings for the Aging Star screen. */
+  public getAgingStarA11yStrings() {
+    return stringProperties.a11y.agingStar;
+  }
+
+  /** Accessibility strings for the Escape screen. */
+  public getEscapeA11yStrings() {
+    return stringProperties.a11y.escape;
   }
 
   /**
    * Simulation-specific preference labels shown in Preferences → Simulation.
    */
-  public getPreferences(): SimPreferenceStrings {
+  public getPreferences() {
     return stringProperties.preferences;
   }
 }

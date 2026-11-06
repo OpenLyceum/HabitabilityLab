@@ -21,24 +21,47 @@ import "./brand.js";
 
 import { onReadyToLaunch, PreferencesModel, Sim } from "scenerystack/sim";
 import { Tandem } from "scenerystack/tandem";
+import { AgingStarScreen } from "./aging-star/AgingStarScreen.js";
+import { EnergyBalanceScreen } from "./energy-balance/EnergyBalanceScreen.js";
+import { EscapeScreen } from "./escape/EscapeScreen.js";
+import { GreenhouseScreen } from "./greenhouse/GreenhouseScreen.js";
+import HabitabilityLabColors from "./HabitabilityLabColors.js";
 import { StringManager } from "./i18n/StringManager.js";
-import { SimPreferencesModel } from "./preferences/SimPreferencesModel.js";
-import { SimPreferencesNode } from "./preferences/SimPreferencesNode.js";
-import SimColors from "./SimColors.js";
-import { SimScreen } from "./sim-screen/SimScreen.js";
+import { HabitabilityLabPreferencesModel } from "./preferences/HabitabilityLabPreferencesModel.js";
+import { HabitabilityLabPreferencesNode } from "./preferences/HabitabilityLabPreferencesNode.js";
+import { ZoneEdgesScreen } from "./zone-edges/ZoneEdgesScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
-  // Simulation-specific preferences; initial values come from simQueryParameters.
-  const simPreferences = new SimPreferencesModel(Tandem.ROOT.createTandem("preferences"));
+  // Simulation-specific preferences; initial values come from habitabilityLabQueryParameters.
+  const simPreferences = new HabitabilityLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   const screens = [
-    new SimScreen({
-      // The screen name Property updates automatically when the locale changes
-      name: stringManager.getScreenNames().simStringProperty,
-      tandem: Tandem.ROOT.createTandem("simScreen"),
-      backgroundColorProperty: SimColors.backgroundColorProperty,
+    new EnergyBalanceScreen({
+      name: stringManager.getScreenNames().energyBalanceStringProperty,
+      tandem: Tandem.ROOT.createTandem("energyBalanceScreen"),
+      backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
+    }),
+    new GreenhouseScreen({
+      name: stringManager.getScreenNames().greenhouseStringProperty,
+      tandem: Tandem.ROOT.createTandem("greenhouseScreen"),
+      backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
+    }),
+    new ZoneEdgesScreen({
+      name: stringManager.getScreenNames().zoneEdgesStringProperty,
+      tandem: Tandem.ROOT.createTandem("zoneEdgesScreen"),
+      backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
+    }),
+    new AgingStarScreen({
+      name: stringManager.getScreenNames().agingStarStringProperty,
+      tandem: Tandem.ROOT.createTandem("agingStarScreen"),
+      backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
+    }),
+    new EscapeScreen({
+      name: stringManager.getScreenNames().escapeStringProperty,
+      tandem: Tandem.ROOT.createTandem("escapeScreen"),
+      backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
   ];
 
@@ -53,7 +76,7 @@ onReadyToLaunch(() => {
       simulationOptions: {
         customPreferences: [
           {
-            createContent: (tandem: Tandem) => new SimPreferencesNode(simPreferences, tandem),
+            createContent: (tandem: Tandem) => new HabitabilityLabPreferencesNode(simPreferences, tandem),
           },
         ],
       },

@@ -1,4 +1,4 @@
-# Implementation Notes - SceneryStack Template
+# Implementation Notes - Habitability Lab
 
 Developer-facing notes on the **SceneryStackTemplate** scaffold. **Replace and expand this file when
 forking** to describe your sim's real architecture (see Stern Gerlach or Light Propagation for
@@ -12,21 +12,21 @@ reference wiring, and reusable common components — **without** domain physics.
 
 ```
 main.ts
-  └─ SimScreen             (Screen<SimModel, SimScreenView>)
-       ├─ SimModel          state + logic  (src/sim-screen/model/)  ← stub: add physics here
-       └─ SimScreenView     visuals        (src/sim-screen/view/)
-            ├─ SimScreenSummaryContent     (PDOM overview — reference a11y pattern)
-            └─ SimKeyboardHelpContent      (keyboard help dialog)
+  └─ EnergyBalanceScreen             (Screen<EnergyBalanceModel, EnergyBalanceScreenView>)
+       ├─ EnergyBalanceModel          state + logic  (src/energy-balance/model/)  ← stub: add physics here
+       └─ EnergyBalanceScreenView     visuals        (src/energy-balance/view/)
+            ├─ EnergyBalanceScreenSummaryContent     (PDOM overview — reference a11y pattern)
+            └─ EnergyBalanceKeyboardHelpContent      (keyboard help dialog)
 
 src/common/
-  ├─ SimPanel.ts           pre-themed panel (uses SimColors)
-  ├─ SimButtonOptions.ts   flat button / combo-box option bundles
+  ├─ HabitabilityLabPanel.ts           pre-themed panel (uses HabitabilityLabColors)
+  ├─ HabitabilityLabButtonOptions.ts   flat button / combo-box option bundles
   └─ TimeModel.ts          composable play/pause + elapsed time
 
 src/preferences/
-  ├─ SimPreferencesModel   sim-specific pref state
-  ├─ SimPreferencesNode    pref UI in Preferences → Simulation
-  └─ simQueryParameters    QueryStringMachine declarations
+  ├─ HabitabilityLabPreferencesModel   sim-specific pref state
+  ├─ HabitabilityLabPreferencesNode    pref UI in Preferences → Simulation
+  └─ habitabilityLabQueryParameters    QueryStringMachine declarations
 ```
 
 Data flows Model → View through AXON `Property` objects (`.link()` / `.lazyLink()`). The view never
@@ -61,14 +61,14 @@ Or from the workspace: `Baton/scripts/create-sim.sh --repo MySim --name "My Simu
 
 ## Common components (keep when forking)
 
-### SimPanel
+### HabitabilityLabPanel
 
-Every control panel should use `SimPanel` so projector-mode switching is automatic:
+Every control panel should use `HabitabilityLabPanel` so projector-mode switching is automatic:
 
 ```typescript
-import { SimPanel } from "../../common/SimPanel.js";
-const panel = new SimPanel(content);
-const panelWide = new SimPanel(content, { xMargin: 20 });
+import { HabitabilityLabPanel } from "../../common/HabitabilityLabPanel.js";
+const panel = new HabitabilityLabPanel(content);
+const panelWide = new HabitabilityLabPanel(content, { xMargin: 20 });
 ```
 
 ### TimeModel
@@ -89,19 +89,19 @@ export class MyModel implements TModel {
 
 Wire `TimeControlNode` to `model.timer.isPlayingProperty` in the view.
 
-### SimButtonOptions
+### HabitabilityLabButtonOptions
 
 Spread flat button options into every push/round button and `TimeControlNode` (see `AGENTS.md`).
-Use `SIM_COMBO_BOX_OPTIONS` + `LIGHT_SURFACE_TEXT_FILL` for light control surfaces on dark panels.
+Use `HABITABILITY_LAB_COMBO_BOX_OPTIONS` + `LIGHT_SURFACE_TEXT_FILL` for light control surfaces on dark panels.
 
 ## Accessibility (reference implementation)
 
 The template is the **canonical OpenLyceum a11y reference**:
 
 - PDOM `accessibleName` on interactive nodes (prefer live `StringProperty`s).
-- `SimScreenSummaryContent` with a live `currentDetailsContent` `DerivedProperty` over model state.
-- Explicit `pdomOrder` + `SimKeyboardHelpContent`.
-- Strings under `a11y` in locale JSON → `StringManager.getA11yStrings()`.
+- `EnergyBalanceScreenSummaryContent` with a live `currentDetailsContent` `DerivedProperty` over model state.
+- Explicit `pdomOrder` + `EnergyBalanceKeyboardHelpContent`.
+- Strings under `a11y` in locale JSON → `StringManager.getEnergyBalanceA11yStrings()`.
 
 Full checklist: [Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
 
@@ -120,8 +120,8 @@ Run `npm test`. Expand `memory-leak.test.ts` when adding runtime-created nodes o
 ## Multi-screen simulations
 
 Default is single-screen. To add screens, see **`doc/multi-screen.md`**: per-screen folders mirroring
-`src/sim-screen/`, `StringManager` screen-name getters, optional shared root model, a shared
-`src/common/{SimName}ScreenIcons.ts` module (`create{Screen}Icon()` factories wired as
+`src/energy-balance/`, `StringManager` screen-name getters, optional shared root model, a shared
+`src/common/HabitabilityLabScreenIcons.ts` module (`create{Screen}Icon()` factories wired as
 `homeScreenIcon` / `navigationBarIcon`), and register all screens in `main.ts`.
 
 ## PWA
@@ -130,6 +130,6 @@ After `npm run build`, the sim is installable offline via Workbox (`dist/manifes
 
 ## Known template stubs (remove when forking)
 
-- `SimModel.step()` / `reset()` — empty placeholders until you add physics.
-- Placeholder play-area content in `SimScreenView` — replace with real UI.
+- `EnergyBalanceModel.step()` / `reset()` — empty placeholders until you add physics.
+- Placeholder play-area content in `EnergyBalanceScreenView` — replace with real UI.
 - `tests/TimeModel.test.ts` — sample only; add tests for your model under `tests/`.
