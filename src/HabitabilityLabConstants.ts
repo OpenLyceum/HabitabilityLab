@@ -149,8 +149,10 @@ export const CHZ_DURATIONS_MYR = [1000, 2000, 4000] as const;
 /** Rigidity of rock, N m⁻². */
 export const ROCK_RIGIDITY = 3e10;
 
-/** Prefactor of the simplified tidal-locking time, years (initial spin 12 h, Q = 100). */
-export const TIDAL_LOCK_PREFACTOR_YEARS = 6e10;
+/** Initial rotation period of the Earth-like planet, seconds. */
+export const TIDAL_INITIAL_SPIN_PERIOD_S = 12 * 3600;
+/** Planet's tidal dissipation factor Q; this estimate is uncertain by orders of magnitude. */
+export const TIDAL_DISSIPATION_FACTOR = 100;
 
 // ── Escape ────────────────────────────────────────────────────────────────────
 

@@ -94,6 +94,31 @@ describe("Aging Star", () => {
     expect(continuouslyHabitableZone(history, sun, 1000, 4000)).toBeNull();
   });
 
+  it("resolves red-dwarf locking before the first stellar-track sample", () => {
+    const history = computeHistory(nearestTrack(0.3), 0.16);
+    expect(history.lockAge).toBeCloseTo(13.67477, 4);
+    const model = new AgingStarModel();
+    model.presetProperty.value = "redDwarf";
+    model.setAge(10);
+    expect(model.lockedProperty.value).toBe(false);
+    model.setAge(20);
+    expect(model.lockedProperty.value).toBe(true);
+  });
+
+  it("keeps age in the late-stage window after changing stellar mass or preset", () => {
+    const model = new AgingStarModel();
+    model.zoomLateProperty.value = true;
+    for (const mass of [0.3, 2, 1]) {
+      model.trackMassProperty.value = mass;
+      expect(model.ageProperty.value).toBe(model.windowProperty.value.min);
+      expect(model.windowProperty.value.contains(model.ageProperty.value)).toBe(true);
+    }
+    model.presetProperty.value = "redDwarf";
+    expect(model.ageProperty.value).toBe(model.windowProperty.value.min);
+    model.reset();
+    expect(model.ageProperty.value).toBe(0);
+  });
+
   it("plays to the end of the window and stops", () => {
     const model = new AgingStarModel();
     model.timer.isPlayingProperty.value = true;

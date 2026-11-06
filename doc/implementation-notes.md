@@ -38,7 +38,7 @@ singleton (`habitabilityLabPreferences`).
   so the planets land exactly on the archive's insolation; the slider star uses the dwarf table.
   The planet radio group is rebuilt (and the old one disposed) when the star changes.
 - **Aging Star history.** `computeHistory` runs once per (track, starting distance) over the table
-  rows: zone status, engulfment age (R★ ≥ d), lock age (age ≥ t_lock(d, M)), cumulative time in the
+  rows: zone status, engulfment age (R★ ≥ d), lock age (age ≥ t_lock(d, M), resolved between samples), cumulative time in the
   conservative zone. Readouts interpolate within it; the continuously habitable zone scans rows in
   the window. The top view eases its scale towards the outer edge or the planet (3 s⁻¹), but jumps
   when the track or distance changes. The timeline window is the whole life, or from 90 % of the

@@ -16,6 +16,7 @@
  *    the archive, mass not a minimum M sin i), as [name, escape speed km/s, S, T★].
  */
 
+import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -93,9 +94,23 @@ const massProvenance = (i: number): string => {
   const index = columns["pl_bmassprov"]?.[i];
   return typeof index === "number" ? (snapshot.categories["pl_bmassprov"]?.[index] ?? "") : "";
 };
+/** Require explicit limit metadata; an older snapshot must be enriched before extraction. */
+const limit = (column: string, i: number): -1 | 0 | 1 => {
+  const flag = columns[`${column}lim`]?.[i];
+  if (flag !== -1 && flag !== 0 && flag !== 1) {
+    if (!Number.isFinite(num(column, i)) && flag === null) {
+      return 0;
+    }
+    throw new Error(`Missing limit metadata for ${names[i]}, ${column}; enrich the source snapshot first.`);
+  }
+  return flag;
+};
 /** A true mass that a paper measured (transit + radial velocity, timing variations, …). */
 const hasMeasuredTrueMass = (i: number): boolean =>
-  Number.isFinite(num("pl_bmasse", i)) && !isCalculated("pl_bmasse", i) && massProvenance(i) === "Mass";
+  Number.isFinite(num("pl_bmasse", i)) &&
+  !isCalculated("pl_bmasse", i) &&
+  limit("pl_bmasse", i) === 0 &&
+  massProvenance(i) === "Mass";
 const escapeSpeedKmS = (i: number): number =>
   Math.sqrt((2 * G * num("pl_bmasse", i) * EARTH_MASS_KG) / (num("pl_rade", i) * EARTH_RADIUS_M)) / 1000;
 /** Keeps 4 significant figures. */
@@ -113,7 +128,9 @@ const curated = CURATED.map((name) => {
     starTemperature: sig(num("st_teff", i)),
     radius: sig(num("pl_rade", i)),
     mass: sig(num("pl_bmasse", i)),
-    massMeasured: hasMeasuredTrueMass(i) || massProvenance(i) === "Msini",
+    massMeasured: hasMeasuredTrueMass(i) || (massProvenance(i) === "Msini" && limit("pl_bmasse", i) === 0),
+    massLimit: limit("pl_bmasse", i),
+    radiusLimit: limit("pl_rade", i),
     massIsMinimum: massProvenance(i) === "Msini",
     semiMajorAxis: sig(num("pl_orbsmax", i)),
     eccentricity: sig(num("pl_orbeccen", i)),
@@ -131,10 +148,22 @@ for (let i = 0; i < names.length; i++) {
   if (!(Number.isFinite(radius) && Number.isFinite(insolation))) {
     continue;
   }
-  if (radius < 2 && Number.isFinite(teff)) {
+  if (
+    radius < 2 &&
+    Number.isFinite(teff) &&
+    limit("pl_rade", i) === 0 &&
+    limit("pl_insol", i) === 0 &&
+    limit("st_teff", i) === 0
+  ) {
     small.push([sig(insolation) ?? 0, sig(teff) ?? 0]);
   }
-  if (radius < 4 && !isCalculated("pl_rade", i) && hasMeasuredTrueMass(i)) {
+  if (
+    radius < 4 &&
+    !isCalculated("pl_rade", i) &&
+    limit("pl_rade", i) === 0 &&
+    limit("pl_insol", i) === 0 &&
+    hasMeasuredTrueMass(i)
+  ) {
     shoreline.push([names[i] ?? "", sig(escapeSpeedKmS(i)) ?? 0, sig(insolation) ?? 0, sig(teff) ?? 0]);
   }
 }
@@ -152,7 +181,12 @@ const output = {
   small: small,
   shoreline: shoreline,
 };
+// Emit the same representation as npm run fix so regeneration does not leave a lint failure.
 writeFileSync(resolve(OUTPUT), `${JSON.stringify(output)}\n`);
+execFileSync(resolve("node_modules/.bin/biome"), ["format", "--write", OUTPUT], {
+  stdio: "inherit",
+  timeout: 30_000,
+});
 console.log(
   `Wrote ${OUTPUT}: ${curated.length} curated, ${small.length} small planets, ${shoreline.length} shoreline planets (retrieved ${snapshot.retrieved}).`,
 );

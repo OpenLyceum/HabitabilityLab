@@ -258,7 +258,9 @@
     "explanation3": "Les limites <b>optimistes</b> viennent de l'histoire : Vénus a peut-être gardé de l'eau jusqu'à il y a environ un milliard d'années, et Mars avait de l'eau liquide il y a 3,8 milliards d'années.",
     "explanation4": "La zone penche sur le diagramme parce qu'une étoile plus froide émet une plus grande part de sa lumière dans l'infrarouge, que l'eau et le CO₂ absorbent bien : une planète autour d'une naine rouge se réchauffe avec moins de lumière au total. Une planète plus massive peut se trouver un peu plus près.",
     "conservativeRangePattern": "Zone conservatrice : de {{inner}} à {{outer}}",
-    "optimisticRangePattern": "Zone optimiste : de {{inner}} à {{outer}}"
+    "optimisticRangePattern": "Zone optimiste : de {{inner}} à {{outer}}",
+    "upperLimit": "limite supérieure",
+    "lowerLimit": "limite inférieure"
   },
   "agingStar": {
     "preset": "Étoile et planète",
@@ -313,7 +315,8 @@
     "explanation1": "Les étoiles brillent davantage en vieillissant sur la séquence principale ; la zone habitable s'éloigne donc. Le Soleil était environ 26 % moins lumineux il y a 4,6 milliards d'années, et pourtant la Terre avait de l'eau liquide : c'est le <b>paradoxe du jeune Soleil faible</b>, résolu par un effet de serre plus fort à l'époque.",
     "explanation2": "La <b>zone continûment habitable</b> (hachurée) rassemble les distances restées habitables pendant toute la durée choisie. Il faut un long séjour pour que la vie se développe.",
     "explanation3": "Les étoiles légères vivent bien plus longtemps que les lourdes : une naine rouge de 0,3 M<sub>☉</sub> reste sur la séquence principale environ 400 milliards d'années, une étoile de 2 M<sub>☉</sub> environ un milliard. Mais la zone d'une naine rouge est si proche que ses planètes y sont en rotation synchrone, montrant toujours la même face à l'étoile.",
-    "explanation4": "Quand une étoile devient géante, elle perd de la masse et l'orbite de ses planètes s'élargit. Ce modèle néglige le freinage par les marées qui attire les planètes vers l'étoile ; il est donc généreux : ici, la Terre survit aux phases géantes du Soleil."
+    "explanation4": "Quand une étoile devient géante, elle perd de la masse et l'orbite de ses planètes s'élargit. Ce modèle néglige le freinage par les marées qui attire les planètes vers l'étoile ; il est donc généreux : ici, la Terre survit aux phases géantes du Soleil.",
+    "lockedPattern": "Rotation synchrone après environ {{age}}."
   },
   "escape": {
     "view": "Vue",

@@ -198,7 +198,7 @@ interpolated in log L against T★ (Pecaut & Mamajek 2013, values approximate):
 An optional layer shows every archive planet smaller than 2 R⊕ with known S and T★ as faint dots,
 so the curated planets can be seen against the whole population.
 
-Each planet's info card gives radius, mass (and whether measured or estimated from radius),
+Each planet's info card gives radius, mass (and whether measured, estimated from radius, or only an upper/lower limit),
 S, T★, orbit, and "in conservative / optimistic zone / outside".
 
 **Simplifications:** the edges assume an Earth-like planet with water and a CO₂–H₂O atmosphere,
@@ -254,13 +254,22 @@ The doc and an info note say so.
 initial spin 12 h, Q = 100, rigidity μ = 3 × 10¹⁰ N m⁻²):
 
 ```
-t_lock ≈ 6 × 10¹⁰ yr × (a/m)⁶ (R/m) μ / [ (M★/kg) (m_p/kg)² ]
+t_lock = ω a⁶ I Q / (3 G M★² k₂ R⁵)
+I = 0.4 m_p R²,   ω = 2π / (12 h)
+k₂ = 1.5 / [1 + 19 μ / (2 ρ g R)]
 ```
 
-which gives ≈ 13 Myr for TRAPPIST-1 e, ≈ 200 Myr for Proxima b and ≈ 6 Gyr at 0.1 AU from a
-0.3 M☉ star. The system view draws the **lock distance** (inside it, an Earth-like planet would
-already be locked at the current age) as a dashed circle; the status says "tidally locked" when
-age ≥ t_lock(d). The uncertainty is at least a factor of 10.
+All inputs are SI; seconds are converted to Julian years. With Earth's mass and radius, this
+homogeneous-body Love-number estimate gives k₂ ≈ 0.82. These are illustrative Earth-like
+parameters, not a measured dissipation model for any exoplanet. We retain the full Love number;
+the small-k₂ approximation is unsuitable at this radius. The star's mass is squared, whereas
+the planet supplies its moment of inertia and Love number.
+
+The estimate gives about 5,700 years for TRAPPIST-1 e, 64,000 years for Proxima b, 0.82 Myr at
+0.1 AU from a 0.3 M☉ star, and 13.7 Myr for that star's 0.16 AU preset. At fixed distance it
+scales as M★⁻². The system view draws the **lock distance** as a dashed circle. The lock event
+is resolved between stellar-track samples, so an early event is not delayed to the next row.
+The status includes the estimated age at locking. The uncertainty is at least a factor of 10.
 
 ### Views
 
@@ -367,3 +376,11 @@ probably lies higher (worse) for planets of red dwarfs.
 - Gladman et al. 1996, Icarus 122, 166 (tidal locking).
 - Zahnle & Catling 2017, ApJ 843, 122 (cosmic shoreline).
 - Luger & Barnes 2015, Astrobiology 15, 119 (pre-main-sequence water loss).
+
+## Archive limits and data correction (2026-11-06)
+
+The upstream snapshot now preserves the archive's parameter limit flags (+1 upper, −1 lower).
+Curated cards display ≤/≥ and identify the bound. For example, Kepler-62 e/f have mass upper
+limits of 36/35 M⊕, not measured masses. The shoreline sample excludes these bounds, estimated
+masses/radii, and RV minimum masses. Regeneration yields 611 shoreline planets and 1,683 small
+planet background points; the latter exclude limits on radius, starlight, or star temperature.

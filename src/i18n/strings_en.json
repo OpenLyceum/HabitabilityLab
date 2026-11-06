@@ -258,7 +258,9 @@
     "explanation3": "The <b>optimistic</b> edges come from history: Venus may have kept water until about a billion years ago, and Mars had liquid water 3.8 billion years ago.",
     "explanation4": "The zone tilts on the diagram because a cooler star gives more of its light in the infrared, which water and CO₂ absorb well: a planet around a red dwarf warms with less total starlight. A heavier planet can sit a little closer in.",
     "conservativeRangePattern": "Conservative zone: {{inner}} to {{outer}}",
-    "optimisticRangePattern": "Optimistic zone: {{inner}} to {{outer}}"
+    "optimisticRangePattern": "Optimistic zone: {{inner}} to {{outer}}",
+    "upperLimit": "upper limit",
+    "lowerLimit": "lower limit"
   },
   "agingStar": {
     "preset": "Star and planet",
@@ -313,7 +315,8 @@
     "explanation1": "Stars brighten as they age on the main sequence, so the habitable zone moves outward. The Sun was about 26 % dimmer 4.6 billion years ago, yet Earth had liquid water: the <b>faint young Sun</b> puzzle, solved by a stronger early greenhouse.",
     "explanation2": "The <b>continuously habitable zone</b> (hatched) holds the distances that stayed habitable for the whole of the chosen time. A planet needs a long stay for life to develop.",
     "explanation3": "Light stars live much longer than heavy ones: a 0.3 M<sub>☉</sub> red dwarf stays on the main sequence for about 400 billion years, a 2 M<sub>☉</sub> star for about one billion. But a red dwarf's zone is so close that planets there are tidally locked, keeping one face to the star.",
-    "explanation4": "As a star swells into a giant it loses mass and its planets' orbits widen. This model ignores the tidal drag that pulls planets in, so it is generous: here Earth survives the Sun's giant phases."
+    "explanation4": "As a star swells into a giant it loses mass and its planets' orbits widen. This model ignores the tidal drag that pulls planets in, so it is generous: here Earth survives the Sun's giant phases.",
+    "lockedPattern": "Tidally locked after about {{age}}."
   },
   "escape": {
     "view": "View",

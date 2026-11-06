@@ -62,6 +62,33 @@ const DIAGRAM_HEIGHT = 420;
 const SYSTEM_SIZE = 250;
 const CARD_WIDTH = SYSTEM_SIZE;
 
+const limitSymbol = (limit: number): string => (limit === 1 ? "≤" : limit === -1 ? "≥" : "");
+
+function massSourceKey(
+  planet: ZonePlanet,
+):
+  | "upperLimitStringProperty"
+  | "lowerLimitStringProperty"
+  | "minimumStringProperty"
+  | "measuredStringProperty"
+  | "estimatedStringProperty" {
+  if (planet.massLimit !== 0) {
+    return planet.massLimit === 1 ? "upperLimitStringProperty" : "lowerLimitStringProperty";
+  }
+  return planet.massIsMinimum
+    ? "minimumStringProperty"
+    : planet.massMeasured
+      ? "measuredStringProperty"
+      : "estimatedStringProperty";
+}
+
+function massPrefix(planet: ZonePlanet): string {
+  if (planet.massLimit === 1 && planet.massIsMinimum) {
+    return "M sin i ≤";
+  }
+  return limitSymbol(planet.massLimit) || (planet.massIsMinimum ? "≥" : "");
+}
+
 export class ZoneEdgesScreenView extends ScreenView {
   public constructor(model: ZoneEdgesModel, providedOptions?: ZoneEdgesScreenViewOptions) {
     const options = optionize<ZoneEdgesScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
@@ -243,6 +270,8 @@ export class ZoneEdgesScreenView extends ScreenView {
         model.systemProperty,
         strings.radiusPatternStringProperty,
         strings.massPatternStringProperty,
+        strings.upperLimitStringProperty,
+        strings.lowerLimitStringProperty,
         strings.massUnknownStringProperty,
         strings.measuredStringProperty,
         strings.estimatedStringProperty,
@@ -266,24 +295,26 @@ export class ZoneEdgesScreenView extends ScreenView {
         cardName.string = planet.bodyKey ? bodyNameProperty(planet.bodyKey).value : planet.name;
         cardStatus.string = zoneStatusStringProperty(status).value;
         cardStatus.fill = zoneStatusColor(status);
-        const source = planet.massIsMinimum
-          ? strings.minimumStringProperty.value
-          : planet.massMeasured
-            ? strings.measuredStringProperty.value
-            : strings.estimatedStringProperty.value;
+        const source = strings[massSourceKey(planet)].value;
         const lines = [
           strings.starlightPatternStringProperty.value.replace("{{value}}", formatStarlight(planet.insolation)),
           strings.orbitPatternStringProperty.value.replace("{{value}}", formatAU(planet.distance)),
           strings.radiusPatternStringProperty.value.replace(
             "{{value}}",
-            valueWithUnits(formatSignificant(planet.radius, 3), units.earthRadiiStringProperty.value),
+            valueWithUnits(
+              `${limitSymbol(planet.radiusLimit)}${formatSignificant(planet.radius, 3)}`,
+              units.earthRadiiStringProperty.value,
+            ),
           ),
           planet.mass === null
             ? strings.massUnknownStringProperty.value
             : strings.massPatternStringProperty.value
                 .replace(
                   "{{value}}",
-                  valueWithUnits(formatSignificant(planet.mass, 3), units.earthMassesStringProperty.value),
+                  valueWithUnits(
+                    `${massPrefix(planet)}${formatSignificant(planet.mass, 3)}`,
+                    units.earthMassesStringProperty.value,
+                  ),
                 )
                 .replace("{{source}}", source),
         ];

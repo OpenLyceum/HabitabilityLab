@@ -143,9 +143,16 @@ describe("stellar tracks", () => {
 });
 
 describe("tidal locking", () => {
+  it("scales with the inverse square of stellar mass at fixed orbit", () => {
+    expect(tidalLockYears(0.1, 0.3) / tidalLockYears(0.1, 0.6)).toBeCloseTo(4, 10);
+    // Independent evaluation of Gladman's full relation with the documented Earth-like inputs.
+    expect(tidalLockYears(0.1, 0.3)).toBeCloseTo(815080, -1);
+    expect(tidalLockYears(1, 1)).toBeGreaterThan(7e10);
+  });
+
   it("gives the quoted orders of magnitude", () => {
-    expect(Math.log10(tidalLockYears(0.0293, 0.09))).toBeCloseTo(7.1, 0);
-    expect(Math.log10(tidalLockYears(0.1, 0.3))).toBeCloseTo(9.8, 0);
+    expect(Math.log10(tidalLockYears(0.0293, 0.09))).toBeCloseTo(3.76, 1);
+    expect(Math.log10(tidalLockYears(0.1, 0.3))).toBeCloseTo(5.91, 1);
     expect(tidalLockDistance(tidalLockYears(0.2, 0.5), 0.5)).toBeCloseTo(0.2, 6);
   });
 });
@@ -188,6 +195,16 @@ describe("planet data", () => {
       expect(planet.insolation, planet.name).toBeGreaterThan(0);
       expect(planet.starTemperature, planet.name).toBeGreaterThan(2000);
     }
+    for (const name of ["Kepler-62 c", "Kepler-62 e", "Kepler-62 f", "Kepler-37 b"]) {
+      expect(
+        SHORELINE_PLANETS.some((p) => p.name === name),
+        name,
+      ).toBe(false);
+    }
+    const upperBound = CURATED_PLANETS.find((p) => p.name === "Kepler-62 f");
+    expect(upperBound?.mass).toBe(35);
+    expect(upperBound?.massLimit).toBe(1);
+    expect(upperBound?.massMeasured).toBe(false);
     expect(SHORELINE_PLANETS.some((p) => p.name === "LHS 3844 b")).toBe(true);
   });
 });

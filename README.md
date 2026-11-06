@@ -33,7 +33,7 @@ throughout. For introductory astronomy; pairs with
   engulfment are drawn on a top view, with an HR diagram and a timeline of the planet's status.
 - **Escape.** Molecules with Maxwell–Boltzmann speeds rise in a body's gravity; the fastest escape.
   Readouts give the Jeans parameter, the escaping share and which gases each body keeps. A second
-  view shows the cosmic shoreline (Zahnle & Catling 2017) with the Solar System and 763 exoplanets.
+  view shows the cosmic shoreline (Zahnle & Catling 2017) with the Solar System and 611 exoplanets.
 - **Accessible:**
   - Every control works from the keyboard, including dragging the planet and the age cursor.
   - Each screen has a live screen summary and a keyboard-help dialog.

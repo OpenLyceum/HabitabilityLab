@@ -323,10 +323,16 @@ export class AgingStarScreenView extends ScreenView {
       }),
       READOUT_WIDTH,
     );
+    const lockedWithAge = new PatternStringProperty(strings.lockedPatternStringProperty, {
+      age: derived(
+        () =>
+          Number.isFinite(model.historyProperty.value.lockAge) ? formatAge(model.historyProperty.value.lockAge) : "",
+        [model.historyProperty],
+      ),
+    });
     const lockText = createReadout(
-      new DerivedProperty(
-        [model.lockedProperty, strings.lockedStringProperty, strings.notLockedStringProperty],
-        (locked, yes, no) => (locked ? yes : no),
+      new DerivedProperty([model.lockedProperty, lockedWithAge, strings.notLockedStringProperty], (locked, yes, no) =>
+        locked ? yes : no,
       ),
       READOUT_WIDTH,
     );

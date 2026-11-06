@@ -160,7 +160,20 @@ export function computeHistory(track: StarRecord, startDistance: number): Planet
       engulfAge = star.ageMyr;
     }
     if (lockAge === Number.POSITIVE_INFINITY && star.ageMyr >= tidalLockYears(distance, star.mass) * MYR_PER_YEAR) {
-      lockAge = star.ageMyr;
+      // A red dwarf's first track interval can span Gyr, while locking takes only Myr.
+      let low = previous?.star.ageMyr ?? 0;
+      let high = star.ageMyr;
+      for (let i = 0; i < 48; i++) {
+        const age = (low + high) / 2;
+        const state = sampleTrack(track, age);
+        const orbit = (startDistance * startMass) / state.mass;
+        if (age >= tidalLockYears(orbit, state.mass) * MYR_PER_YEAR) {
+          high = age;
+        } else {
+          low = age;
+        }
+      }
+      lockAge = high;
     }
     if (previous && previous.status === "conservative" && previous.star.ageMyr < engulfAge) {
       cumulative += star.ageMyr - previous.star.ageMyr;
@@ -218,6 +231,12 @@ export function continuouslyHabitableZone(
   return inner < outer ? { inner, outer } : null;
 }
 
+/** Timeline bounds from primitive state, also safe during a track-change notification. */
+function timelineWindow(track: StarRecord, zoom: boolean): Range {
+  const end = Math.min(trackEndMyr(track), remnantAgeMyr(track) * 1.05);
+  return zoom ? new Range(mainSequenceEndMyr(track) * 0.9, end) : new Range(0, end);
+}
+
 export class AgingStarModel implements TModel {
   public readonly presetProperty = new Property<AgingPreset>("sunEarth");
   public readonly trackMassProperty = new Property<number>(1, { validValues: [...TRACK_MASSES] });
@@ -260,10 +279,7 @@ export class AgingStarModel implements TModel {
     this.historyProperty = new DerivedProperty([this.trackProperty, this.distanceProperty], (track, d) =>
       computeHistory(track, d),
     );
-    this.windowProperty = new DerivedProperty([this.trackProperty, this.zoomLateProperty], (track, zoom) => {
-      const end = Math.min(trackEndMyr(track), remnantAgeMyr(track) * 1.05);
-      return zoom ? new Range(mainSequenceEndMyr(track) * 0.9, end) : new Range(0, end);
-    });
+    this.windowProperty = new DerivedProperty([this.trackProperty, this.zoomLateProperty], timelineWindow);
     this.starProperty = new DerivedProperty([this.trackProperty, this.ageProperty], (track, age) =>
       sampleTrack(track, age),
     );
@@ -331,7 +347,10 @@ export class AgingStarModel implements TModel {
       }
     });
     this.trackMassProperty.lazyLink(() => {
-      this.ageProperty.value = 0;
+      this.ageProperty.value = timelineWindow(
+        nearestTrack(this.trackMassProperty.value),
+        this.zoomLateProperty.value,
+      ).min;
       this.timer.isPlayingProperty.value = false;
       if (!this.applyingPreset) {
         this.presetProperty.value = "custom";

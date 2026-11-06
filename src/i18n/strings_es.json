@@ -258,7 +258,9 @@
     "explanation3": "Los límites <b>optimistas</b> vienen de la historia: Venus quizá conservó agua hasta hace unos mil millones de años, y Marte tenía agua líquida hace 3800 millones de años.",
     "explanation4": "La zona se inclina en el diagrama porque una estrella más fría emite una mayor parte de su luz en el infrarrojo, que el agua y el CO₂ absorben bien: un planeta alrededor de una enana roja se calienta con menos luz total. Un planeta más masivo puede estar algo más cerca.",
     "conservativeRangePattern": "Zona conservadora: de {{inner}} a {{outer}}",
-    "optimisticRangePattern": "Zona optimista: de {{inner}} a {{outer}}"
+    "optimisticRangePattern": "Zona optimista: de {{inner}} a {{outer}}",
+    "upperLimit": "límite superior",
+    "lowerLimit": "límite inferior"
   },
   "agingStar": {
     "preset": "Estrella y planeta",
@@ -313,7 +315,8 @@
     "explanation1": "Las estrellas brillan más a medida que envejecen en la secuencia principal, así que la zona habitable se aleja. El Sol era un 26 % menos luminoso hace 4600 millones de años y, sin embargo, la Tierra tenía agua líquida: es la <b>paradoja del Sol joven débil</b>, resuelta por un efecto invernadero más fuerte en aquella época.",
     "explanation2": "La <b>zona continuamente habitable</b> (rayada) reúne las distancias que siguieron siendo habitables durante todo el tiempo elegido. La vida necesita una estancia larga para desarrollarse.",
     "explanation3": "Las estrellas ligeras viven mucho más que las pesadas: una enana roja de 0,3 M<sub>☉</sub> permanece en la secuencia principal unos 400 000 millones de años, una estrella de 2 M<sub>☉</sub> unos mil millones. Pero la zona de una enana roja está tan cerca que sus planetas tienen rotación sincrónica y muestran siempre la misma cara a la estrella.",
-    "explanation4": "Cuando una estrella se convierte en gigante pierde masa y las órbitas de sus planetas se ensanchan. Este modelo ignora el frenado por mareas que arrastra los planetas hacia la estrella, así que es generoso: aquí la Tierra sobrevive a las fases gigantes del Sol."
+    "explanation4": "Cuando una estrella se convierte en gigante pierde masa y las órbitas de sus planetas se ensanchan. Este modelo ignora el frenado por mareas que arrastra los planetas hacia la estrella, así que es generoso: aquí la Tierra sobrevive a las fases gigantes del Sol.",
+    "lockedPattern": "Rotación síncrona después de unos {{age}}."
   },
   "escape": {
     "view": "Vista",

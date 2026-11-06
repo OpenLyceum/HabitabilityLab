@@ -15,9 +15,9 @@ screens:
 |---|---|---|
 | Energy Balance | `src/energy-balance/` | Draggable planet on a log distance axis, flux arrows, absorbed/emitted bars, thermometer, 30-year temperature history; Mercury–Mars presets with measured temperatures; whole-planet vs day-side heat spread |
 | Greenhouse | `src/greenhouse/` | Grey atmosphere (T_s⁴ = T_eq⁴(1 + ¾τ)) with back-radiation arrows; water phase diagram (IAPWS) with the surface as a dot; Venus/Earth/Mars/early-Mars presets |
-| Zone Edges | `src/zone-edges/` | Kopparapu 2013/14 bands on starlight vs T★ (log, reversed x), 28 curated archive planets (+ optional 1685 small ones), to-scale top view, planet card; planet mass for the runaway edge; any main-sequence star by T★ |
+| Zone Edges | `src/zone-edges/` | Kopparapu 2013/14 bands on starlight vs T★ (log, reversed x), 28 curated archive planets (+ optional 1683 small ones), to-scale top view, planet card; planet mass for the runaway edge; any main-sequence star by T★ |
 | Aging Star | `src/aging-star/` | 17 Hurley–Pols–Tout tracks; Kopparapu edges at each age; continuously habitable zone, tidal-lock distance, engulfment; HR diagram; luminosity timeline with zone-status strip, milestones, draggable age cursor; late-stage zoom |
-| Escape | `src/escape/` | Molecules view (MB swarm in radial gravity on a stretched height scale, speed distribution, Jeans λ, escaping share, 6 v_rms verdict per gas) and cosmic-shoreline view (Solar System + 763 exoplanets, S = (v_esc/6.5 km/s)⁴) |
+| Escape | `src/escape/` | Molecules view (MB swarm in radial gravity on a stretched height scale, speed distribution, Jeans λ, escaping share, 6 v_rms verdict per gas) and cosmic-shoreline view (Solar System + 611 exoplanets, S = (v_esc/6.5 km/s)⁴) |
 
 Physics and data: [`doc/model.md`](doc/model.md). Architecture and decisions:
 [`doc/implementation-notes.md`](doc/implementation-notes.md).

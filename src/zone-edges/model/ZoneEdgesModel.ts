@@ -38,6 +38,8 @@ export type ZonePlanet = {
   readonly mass: number | null;
   readonly massMeasured: boolean;
   readonly massIsMinimum: boolean;
+  readonly massLimit: number;
+  readonly radiusLimit: number;
 };
 
 /** A star choice: a real system, the Sun, or a main-sequence star set by temperature ("custom"). */
@@ -71,6 +73,8 @@ export const SOLAR_SYSTEM: ZoneSystem = {
       mass: mass,
       massMeasured: true,
       massIsMinimum: false,
+      massLimit: 0,
+      radiusLimit: 0,
     };
   }),
 };
@@ -93,6 +97,8 @@ function realSystem(host: string): ZoneSystem {
       mass: p.mass,
       massMeasured: p.massMeasured,
       massIsMinimum: p.massIsMinimum,
+      massLimit: p.massLimit,
+      radiusLimit: p.radiusLimit,
     })),
   };
 }

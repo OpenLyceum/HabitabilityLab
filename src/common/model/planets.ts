@@ -20,6 +20,8 @@ export type CuratedPlanet = {
   readonly massMeasured: boolean;
   /** True when the mass is a minimum mass, M sin i, from radial velocities alone. */
   readonly massIsMinimum: boolean;
+  readonly massLimit: number;
+  readonly radiusLimit: number;
   readonly semiMajorAxis: number | null;
   readonly eccentricity: number | null;
   readonly starMass: number | null;
@@ -45,6 +47,8 @@ export const CURATED_PLANETS: readonly CuratedPlanet[] = planetData.curated.map(
   mass: p.mass,
   massMeasured: p.massMeasured,
   massIsMinimum: p.massIsMinimum,
+  massLimit: p.massLimit,
+  radiusLimit: p.radiusLimit,
   semiMajorAxis: p.semiMajorAxis,
   eccentricity: p.eccentricity,
   starMass: p.starMass,
