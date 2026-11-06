@@ -113,8 +113,8 @@ Phase boundaries (IAPWS):
 - **Solid–vapour** (sublimation) curve below 273.16 K: IAPWS (2011),
   `ln(p/p_t) = θ⁻¹ Σ aᵢ θ^bᵢ`, θ = T/273.16, p_t = 611.657 Pa,
   a = (−21.2144006, 27.3203819, −6.10598130), b = (0.00333333333, 1.20666667, 1.70333333).
-- **Solid–liquid** (melting) line: IAPWS ice Ih melting curve; over 0.0001–200 bar it is within
-  0.15 K of 273.16 K, so it draws as a near-vertical line.
+- **Solid–liquid** (melting) line: IAPWS ice Ih melting curve. It falls slowly with pressure
+  (273.16 K at the triple point, 271.6 K at 200 bar), so it draws as a near-vertical line.
 
 The dot's region gives the verdict: **ice**, **liquid water possible**, or **vapour only**
 (above the critical point, "supercritical"). The verdict assumes water is present; whether a
@@ -343,11 +343,14 @@ S_shoreline = (v_esc / 6.5 km s⁻¹)⁴   S⊕
 
 a normalisation chosen so that the line passes between Titan (atmosphere) and Ganymede and
 Callisto (none) and just above Mars; the published line is drawn by eye in the same way. Bodies
-plotted: the eight planets, the Moon, Io, Europa, Ganymede, Callisto, Titan, Triton, Pluto (filled
-if they have a substantial atmosphere), plus exoplanets from the snapshot with a **measured** mass
-(not estimated from radius) and radius below 4 R⊕, coloured by host star type. The rocky planets
-of red dwarfs that JWST has observed (TRAPPIST-1 b and c, LHS 3844 b, GJ 1132 b, GJ 486 b) sit
-near or below the line.
+plotted: the eight planets, the Moon, Io, Europa, Ganymede, Callisto, Titan, Triton and Pluto
+(filled if they have an atmosphere, following Zahnle & Catling's classification), plus exoplanets
+from the snapshot under 4 R⊕ whose mass and radius were both measured (not estimated by the
+archive, mass not a minimum M sin i), coloured by host-star temperature. Among rocky planets of
+red dwarfs observed in thermal emission, LHS 3844 b (no thick atmosphere, Spitzer) sits well
+below the line, GJ 1132 b and GJ 486 b on it, and TRAPPIST-1 b and c above it even
+though JWST found no thick CO₂ atmosphere on them — a sign that the line is higher for red
+dwarfs (next paragraph).
 
 **Simplification:** the line uses total starlight. Red dwarfs give their planets a larger share of
 high-energy (XUV) radiation, and for much longer, which drives escape; an info note says the line

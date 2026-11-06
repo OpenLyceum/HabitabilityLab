@@ -5,29 +5,31 @@
  * Simulation. Each preference Property takes its initial value from the
  * corresponding query parameter in habitabilityLabQueryParameters.
  *
- * Remove the example preference (and its query parameter / UI control) if the
- * sim has no sim-specific preferences.
+ * A single instance is shared by every screen (see {@link habitabilityLabPreferences}).
  */
 
 import { BooleanProperty } from "scenerystack/axon";
-import type { Tandem } from "scenerystack/tandem";
+import { Tandem } from "scenerystack/tandem";
 import HabitabilityLabNamespace from "../HabitabilityLabNamespace.js";
 import habitabilityLabQueryParameters from "./habitabilityLabQueryParameters.js";
 
 export class HabitabilityLabPreferencesModel {
-  /** Example preference; initial value comes from the `exampleToggle` query parameter. */
-  public readonly exampleToggleProperty: BooleanProperty;
+  /** Show the equations beside the readouts (T_eq, the grey greenhouse, the zone edges, Jeans escape). */
+  public readonly showEquationsProperty: BooleanProperty;
 
   public constructor(tandem?: Tandem) {
-    this.exampleToggleProperty = new BooleanProperty(
-      habitabilityLabQueryParameters.exampleToggle,
-      tandem ? { tandem: tandem.createTandem("exampleToggleProperty") } : undefined,
+    this.showEquationsProperty = new BooleanProperty(
+      habitabilityLabQueryParameters.showEquations,
+      tandem ? { tandem: tandem.createTandem("showEquationsProperty") } : undefined,
     );
   }
 
   public reset(): void {
-    this.exampleToggleProperty.reset();
+    this.showEquationsProperty.reset();
   }
 }
+
+/** The sim-wide preferences, shared by main.ts (the Preferences dialog) and the screen views. */
+export const habitabilityLabPreferences = new HabitabilityLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
 HabitabilityLabNamespace.register("HabitabilityLabPreferencesModel", HabitabilityLabPreferencesModel);

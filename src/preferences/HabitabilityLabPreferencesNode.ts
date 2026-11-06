@@ -27,9 +27,9 @@ export class HabitabilityLabPreferencesNode extends VBox {
       fill: HabitabilityLabColors.controlSurfaceTextColorProperty,
     });
 
-    const exampleToggleCheckbox = new Checkbox(
-      preferencesModel.exampleToggleProperty,
-      new Text(prefStrings.exampleToggleStringProperty, {
+    const showEquationsCheckbox = new Checkbox(
+      preferencesModel.showEquationsProperty,
+      new Text(prefStrings.showEquationsStringProperty, {
         font: new PhetFont(14),
         fill: HabitabilityLabColors.controlSurfaceTextColorProperty,
       }),
@@ -37,14 +37,21 @@ export class HabitabilityLabPreferencesNode extends VBox {
         checkboxColor: HabitabilityLabColors.controlSurfaceTextColorProperty,
         checkboxColorBackground: HabitabilityLabColors.controlSurfaceColorProperty,
         spacing: 8,
-        ...(tandem && { tandem: tandem.createTandem("exampleToggleCheckbox") }),
+        accessibleHelpText: prefStrings.showEquationsHelpStringProperty,
+        ...(tandem && { tandem: tandem.createTandem("showEquationsCheckbox") }),
       },
     );
+
+    const description = new Text(prefStrings.showEquationsHelpStringProperty, {
+      font: new PhetFont(12),
+      fill: HabitabilityLabColors.controlSurfaceTextColorProperty,
+      maxWidth: 420,
+    });
 
     super({
       align: "left",
       spacing: 12,
-      children: [header, exampleToggleCheckbox],
+      children: [header, showEquationsCheckbox, description],
     });
   }
 }

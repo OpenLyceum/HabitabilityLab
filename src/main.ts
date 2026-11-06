@@ -27,15 +27,12 @@ import { EscapeScreen } from "./escape/EscapeScreen.js";
 import { GreenhouseScreen } from "./greenhouse/GreenhouseScreen.js";
 import HabitabilityLabColors from "./HabitabilityLabColors.js";
 import { StringManager } from "./i18n/StringManager.js";
-import { HabitabilityLabPreferencesModel } from "./preferences/HabitabilityLabPreferencesModel.js";
+import { habitabilityLabPreferences } from "./preferences/HabitabilityLabPreferencesModel.js";
 import { HabitabilityLabPreferencesNode } from "./preferences/HabitabilityLabPreferencesNode.js";
 import { ZoneEdgesScreen } from "./zone-edges/ZoneEdgesScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
-
-  // Simulation-specific preferences; initial values come from habitabilityLabQueryParameters.
-  const simPreferences = new HabitabilityLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   const screens = [
     new EnergyBalanceScreen({
@@ -76,7 +73,7 @@ onReadyToLaunch(() => {
       simulationOptions: {
         customPreferences: [
           {
-            createContent: (tandem: Tandem) => new HabitabilityLabPreferencesNode(simPreferences, tandem),
+            createContent: (tandem: Tandem) => new HabitabilityLabPreferencesNode(habitabilityLabPreferences, tandem),
           },
         ],
       },

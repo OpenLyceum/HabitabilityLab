@@ -1,44 +1,64 @@
 /**
  * EnergyBalanceScreenView.ts
  *
- * The top-level view for the simulation screen.
- *
- * All visual nodes are added here. Follow these conventions:
- *   - Use this.layoutBounds for positioning (never magic pixel values)
- *   - Keep a ResetAllButton that calls model.reset() and this.reset()
- *   - Override step(dt) for frame-by-frame animation
- *
- * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. HabitabilityLabControlPanel.ts)
- * 2. Instantiate them here and call this.addChild(...)
- * 3. Link them to model properties:
- *      model.isRunningProperty.link( isRunning => { ... } );
- *
- * ── Layout bounds ─────────────────────────────────────────────────────────────
- * SceneryStack uses a virtual 1024×618 coordinate space by default.
- * this.layoutBounds gives you the full rectangle; use it for alignment:
- *   center, minX, maxX, minY, maxY, width, height
+ * The Energy Balance screen (doc/model.md §1):
+ *  - top: the star and the planet on a distance scale, with sunlight absorbed,
+ *    reflected and infrared emitted drawn as arrows;
+ *  - bottom left: the planet's temperature over the last 30 years;
+ *  - bottom middle: absorbed and emitted energy as bars, a thermometer, and
+ *    the temperature readouts (now, equilibrium, measured);
+ *  - right: planet presets, star brightness, distance, albedo, heat spread,
+ *    the equation, an explanation, and time controls.
  */
 
+import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
-import { Node, Rectangle, Text } from "scenerystack/scenery";
-import { ResetAllButton } from "scenerystack/scenery-phet";
+import { Node, VBox } from "scenerystack/scenery";
+import { ResetAllButton, TimeControlNode, TimeSpeed } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
-import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/HabitabilityLabButtonOptions.js";
-import HabitabilityLabColors from "../../HabitabilityLabColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../HabitabilityLabConstants.js";
+import {
+  FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS,
+  FLAT_RESET_ALL_BUTTON_OPTIONS,
+  TIME_CONTROL_SPEED_RADIO_OPTIONS,
+} from "../../common/HabitabilityLabButtonOptions.js";
+import { HabitabilityLabPanel } from "../../common/HabitabilityLabPanel.js";
+import {
+  createEquationNode,
+  createExplanationButton,
+  createExplanationRow,
+  createNumberControl,
+  createPushButton,
+  createRadioGroup,
+  createReadout,
+  createTitle,
+} from "../../common/view/controls.js";
+import { bodyNameProperty, formatKelvin, formatTemperature, unitDependencies } from "../../common/view/formatters.js";
+import {
+  ALBEDO_RANGE,
+  CONTROL_PANEL_WIDTH,
+  ENERGY_DISTANCE_RANGE,
+  LUMINOSITY_RANGE,
+  SCREEN_VIEW_MARGIN,
+} from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import type { EnergyBalanceModel } from "../model/EnergyBalanceModel.js";
+import { ENERGY_PRESETS, type EnergyBalanceModel } from "../model/EnergyBalanceModel.js";
 import { EnergyBalanceScreenSummaryContent } from "./EnergyBalanceScreenSummaryContent.js";
+import { EnergyBarsNode } from "./EnergyBarsNode.js";
+import { EnergySpaceNode } from "./EnergySpaceNode.js";
+import { TemperatureHistoryNode } from "./TemperatureHistoryNode.js";
 
 export type EnergyBalanceScreenViewOptions = ScreenViewOptions;
 
+/** Years advanced by one press of the step button. */
+const STEP_YEARS = 1;
+
+const SPACE_HEIGHT = 215;
+const CHART_WIDTH = 320;
+const CHART_HEIGHT = 230;
+const BARS_PANEL_WIDTH = 220;
+
 export class EnergyBalanceScreenView extends ScreenView {
   public constructor(model: EnergyBalanceModel, providedOptions?: EnergyBalanceScreenViewOptions) {
-    // ── Accessibility: screen summary ───────────────────────────────────────────
-    // The screen summary is the first thing a screen-reader user encounters. It
-    // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See EnergyBalanceScreenSummaryContent for the four content regions.
     const options = optionize<EnergyBalanceScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new EnergyBalanceScreenSummaryContent(model),
@@ -47,114 +67,215 @@ export class EnergyBalanceScreenView extends ScreenView {
     );
     super(options);
 
-    // ── Background ────────────────────────────────────────────────────────────
-    // A full-screen rectangle that follows the active color profile.
-    // Replace or remove once you add real content.
-    const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: HabitabilityLabColors.backgroundColorProperty,
+    const stringManager = StringManager.getInstance();
+    const strings = stringManager.getEnergyBalanceStrings();
+    const common = stringManager.getCommonStrings();
+    const units = stringManager.getUnits();
+    const a11y = stringManager.getEnergyBalanceA11yStrings();
+    const bounds = this.layoutBounds;
+
+    // ── Controls (right) ──────────────────────────────────────────────────────
+    const presetRadios = createRadioGroup(
+      model.presetProperty,
+      ENERGY_PRESETS.map((preset) => ({
+        value: preset,
+        labelProperty: preset === "custom" ? common.customStringProperty : bodyNameProperty(preset),
+      })),
+      a11y.controls.planetStringProperty,
+    );
+    const luminosityControl = createNumberControl(
+      strings.starLuminosityStringProperty,
+      model.luminosityProperty,
+      LUMINOSITY_RANGE,
+      { logarithmic: true, unitsProperty: units.solarLuminosityStringProperty, significantFigures: 2 },
+    );
+    const distanceControl = createNumberControl(
+      strings.distanceStringProperty,
+      model.distanceProperty,
+      ENERGY_DISTANCE_RANGE,
+      {
+        logarithmic: true,
+        unitsProperty: units.auStringProperty,
+        significantFigures: 3,
+      },
+    );
+    const albedoControl = createNumberControl(strings.albedoStringProperty, model.albedoProperty, ALBEDO_RANGE, {
+      significantFigures: 2,
+      delta: 0.01,
     });
-    this.addChild(backgroundRect);
+    const heatSpreadRadios = createRadioGroup(
+      model.heatSpreadProperty,
+      [
+        { value: "wholePlanet" as const, labelProperty: strings.wholePlanetStringProperty },
+        { value: "daySide" as const, labelProperty: strings.daySideStringProperty },
+      ],
+      a11y.controls.heatSpreadStringProperty,
+    );
+    const equation = createEquationNode(
+      new DerivedProperty(
+        [model.heatSpreadProperty, strings.equationStringProperty, strings.equationDaySideStringProperty],
+        (spread, whole, day) => (spread === "wholePlanet" ? whole : day),
+      ),
+      CONTROL_PANEL_WIDTH,
+    );
+    const explanationButton = createExplanationButton(
+      strings.explanationTitleStringProperty,
+      [
+        strings.explanation1StringProperty,
+        strings.explanation2StringProperty,
+        strings.explanation3StringProperty,
+        strings.explanation4StringProperty,
+      ],
+      a11y.controls.explanationStringProperty,
+    );
+    const controlPanel = new HabitabilityLabPanel(
+      new VBox({
+        spacing: 8,
+        align: "left",
+        children: [
+          createTitle(strings.planetStringProperty),
+          presetRadios,
+          luminosityControl,
+          distanceControl,
+          albedoControl,
+          createTitle(strings.heatSpreadStringProperty),
+          heatSpreadRadios,
+          equation,
+          createExplanationRow(explanationButton),
+        ],
+      }),
+      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+    );
+    controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
+    controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
 
-    // ── Placeholder label ─────────────────────────────────────────────────────
-    // Replace this with your actual simulation content.
-    const placeholderText = new Text(StringManager.getInstance().getScreenNames().energyBalanceStringProperty, {
-      font: "bold 36px sans-serif",
-      fill: HabitabilityLabColors.textColorProperty,
-      center: this.layoutBounds.center,
+    // ── Space view (top) ──────────────────────────────────────────────────────
+    const spaceWidth = controlPanel.left - 12 - SCREEN_VIEW_MARGIN;
+    const spaceNode = new EnergySpaceNode(model, spaceWidth, SPACE_HEIGHT);
+    spaceNode.left = bounds.minX + SCREEN_VIEW_MARGIN;
+    spaceNode.top = bounds.minY + SCREEN_VIEW_MARGIN;
+
+    // ── Temperature history (bottom left) ─────────────────────────────────────
+    const historyNode = new TemperatureHistoryNode(model, CHART_WIDTH, CHART_HEIGHT);
+    historyNode.left = spaceNode.left + 58;
+    historyNode.top = spaceNode.bottom + 24;
+
+    // ── Bars and temperatures (bottom middle) ─────────────────────────────────
+    const temperatureDependencies = unitDependencies();
+    const nowText = createReadout(
+      new PatternStringProperty(strings.temperatureNowPatternStringProperty, {
+        value: DerivedProperty.deriveAny([model.temperatureProperty, ...temperatureDependencies], () =>
+          formatTemperature(model.temperatureProperty.value),
+        ),
+      }),
+      BARS_PANEL_WIDTH,
+    );
+    const equilibriumText = createReadout(
+      new PatternStringProperty(strings.equilibriumPatternStringProperty, {
+        value: DerivedProperty.deriveAny([model.equilibriumTemperatureProperty, ...temperatureDependencies], () =>
+          formatTemperature(model.equilibriumTemperatureProperty.value),
+        ),
+      }),
+      BARS_PANEL_WIDTH,
+    );
+    const measuredText = createReadout(
+      new PatternStringProperty(strings.measuredPatternStringProperty, {
+        value: DerivedProperty.deriveAny([model.measuredTemperatureProperty, ...temperatureDependencies], () =>
+          formatTemperature(model.measuredTemperatureProperty.value ?? 0),
+        ),
+      }),
+      BARS_PANEL_WIDTH,
+    );
+    const gapText = createReadout(
+      DerivedProperty.deriveAny(
+        [
+          model.measuredTemperatureProperty,
+          model.equilibriumTemperatureProperty,
+          strings.gapPatternStringProperty,
+          strings.gapColderPatternStringProperty,
+          ...temperatureDependencies,
+        ],
+        () => {
+          const gap = (model.measuredTemperatureProperty.value ?? 0) - model.equilibriumTemperatureProperty.value;
+          const pattern =
+            gap >= 0 ? strings.gapPatternStringProperty.value : strings.gapColderPatternStringProperty.value;
+          return pattern.replace("{{value}}", formatKelvin(Math.abs(gap)));
+        },
+      ),
+      BARS_PANEL_WIDTH,
+    );
+    const measuredVisibleProperty = new DerivedProperty([model.measuredTemperatureProperty], (t) => t !== null);
+    measuredText.visibleProperty = measuredVisibleProperty;
+    gapText.visibleProperty = measuredVisibleProperty;
+    gapText.fill = "#ce93d8";
+    measuredText.fill = gapText.fill;
+    const jumpButton = createPushButton(
+      strings.jumpToEquilibriumStringProperty,
+      () => model.jumpToEquilibrium(),
+      BARS_PANEL_WIDTH - 10,
+      true,
+    );
+    jumpButton.accessibleName = a11y.controls.jumpStringProperty;
+
+    const barsPanel = new HabitabilityLabPanel(
+      new VBox({
+        spacing: 6,
+        align: "left",
+        children: [
+          new EnergyBarsNode(model, BARS_PANEL_WIDTH),
+          nowText,
+          equilibriumText,
+          measuredText,
+          gapText,
+          jumpButton,
+        ],
+      }),
+      { minWidth: BARS_PANEL_WIDTH + 24, maxWidth: BARS_PANEL_WIDTH + 24 },
+    );
+    barsPanel.right = spaceNode.right;
+    barsPanel.top = spaceNode.bottom + 10;
+
+    // ── Time controls and Reset All ───────────────────────────────────────────
+    const timeControlNode = new TimeControlNode(model.timer.isPlayingProperty, {
+      timeSpeedProperty: model.timeSpeedProperty,
+      timeSpeeds: [TimeSpeed.FAST, TimeSpeed.NORMAL, TimeSpeed.SLOW],
+      ...TIME_CONTROL_SPEED_RADIO_OPTIONS,
+      playPauseStepButtonOptions: {
+        ...FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS,
+        stepForwardButtonOptions: {
+          ...FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS.stepForwardButtonOptions,
+          listener: () => model.advance(STEP_YEARS),
+        },
+      },
     });
-    this.addChild(placeholderText);
-
-    // ── Accessibility: per-control names ────────────────────────────────────────
-    // EVERY interactive node must carry an `accessibleName` (and an
-    // `accessibleHelpText` where useful), sourced from the StringManager `a11y`
-    // string group — never a hard-coded English literal. Sun/scenery-phet controls
-    // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
-    // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // Example (uncomment and adapt when you add a real control):
-    //
-    //   const a11y = StringManager.getInstance().getEnergyBalanceA11yStrings();
-    //   const exampleButton = new RectangularPushButton({
-    //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
-    //     content: someIcon,
-    //     listener: () => model.doSomething(),
-    //     accessibleName: a11y.controls.exampleControlStringProperty,
-    //   });
-    //   this.addChild(exampleButton);
-
-    // ── Reset All button ──────────────────────────────────────────────────────
-    // Always position at bottom-right (PhET convention).
     const resetAllButton = new ResetAllButton({
       ...FLAT_RESET_ALL_BUTTON_OPTIONS,
       listener: () => {
+        this.interruptSubtreeInput();
         model.reset();
-        this.reset();
       },
-      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
-      bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
+      right: bounds.maxX - SCREEN_VIEW_MARGIN,
+      bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    this.addChild(resetAllButton);
+    timeControlNode.right = resetAllButton.left - 20;
+    timeControlNode.centerY = resetAllButton.centerY;
 
-    // ── Accessibility: keyboard / reading traversal order ───────────────────────
-    // Make the parallel DOM (Tab order and screen-reader reading order)
-    // deterministic and independent of child z-order. ScreenView throws if you
-    // set pdomOrder on itself, so add a lightweight wrapper Node that "borrows"
-    // the interactive nodes in the order a user should reach them — Reset All
-    // last. Non-interactive decoration (background, placeholder) is omitted.
+    this.children = [spaceNode, historyNode, barsPanel, controlPanel, timeControlNode, resetAllButton];
     this.addChild(
       new Node({
         pdomOrder: [
-          // TODO: add the sim's interactive nodes here, in traversal order
+          presetRadios,
+          luminosityControl,
+          distanceControl,
+          albedoControl,
+          heatSpreadRadios,
+          spaceNode.planetNode,
+          jumpButton,
+          explanationButton,
+          timeControlNode,
           resetAllButton,
         ],
       }),
     );
   }
-
-  /**
-   * Resets view-side state (animations, panel visibility, etc.).
-   * Called by the Reset All button listener.
-   */
-  public reset(): void {
-    // TODO: reset any view-side state here
-  }
-
-  /**
-   * Steps the view forward by dt seconds for animation.
-   * @param _dt - elapsed time in seconds
-   */
-  public override step(_dt: number): void {
-    // TODO: implement animation updates here
-  }
-
-  // ── Accessibility / listeners: dispose ─────────────────────────────────────
-  // ScreenView is `isDisposable: false` and lives for the whole sim, so this
-  // class rarely needs dispose(). Child Nodes (and a live currentDetails
-  // DerivedProperty you own on a short-lived object) do. When you add
-  // DerivedProperty / Multilink / Property.link against model state, keep the
-  // references and tear them down — forks copy what they see. Pattern:
-  //
-  // private readonly disposeEnergyBalanceScreenView: () => void;
-  //
-  // // in the constructor, after creating the listeners:
-  // const statusMultilink = Multilink.multilink(
-  //   [model.someProperty, model.otherProperty],
-  //   (a, b) => { /* update view from model */ },
-  // );
-  // const detailsProperty = new DerivedProperty(
-  //   [model.stateProperty],
-  //   (state) => `State: ${state}`,
-  // ); // → pass as currentDetailsContent in EnergyBalanceScreenSummaryContent
-  // const onExternal = (v: number) => { /* … */ };
-  // model.externalProperty.link(onExternal); // Property you do NOT own
-  //
-  // this.disposeEnergyBalanceScreenView = () => {
-  //   statusMultilink.dispose();                 // Multilink you created
-  //   detailsProperty.dispose();                 // DerivedProperty you created
-  //   model.externalProperty.unlink(onExternal); // undo external link
-  // };
-  //
-  // public override dispose(): void {
-  //   this.disposeEnergyBalanceScreenView();
-  //   super.dispose();
-  // }
 }
