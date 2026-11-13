@@ -29,7 +29,9 @@ singleton (`habitabilityLabPreferences`).
 - **Energy Balance integrates in years.** `stepTemperature` sub-steps so each step is under a fifth
   of the local relaxation time C/(4σT³); dt is capped at 0.1 s of wall time so a background tab does
   not jump decades. The history keeps the last 30 years and is drawn against "years from now", so
-  the axis never scrolls; the temperature axis steps through 300–1000 K.
+  the axis never scrolls; the temperature axis steps through 300–1000 K, then grows in 500 K
+  increments with 8 % headroom. The thermometer spans 0–2000 K, covering the hottest allowed
+  day-side equilibrium (~1861 K).
 - **One chart frame for everything.** `ChartFrameNode` maps with its own log/reversed axes
   instead of a bamboo `ChartTransform` (which cannot reverse or log). Callers draw with
   `polyline` and redraw on `axesChangedEmitter`. Log ticks label 1-2-5 when a decade is wider than
@@ -37,9 +39,12 @@ singleton (`habitabilityLabPreferences`).
 - **Zone Edges luminosity.** Real hosts get L = S·a² from their own planet's starlight and orbit,
   so the planets land exactly on the archive's insolation; the slider star uses the dwarf table.
   The planet radio group is rebuilt (and the old one disposed) when the star changes.
-- **Aging Star history.** `computeHistory` runs once per (track, starting distance) over the table
-  rows: zone status, engulfment age (R★ ≥ d), lock age (age ≥ t_lock(d, M), resolved between samples), cumulative time in the
-  conservative zone. Readouts interpolate within it; the continuously habitable zone scans rows in
+- **Aging Star history.** `computeHistory` runs once per (track, starting distance). It brackets
+  all four zone edges in 16 subdivisions of each track interval and resolves sign-changing brackets
+  with 48 bisections on `sampleTrack`. Crossing rows split the timeline strip and cumulative zone
+  residence at the same ages; a row's status describes the interval following it. The history also
+  records engulfment age (R★ ≥ d) and lock age (age ≥ t_lock(d, M), resolved between samples).
+  Readouts interpolate within it; the continuously habitable zone scans rows in
   the window. The top view eases its scale towards the outer edge or the planet (3 s⁻¹), but jumps
   when the track or distance changes. The timeline window is the whole life, or from 90 % of the
   main sequence when zoomed; playback crosses the window in 40 s.
@@ -58,3 +63,6 @@ singleton (`habitabilityLabPreferences`).
 - `tests/screenModels.test.ts` exercises each screen model (presets, settling, history, CHZ,
   playback, molecule escape).
 - `tests/memory-leak.test.ts` and the Playwright fuzz smoke come from the template.
+- `tests/viewRegressions.test.ts` keeps the timeline and localized strings alive while checking
+  that replaced milestone labels are collected, and checks extreme temperatures against the real
+  history chart and the thermometer's supported range.

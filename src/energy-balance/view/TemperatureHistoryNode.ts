@@ -65,13 +65,13 @@ export class TemperatureHistoryNode extends Node {
         model.measuredTemperatureProperty.value ?? 0,
         ...model.history.map(([, t]) => t),
       );
-      const yMax = AXIS_MAXIMA.find((max) => max >= highest * 1.08) ?? AXIS_MAXIMA[AXIS_MAXIMA.length - 1];
+      const yMax = AXIS_MAXIMA.find((max) => max >= highest * 1.08) ?? Math.ceil((highest * 1.08) / 500) * 500;
       if (chart.getYAxis().max !== yMax) {
-        chart.setAxes(chart.getXAxis(), { min: 0, max: yMax ?? 1000 });
+        chart.setAxes(chart.getXAxis(), { min: 0, max: yMax });
       }
       curve.shape = chart.polyline(model.history.map(([t, kelvin]) => [t - now, kelvin] as const));
 
-      const yEq = chart.modelToViewY(Math.min(model.equilibriumTemperatureProperty.value, chart.getYAxis().max));
+      const yEq = chart.modelToViewY(model.equilibriumTemperatureProperty.value);
       equilibriumLine.shape = new Shape().moveTo(0, yEq).lineTo(width, yEq);
       equilibriumLabel.left = width + 6;
       equilibriumLabel.centerY = yEq;
@@ -80,7 +80,7 @@ export class TemperatureHistoryNode extends Node {
       measuredLine.visible = measured !== null;
       measuredLabel.visible = measured !== null;
       if (measured !== null) {
-        const yMeasured = chart.modelToViewY(Math.min(measured, chart.getYAxis().max));
+        const yMeasured = chart.modelToViewY(measured);
         measuredLine.shape = new Shape().moveTo(0, yMeasured).lineTo(width, yMeasured);
         measuredLabel.left = width + 6;
         measuredLabel.centerY = yMeasured;

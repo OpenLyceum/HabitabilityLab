@@ -245,6 +245,11 @@ d(t) = d₀ · M₀ / M(t)
 Readouts: S(t) = L(t)/d(t)², bare-rock T_eq(t) with the planet's albedo (default 0.3),
 zone status, time spent in the conservative zone so far.
 
+Zone crossings are resolved between the stellar-track samples using the same interpolated
+luminosity, temperature and widening orbit as the live readouts. The timeline strip and accumulated
+time use these crossing ages, so time stops accumulating when the planet leaves the conservative
+zone and resumes only if it re-enters it.
+
 **Engulfment.** The planet is destroyed when the star's radius reaches its orbit, R(t) ≥ d(t).
 Tidal drag, which pulls planets in before the star reaches them (e.g. Schröder & Smith 2008), is
 ignored, so the screen is generous: in this model Earth and Venus survive the Sun's giant phases.

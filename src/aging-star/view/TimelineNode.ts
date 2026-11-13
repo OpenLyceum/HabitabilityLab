@@ -113,7 +113,8 @@ export class TimelineNode extends Node {
 
       // Milestones.
       for (const child of markers.children) {
-        child.dispose();
+        // Each wrapper owns its path and localized Text, which subscribes to a live string Property.
+        child.disposeSubtree();
       }
       const track = model.trackProperty.value;
       const milestones: [number, TReadOnlyProperty<string>, typeof HabitabilityLabColors.textColorProperty][] = [

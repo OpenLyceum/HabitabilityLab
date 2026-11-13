@@ -8,7 +8,8 @@
 
 import { describe, expect, it } from "vitest";
 import { AgingStarModel, computeHistory, continuouslyHabitableZone } from "../src/aging-star/model/AgingStarModel.js";
-import { nearestTrack } from "../src/common/model/stellarTracks.js";
+import { zoneStatus } from "../src/common/model/habitableZone.js";
+import { nearestTrack, sampleTrack } from "../src/common/model/stellarTracks.js";
 import { EnergyBalanceModel } from "../src/energy-balance/model/EnergyBalanceModel.js";
 import { EscapeModel } from "../src/escape/model/EscapeModel.js";
 import { GreenhouseModel } from "../src/greenhouse/model/GreenhouseModel.js";
@@ -68,6 +69,50 @@ describe("Zone Edges model", () => {
 });
 
 describe("Aging Star", () => {
+  it("stops crediting time at the interpolated conservative-zone exit, including after seeking and reset", () => {
+    const model = new AgingStarModel();
+    model.setAge(5500);
+    expect(model.statusProperty.value).toBe("conservative");
+    expect(model.timeInZoneProperty.value).toBeCloseTo(5500, 6);
+    model.setAge(5600);
+    expect(model.statusProperty.value).toBe("optimisticInner");
+    const residence = model.timeInZoneProperty.value;
+    expect(residence).toBeCloseTo(5561.4, 0);
+    model.setAge(5700);
+    expect(model.timeInZoneProperty.value).toBe(residence);
+    model.setAge(10000);
+    expect(model.timeInZoneProperty.value).toBe(residence);
+    model.setAge(5000);
+    expect(model.timeInZoneProperty.value).toBeCloseTo(5000, 6);
+    model.reset();
+    expect(model.timeInZoneProperty.value).toBe(0);
+  });
+
+  it("resolves both conservative-zone edges inside a single interval, including re-entry", () => {
+    const base = nearestTrack(1);
+    const track = {
+      ...base,
+      dataTable: [
+        { time: 0, mass: 1, logLum: -1, logTemp: Math.log10(5772), logRadius: -3 },
+        { time: 1000, mass: 0.01, logLum: 3, logTemp: Math.log10(5772), logRadius: -3 },
+      ],
+    };
+    const history = computeHistory(track, 1);
+    expect(history.rows[0]?.status).toBe("tooCold");
+    expect(history.rows.at(-1)?.status).toBe("tooCold");
+    expect(history.rows.filter((row) => row.status === "conservative")).toHaveLength(2);
+    // An independent midpoint quadrature includes widening orbits and both visits to the zone.
+    let referenceTime = 0;
+    const dt = 0.01;
+    for (let age = dt / 2; age < 1000; age += dt) {
+      const star = sampleTrack(track, age);
+      if (zoneStatus(star.luminosity * star.mass ** 2, star.temperature) === "conservative") {
+        referenceTime += dt;
+      }
+    }
+    expect(Math.abs((history.timeInZone.at(-1) ?? 0) - referenceTime)).toBeLessThan(2 * dt);
+  });
+
   it("keeps Earth in the conservative zone until about 1 Gyr from now, and never engulfs it", () => {
     const sun = nearestTrack(1);
     const history = computeHistory(sun, 1);

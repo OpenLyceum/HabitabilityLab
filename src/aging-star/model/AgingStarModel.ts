@@ -23,7 +23,14 @@ import type { TModel } from "scenerystack/joist";
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import { equilibriumTemperature } from "../../common/model/climate.js";
 import type { StarRecord } from "../../common/model/data/shzStars.js";
-import { type ZoneDistances, type ZoneStatus, zoneDistances, zoneStatus } from "../../common/model/habitableZone.js";
+import {
+  edgeStarlight,
+  type ZoneDistances,
+  type ZoneEdge,
+  type ZoneStatus,
+  zoneDistances,
+  zoneStatus,
+} from "../../common/model/habitableZone.js";
 import {
   mainSequenceEndMyr,
   nearestTrack,
@@ -120,12 +127,13 @@ export function stageOfType(type: number): Stage {
   return "whiteDwarf";
 }
 
-/** The planet's situation at one tabulated age. */
+/** The planet's situation at a tabulated age or a resolved zone crossing. */
 export type HistoryRow = {
   readonly star: StarState;
   /** Planet's orbit, AU. */
   readonly distance: number;
   readonly zone: ZoneDistances;
+  /** Status during the interval from this row to the next (right-hand limit at a crossing). */
   readonly status: ZoneStatus;
 };
 
@@ -143,19 +151,83 @@ export type PlanetHistory = {
 const MYR_PER_YEAR = 1e-6;
 const AU_PER_SUN_RADIUS = SUN_RADIUS_M / AU_M;
 
+/** Bracket crossings within each interpolated track interval, including nonmonotonic intervals. */
+const CROSSING_SUBDIVISIONS = 16;
+const CROSSING_BISECTIONS = 48;
+const ZONE_EDGES: readonly ZoneEdge[] = ["recentVenus", "runawayGreenhouse", "maximumGreenhouse", "earlyMars"];
+
+/** Resolve a bracketed edge crossing on the same interpolated track used by the live readouts. */
+function crossingAge(lowAge: number, highAge: number, offsetAt: (age: number) => number): number | null {
+  const lowOffset = offsetAt(lowAge);
+  const highOffset = offsetAt(highAge);
+  if (lowOffset === 0) {
+    return lowAge;
+  }
+  if (highOffset === 0) {
+    return highAge;
+  }
+  if (Math.sign(lowOffset) === Math.sign(highOffset)) {
+    return null;
+  }
+  let low = lowAge;
+  let high = highAge;
+  for (let i = 0; i < CROSSING_BISECTIONS; i++) {
+    const mid = (low + high) / 2;
+    if (Math.sign(offsetAt(mid)) === Math.sign(lowOffset)) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+  return (low + high) / 2;
+}
+
+/** Track samples plus edge crossings, so every history interval has a single zone status. */
+function zoneHistoryRows(track: StarRecord, startDistance: number): HistoryRow[] {
+  const orbitAt = (star: StarState): number => (startDistance * track.mass) / star.mass;
+  const edgeOffset = (star: StarState, edge: ZoneEdge): number =>
+    star.luminosity / orbitAt(star) ** 2 - edgeStarlight(edge, star.temperature);
+  const samples = trackStates(track);
+  const ages = samples.map((star) => star.ageMyr);
+  for (let i = 1; i < samples.length; i++) {
+    const start = samples[i - 1] as StarState;
+    const end = samples[i] as StarState;
+    let before = start;
+    for (let j = 1; j <= CROSSING_SUBDIVISIONS; j++) {
+      const after = sampleTrack(track, start.ageMyr + ((end.ageMyr - start.ageMyr) * j) / CROSSING_SUBDIVISIONS);
+      for (const edge of ZONE_EDGES) {
+        const crossing = crossingAge(before.ageMyr, after.ageMyr, (age) => edgeOffset(sampleTrack(track, age), edge));
+        if (crossing !== null) {
+          ages.push(crossing);
+        }
+      }
+      before = after;
+    }
+  }
+  const sortedAges = [...new Set(ages)].sort((a, b) => a - b);
+  return sortedAges.map((age, i) => {
+    const star = sampleTrack(track, age);
+    // Equality at an edge is sensitive to rounding. Classify the interval at its midpoint.
+    const intervalStar = sampleTrack(track, (age + (sortedAges[i + 1] ?? age)) / 2);
+    return {
+      star,
+      distance: orbitAt(star),
+      zone: zoneDistances(star.luminosity, star.temperature),
+      status: zoneStatus(intervalStar.luminosity / orbitAt(intervalStar) ** 2, intervalStar.temperature),
+    };
+  });
+}
+
 export function computeHistory(track: StarRecord, startDistance: number): PlanetHistory {
   const startMass = track.mass;
   let engulfAge = Number.POSITIVE_INFINITY;
   let lockAge = Number.POSITIVE_INFINITY;
-  const rows: HistoryRow[] = [];
+  const rows = zoneHistoryRows(track, startDistance);
   const timeInZone: number[] = [];
   let cumulative = 0;
   let previous: HistoryRow | null = null;
-  for (const star of trackStates(track)) {
-    const distance = (startDistance * startMass) / star.mass;
-    const zone = zoneDistances(star.luminosity, star.temperature);
-    const status = zoneStatus(star.luminosity / distance ** 2, star.temperature);
-    const row = { star, distance, zone, status };
+  for (const row of rows) {
+    const { star, distance } = row;
     if (engulfAge === Number.POSITIVE_INFINITY && star.radius * AU_PER_SUN_RADIUS >= distance) {
       engulfAge = star.ageMyr;
     }
@@ -178,7 +250,6 @@ export function computeHistory(track: StarRecord, startDistance: number): Planet
     if (previous && previous.status === "conservative" && previous.star.ageMyr < engulfAge) {
       cumulative += star.ageMyr - previous.star.ageMyr;
     }
-    rows.push(row);
     timeInZone.push(cumulative);
     previous = row;
   }

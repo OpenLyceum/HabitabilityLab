@@ -90,7 +90,7 @@ export class EnergyBarsNode extends VBox {
         tubeHeight: BAR_HEIGHT - 10,
         tubeWidth: 14,
         bulbDiameter: 26,
-        tickSpacingTemperature: 100,
+        tickSpacingTemperature: TEMPERATURE_DISPLAY_RANGE.getLength() / 8,
         backgroundFill: HabitabilityLabColors.chartBackgroundColorProperty,
         outlineStroke: HabitabilityLabColors.chartAxisColorProperty,
       },

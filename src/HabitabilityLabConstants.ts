@@ -85,8 +85,8 @@ export const ENERGY_DISTANCE_RANGE = new Range(0.1, 5);
 /** Bond albedo. */
 export const ALBEDO_RANGE = new Range(0, 0.95);
 
-/** Temperature range of the Energy Balance thermometer and graph, K. */
-export const TEMPERATURE_DISPLAY_RANGE = new Range(0, 800);
+/** Thermometer range, K; covers the hottest allowed day-side equilibrium (about 1861 K). */
+export const TEMPERATURE_DISPLAY_RANGE = new Range(0, 2000);
 
 /** Planet temperature at reset, K: a cold start, so the planet is seen warming to equilibrium. */
 export const INITIAL_PLANET_TEMPERATURE_K = 150;
