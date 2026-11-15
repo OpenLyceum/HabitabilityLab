@@ -43,7 +43,10 @@ export function edgeStarlight(edge: ZoneEdge, starTemperature: number, planetMas
   return s + a * t + b * t ** 2 + c * t ** 3 + d * t ** 4;
 }
 
-/** Distance of an edge, AU, for a star of luminosity L (L☉) and temperature T★ (K). */
+/**
+ * Distance of an edge, AU, for a star of luminosity L (L☉) and temperature T★ (K).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export const edgeDistance = (edge: ZoneEdge, luminosity: number, starTemperature: number, planetMass = 1): number =>
   Math.sqrt(luminosity / edgeStarlight(edge, starTemperature, planetMass));
 

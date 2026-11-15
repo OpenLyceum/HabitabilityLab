@@ -35,7 +35,10 @@ export const equilibriumTemperature = (
   spread: HeatSpread = "wholePlanet",
 ): number => (absorbedFlux(starlightEarth, albedo, spread) / STEFAN_BOLTZMANN) ** 0.25;
 
-/** e-folding time, years, of a small temperature disturbance near T: C / (4σT³). */
+/**
+ * e-folding time, years, of a small temperature disturbance near T: C / (4σT³).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export const relaxationTimeYears = (temperature: number): number =>
   MIXED_LAYER_HEAT_CAPACITY / (4 * STEFAN_BOLTZMANN * Math.max(temperature, 1) ** 3) / YEAR_S;
 

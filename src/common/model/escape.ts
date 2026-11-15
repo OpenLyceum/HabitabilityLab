@@ -52,7 +52,10 @@ function erfc(x: number): number {
   return x >= 0 ? r : 2 - r;
 }
 
-/** Fraction of a Maxwell–Boltzmann gas faster than v_esc: erfc(√λ) + 2√(λ/π) e^(−λ). */
+/**
+ * Fraction of a Maxwell–Boltzmann gas faster than v_esc: erfc(√λ) + 2√(λ/π) e^(−λ).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function fractionFasterThan(escapeSpeed: number, temperature: number, massAmu: number): number {
   const lambda = jeansParameter(escapeSpeed, temperature, massAmu);
   return erfc(Math.sqrt(lambda)) + 2 * Math.sqrt(lambda / Math.PI) * Math.exp(-lambda);
@@ -83,6 +86,9 @@ export const isRetained = (escapeSpeed: number, temperature: number, massAmu: nu
 export const shorelineStarlight = (escapeSpeedKmS: number): number =>
   (escapeSpeedKmS / SHORELINE_SPEED_AT_EARTH_KM_S) ** 4;
 
-/** Escape speed on the shoreline for a starlight in S⊕, km/s. */
+/**
+ * Escape speed on the shoreline for a starlight in S⊕, km/s.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export const shorelineEscapeSpeed = (starlightEarth: number): number =>
   SHORELINE_SPEED_AT_EARTH_KM_S * starlightEarth ** 0.25;

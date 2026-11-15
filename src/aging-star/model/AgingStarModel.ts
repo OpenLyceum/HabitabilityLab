@@ -218,6 +218,7 @@ function zoneHistoryRows(track: StarRecord, startDistance: number): HistoryRow[]
   });
 }
 
+/** @internal Exported for unit tests; not part of the application API. */
 export function computeHistory(track: StarRecord, startDistance: number): PlanetHistory {
   const startMass = track.mass;
   let engulfAge = Number.POSITIVE_INFINITY;
@@ -274,7 +275,10 @@ function rowIndexAt(rows: readonly HistoryRow[], age: number): number {
   return low;
 }
 
-/** The continuously habitable zone over [age − duration, age], AU, or null when empty or too young. */
+/**
+ * The continuously habitable zone over [age − duration, age], AU, or null when empty or too young.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function continuouslyHabitableZone(
   history: PlanetHistory,
   track: StarRecord,
