@@ -71,15 +71,6 @@ export const formatSignificant = (value: number, digits = 3): string => {
   return String(Number(value.toPrecision(digits))).replace("-", "−");
 };
 
-/** Format with an explicit sign (+ or −), for velocities and shifts. */
-export const formatSigned = (value: number, digits = 3): string => {
-  const text = formatSignificant(value, digits);
-  return value > 0 ? `+${text}` : text;
-};
-
-/** Format an integer with thin-space thousands separators (1 000 000). */
-export const formatGrouped = (value: number): string => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-
 /** Strips rich-text markup for screen-reader text: "2 × 10<sup>−5</sup>" becomes "2 × 10^-5". */
 export const toPlainText = (text: string): string =>
   text

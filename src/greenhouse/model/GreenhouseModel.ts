@@ -60,7 +60,7 @@ function presentDay(key: "venus" | "earth" | "mars"): PresetValues {
   };
 }
 
-export const PRESET_VALUES: Record<Exclude<GreenhousePreset, "custom">, PresetValues> = {
+const PRESET_VALUES: Record<Exclude<GreenhousePreset, "custom">, PresetValues> = {
   venus: presentDay("venus"),
   earth: presentDay("earth"),
   mars: presentDay("mars"),

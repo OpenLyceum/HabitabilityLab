@@ -30,7 +30,7 @@ const RUNAWAY_BY_MASS: ReadonlyMap<number, Fit> = new Map<number, Fit>([
 ]);
 
 /** The star temperature kept inside the range of the fits, K. */
-export const clampToFitRange = (temperature: number): number => KOPPARAPU_TEMPERATURE_RANGE.constrainValue(temperature);
+const clampToFitRange = (temperature: number): number => KOPPARAPU_TEMPERATURE_RANGE.constrainValue(temperature);
 
 /**
  * Critical starlight S_eff (S⊕) of an edge for a star at temperature T★ (K; clamped to
@@ -81,12 +81,9 @@ export function zoneStatus(starlightEarth: number, starTemperature: number, plan
   return "tooCold";
 }
 
-/** Whether a status lies inside the optimistic zone (which contains the conservative one). */
-export const isInOptimisticZone = (status: ZoneStatus): boolean => status !== "tooHot" && status !== "tooCold";
-
 // ── Main-sequence dwarfs ──────────────────────────────────────────────────────
 
-export type DwarfStar = {
+type DwarfStar = {
   readonly spectralType: string;
   readonly temperature: number;
   readonly luminosity: number;
@@ -94,7 +91,7 @@ export type DwarfStar = {
 };
 
 /** Pecaut & Mamajek (2013) dwarf sequence, approximate values; sorted by temperature. */
-export const DWARF_TABLE: readonly DwarfStar[] = [
+const DWARF_TABLE: readonly DwarfStar[] = [
   { spectralType: "M8 V", temperature: 2600, luminosity: 0.0005, mass: 0.09 },
   { spectralType: "M5 V", temperature: 3060, luminosity: 0.0036, mass: 0.16 },
   { spectralType: "M3 V", temperature: 3400, luminosity: 0.014, mass: 0.3 },

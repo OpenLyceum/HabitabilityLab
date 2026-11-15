@@ -55,9 +55,6 @@ export const AU_M = 1.496e11;
 /** Seconds in a (Julian) year. */
 export const YEAR_S = 3.15576e7;
 
-/** Zero on the Celsius scale, K. */
-export const CELSIUS_ZERO_K = 273.15;
-
 /** Pascals per bar. */
 export const PA_PER_BAR = 1e5;
 
@@ -102,9 +99,6 @@ export const STARLIGHT_RANGE = new Range(0.1, 10);
 /** Infrared optical depth of the grey atmosphere (log slider; 0 handled by a "none" floor). */
 export const OPTICAL_DEPTH_RANGE = new Range(0.01, 300);
 
-/** Optical depth below which the slider reads as "no greenhouse". */
-export const OPTICAL_DEPTH_NONE = 0.01;
-
 /** Surface pressure, bar. */
 export const PRESSURE_RANGE = new Range(1e-4, 200);
 
@@ -119,9 +113,6 @@ export const WATER_CRITICAL_POINT_K = 647.096;
 export const WATER_CRITICAL_POINT_PA = 22.064e6;
 
 // ── Zone Edges ────────────────────────────────────────────────────────────────
-
-/** Starlight axis of the habitable-zone diagram, S⊕ (log). */
-export const ZONE_STARLIGHT_RANGE = new Range(0.1, 5);
 
 /** Planet masses offered for the runaway-greenhouse edge, M⊕. */
 export const PLANET_MASS_CHOICES = [0.1, 1, 5] as const;

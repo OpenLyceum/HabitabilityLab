@@ -50,11 +50,11 @@ export const GAS_MASSES: Record<GasKey, number> = {
 
 export const GASES: readonly GasKey[] = ["h2", "he", "h2o", "n2", "o2", "co2"];
 
-export type EscapeBodyKey = Extract<BodyKey, "moon" | "mercury" | "mars" | "venus" | "earth" | "titan" | "jupiter">;
+type EscapeBodyKey = Extract<BodyKey, "moon" | "mercury" | "mars" | "venus" | "earth" | "titan" | "jupiter">;
 export type EscapePreset = EscapeBodyKey | "custom";
 
 /** Escape speed (km/s) and the temperature where escape happens (K), doc/model.md §5. */
-export const ESCAPE_BODIES: Record<EscapeBodyKey, { escapeSpeed: number; temperature: number }> = {
+const ESCAPE_BODIES: Record<EscapeBodyKey, { escapeSpeed: number; temperature: number }> = {
   moon: { escapeSpeed: 2.38, temperature: 250 },
   mercury: { escapeSpeed: 4.25, temperature: 700 },
   mars: { escapeSpeed: 5.03, temperature: 250 },

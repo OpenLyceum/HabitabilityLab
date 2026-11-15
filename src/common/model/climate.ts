@@ -16,7 +16,7 @@ import { MIXED_LAYER_HEAT_CAPACITY, SOLAR_CONSTANT, STEFAN_BOLTZMANN, YEAR_S } f
 export type HeatSpread = "wholePlanet" | "daySide";
 
 /** Ratio of the emitting area to the absorbing cross-section. */
-export const heatSpreadFactor = (spread: HeatSpread): number => (spread === "wholePlanet" ? 4 : 2);
+const heatSpreadFactor = (spread: HeatSpread): number => (spread === "wholePlanet" ? 4 : 2);
 
 /** Starlight received, in S⊕ (Earth = 1), from a luminosity in L☉ and a distance in AU. */
 export const starlight = (luminositySun: number, distanceAU: number): number => luminositySun / distanceAU ** 2;
@@ -68,6 +68,3 @@ export const greenhouseSurfaceTemperature = (equilibrium: number, opticalDepth: 
 /** Optical depth that gives a surface temperature `surface` over a bare-rock temperature `equilibrium`. */
 export const opticalDepthFor = (surface: number, equilibrium: number): number =>
   Math.max(0, ((surface / equilibrium) ** 4 - 1) / 0.75);
-
-/** Kelvin to degrees Celsius. */
-export const toCelsius = (kelvin: number): number => kelvin - 273.15;

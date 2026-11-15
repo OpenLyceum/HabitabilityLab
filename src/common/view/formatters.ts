@@ -53,11 +53,6 @@ export function formatFlux(watts: number): string {
   );
 }
 
-/** A pressure in bar to two significant figures. */
-export function formatBar(bar: number): string {
-  return valueWithUnits(formatSignificant(bar, 2), StringManager.getInstance().getUnits().barStringProperty.value);
-}
-
 /** A distance in AU to three significant figures. */
 export function formatAU(au: number): string {
   return valueWithUnits(formatSignificant(au, 3), StringManager.getInstance().getUnits().auStringProperty.value);

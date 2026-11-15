@@ -46,7 +46,7 @@ const MELTING_A = [0.119539337e7, 0.808183159e5, 0.33382686e4] as const;
 const MELTING_B = [3, 25.75, 103.75] as const;
 
 /** Melting pressure of ice Ih at temperature T ≤ 273.16 K, Pa (IAPWS R14-08). */
-export function meltingPressure(temperature: number): number {
+function meltingPressure(temperature: number): number {
   const theta = temperature / WATER_TRIPLE_POINT_K;
   let sum = 1;
   for (let i = 0; i < 3; i++) {

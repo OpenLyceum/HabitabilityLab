@@ -18,7 +18,7 @@ export type StarState = {
 };
 
 /** The catalog, lightest star first. */
-export const STELLAR_TRACKS: readonly StarRecord[] = SHZ_STARS;
+const STELLAR_TRACKS: readonly StarRecord[] = SHZ_STARS;
 
 /** Catalog masses, M☉. */
 export const TRACK_MASSES: readonly number[] = STELLAR_TRACKS.map((track) => track.mass);
@@ -82,14 +82,6 @@ export const mainSequenceEndMyr = (track: StarRecord): number =>
 
 /** Age at which the star becomes its final remnant, Myr. */
 export const remnantAgeMyr = (track: StarRecord): number => track.epochsList[track.epochsList.length - 1]?.time ?? 0;
-
-/** The remnant the star leaves, from the Hurley–Pols–Tout type code of its last epoch. */
-export type Remnant = "whiteDwarf" | "neutronStar" | "blackHole";
-
-export function remnantOf(track: StarRecord): Remnant {
-  const type = track.epochsList[track.epochsList.length - 1]?.type ?? 11;
-  return type === 13 ? "neutronStar" : type === 14 ? "blackHole" : "whiteDwarf";
-}
 
 /** Last tabulated age, Myr. */
 export const trackEndMyr = (track: StarRecord): number => track.dataTable[track.dataTable.length - 1]?.time ?? 0;

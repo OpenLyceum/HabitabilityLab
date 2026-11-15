@@ -36,8 +36,6 @@ export type ShorelinePlanet = {
   readonly starTemperature: number;
 };
 
-export const ARCHIVE_RETRIEVED: string = planetData.retrieved;
-
 export const CURATED_PLANETS: readonly CuratedPlanet[] = planetData.curated.map((p) => ({
   name: p.name,
   host: p.host,

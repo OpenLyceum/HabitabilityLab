@@ -66,7 +66,7 @@ export type AgingPreset =
   | "custom";
 
 /** Star mass (M☉, snapped to the catalog) and the planet's starting distance (AU) of each preset. */
-export const AGING_PRESET_VALUES: Record<Exclude<AgingPreset, "custom">, { mass: number; distance: number }> = {
+const AGING_PRESET_VALUES: Record<Exclude<AgingPreset, "custom">, { mass: number; distance: number }> = {
   sunVenus: { mass: 1, distance: 0.723 },
   sunEarth: { mass: 1, distance: 1 },
   sunMars: { mass: 1, distance: 1.524 },
@@ -99,7 +99,7 @@ export type Stage =
   | "neutronStar"
   | "blackHole";
 
-export function stageOfType(type: number): Stage {
+function stageOfType(type: number): Stage {
   if (type <= 1) {
     return "mainSequence";
   }

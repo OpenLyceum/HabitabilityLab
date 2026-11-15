@@ -42,7 +42,7 @@ export type ChartFrameNodeOptions = {
 type Tick = { readonly value: number; readonly label: boolean };
 
 /** Writes a power-of-ten tick as a plain number when short, else as 10ⁿ. */
-export function formatLogTick(value: number): string {
+function formatLogTick(value: number): string {
   const exponent = Math.round(Math.log10(value));
   if (Math.abs(value - 10 ** exponent) < 1e-9 * value && (exponent < -3 || exponent > 4)) {
     return `10<sup>${String(exponent).replace("-", "−")}</sup>`;
@@ -55,7 +55,7 @@ export function formatLogTick(value: number): string {
  * when a decade is wide, at every decade otherwise (every other one when decades are very narrow),
  * with unlabelled minor gridlines at 2–9 when there is room. A linear axis gets nice steps.
  */
-export function axisTicks(axis: AxisSpec, targetDivisions: number, lengthPx = 300): Tick[] {
+function axisTicks(axis: AxisSpec, targetDivisions: number, lengthPx = 300): Tick[] {
   const ticks: Tick[] = [];
   if (axis.log) {
     const lowDecade = Math.floor(Math.log10(axis.min) + 1e-9);

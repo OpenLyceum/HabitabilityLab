@@ -30,7 +30,7 @@ export const jeansParameter = (escapeSpeed: number, temperature: number, massAmu
  * Complementary error function, to about 1e-7 relative accuracy (Numerical Recipes erfcc,
  * Chebyshev fit), accurate in the far tail where 1 − erf would round to zero.
  */
-export function erfc(x: number): number {
+function erfc(x: number): number {
   const z = Math.abs(x);
   const t = 1 / (1 + 0.5 * z);
   const r =
