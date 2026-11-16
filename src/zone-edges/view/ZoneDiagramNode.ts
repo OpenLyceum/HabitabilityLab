@@ -91,7 +91,7 @@ export class ZoneDiagramNode extends Node {
       lineWidth: 1,
       lineDash: [
         ZONE_DIAGRAM_NODE_SETTINGS.STAR_LINE_LINE_DASH_DASH,
-        ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_STAR_LINE_LINE_DASH_DASH,
+        ZONE_DIAGRAM_NODE_SETTINGS.STAR_LINE_LINE_DASH_GAP,
       ],
       opacity: ZONE_DIAGRAM_NODE_SETTINGS.STAR_LINE_OPACITY,
     });
@@ -115,7 +115,7 @@ export class ZoneDiagramNode extends Node {
         const inSystem = system.key === planet.host;
         dot.radius = inSystem
           ? ZONE_DIAGRAM_NODE_SETTINGS.CURATED_DOTS_RADIUS
-          : ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_CURATED_DOTS_RADIUS;
+          : ZONE_DIAGRAM_NODE_SETTINGS.EXOPLANET_DOT_RADIUS;
         dot.stroke = inSystem ? HabitabilityLabColors.selectedColorProperty : null;
         dot.opacity = inSystem ? 1 : 0.75;
       });
@@ -171,10 +171,10 @@ export class ZoneDiagramNode extends Node {
         selectionRing.x = px(Math.min(Math.max(planet.insolation, S_MIN), S_MAX));
         selectionRing.y = py(planet.bodyKey ? SUN_TEMPERATURE_K : system.temperature);
         selectionLabel.string = planet.name;
-        selectionLabel.left = selectionRing.right + ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
-        selectionLabel.centerY = selectionRing.y + ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_CENTER_Y_OFFSET;
+        selectionLabel.left = selectionRing.right + ZONE_DIAGRAM_NODE_SETTINGS.LEFT_OFFSET;
+        selectionLabel.centerY = selectionRing.y + ZONE_DIAGRAM_NODE_SETTINGS.CENTER_Y_OFFSET;
         if (selectionLabel.right > width) {
-          selectionLabel.right = selectionRing.left - ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+          selectionLabel.right = selectionRing.left - ZONE_DIAGRAM_NODE_SETTINGS.RIGHT_OFFSET;
         }
       }
     });

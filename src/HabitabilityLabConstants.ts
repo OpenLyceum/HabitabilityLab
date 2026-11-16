@@ -99,6 +99,12 @@ export const STARLIGHT_RANGE = new Range(0.1, 10);
 /** Infrared optical depth of the grey atmosphere (log slider; 0 handled by a "none" floor). */
 export const OPTICAL_DEPTH_RANGE = new Range(0.01, 300);
 
+/**
+ * Eddington grey-atmosphere factor in T_s⁴ = T_eq⁴ (1 + ¾τ).
+ * The ¾ comes from the two-stream / Eddington approximation for a grey IR atmosphere.
+ */
+export const GREY_ATMOSPHERE_FACTOR = 0.75;
+
 /** Surface pressure, bar. */
 export const PRESSURE_RANGE = new Range(1e-4, 200);
 
@@ -209,14 +215,14 @@ export const AGING_STAR_SCREEN_VIEW_SETTINGS = {
   LUMINOSITY_FORMAT_SIGNIFICANT_DIGITS: 3, // digits
   RADIUS_FORMAT_SIGNIFICANT_DIGITS: 3, // digits
 
-  CONSTRUCTOR_CONTROL_PANEL_SPACING: 8, // px
+  CONTROL_COLUMN_SPACING: 8, // px
   CONTROL_PANEL_MIN_WIDTH_OFFSET: 24, // px
   CONTROL_PANEL_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_LEGEND_SPACING: 10, // px
-  CONSTRUCTOR_TOP_OFFSET: 4, // px
-  CONSTRUCTOR_LEFT_OFFSET: 62, // px
-  CONSTRUCTOR_BOTTOM_OFFSET: 32, // px
-  CONSTRUCTOR_RIGHT_OFFSET: 20, // px
+  LEGEND_COLUMN_SPACING: 10, // px
+  TOP_OFFSET: 4, // px
+  LEFT_OFFSET: 62, // px
+  BOTTOM_OFFSET: 32, // px
+  RIGHT_OFFSET: 20, // px
 
   SYSTEM_SIZE: 290,
   HR_WIDTH: 250,
@@ -285,7 +291,7 @@ export const TIMELINE_NODE_SETTINGS = {
 
   REDRAW_LEFT_OFFSET: 3, // px
   REDRAW_TOP_FACTOR: 13, // dimensionless
-  CONSTRUCTOR_REDRAW_TOP_FACTOR: 3, // dimensionless
+  LABEL_ROW_MODULUS: 3, // dimensionless
   REDRAW_RIGHT_OFFSET: 3, // px
   REDRAW_LINE_DASH_DASH: 3, // px
 
@@ -441,11 +447,11 @@ export const ENERGY_BALANCE_MODEL_SETTINGS = {
 export const ENERGY_BALANCE_SCREEN_VIEW_SETTINGS = {
   CONTROL_PANEL_MIN_WIDTH_OFFSET: 24, // px
   CONTROL_PANEL_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_LEFT_OFFSET: 58, // px
-  CONSTRUCTOR_TOP_OFFSET: 24, // px
+  LEFT_OFFSET: 58, // px
+  TOP_OFFSET: 24, // px
   BARS_PANEL_MIN_WIDTH_OFFSET: 24, // px
   BARS_PANEL_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_RIGHT_OFFSET: 20, // px
+  RIGHT_OFFSET: 20, // px
 
   /** Years advanced by one press of the step button. */
   SPACE_HEIGHT: 215,
@@ -480,15 +486,15 @@ export const ENERGY_BARS_NODE_SETTINGS = {
   BAR_SPACING: 26,
   VALUE_TEXT_MAX_WIDTH: 80,
   BASELINE_START_X: -6,
-  CONSTRUCTOR_SPACING: 8,
+  SPACING: 8,
 } as const;
 
 /** Settings for energy-balance/view/EnergySpaceNode.ts. Layout lengths are in px; counts and ratios are dimensionless. */
 export const ENERGY_SPACE_NODE_SETTINGS = {
-  CONSTRUCTOR_TOP_OFFSET: 6, // px
+  TOP_OFFSET: 6, // px
   SOLAR_MARKS_BOTTOM_OFFSET: 8, // px
-  CONSTRUCTOR_Y_FACTOR: 16, // dimensionless
-  CONSTRUCTOR_RIGHT_OFFSET: 12, // px
+  Y_FACTOR: 16, // dimensionless
+  RIGHT_OFFSET: 12, // px
 
   STAR_X: 42,
   AXIS_LEFT_MARGIN: 100,
@@ -511,7 +517,7 @@ export const ENERGY_SPACE_NODE_SETTINGS = {
 /** Settings for energy-balance/view/TemperatureHistoryNode.ts. Layout lengths are in px; counts and ratios are dimensionless. */
 export const TEMPERATURE_HISTORY_NODE_SETTINGS = {
   EQUILIBRIUM_LINE_LINE_DASH_DASH: 6, // px
-  CONSTRUCTOR_EQUILIBRIUM_LINE_LINE_DASH_DASH: 4, // px
+  EQUILIBRIUM_LINE_LINE_DASH_GAP: 4, // px
   MEASURED_LINE_LINE_DASH_DASH: 3, // px
   REDRAW_LEFT_OFFSET: 6, // px
   REDRAW_CENTER_Y: 14, // px
@@ -546,11 +552,11 @@ export const ESCAPE_SCREEN_VIEW_SETTINGS = {
   READOUTS_DIGITS: 3, // digits
   SHORELINE_TITLE_CREATE_TITLE_MAX_WIDTH: 400, // px
 
-  CONSTRUCTOR_MOLECULE_CONTROLS_SPACING: 18, // px
+  MOLECULE_COLUMN_SPACING: 18, // px
   CONTROL_PANEL_MIN_WIDTH_OFFSET: 24, // px
   CONTROL_PANEL_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_TOP_OFFSET: 8, // px
-  CONSTRUCTOR_LEFT_OFFSET: 70, // px
+  TOP_OFFSET: 8, // px
+  LEFT_OFFSET: 70, // px
   READOUTS_MIN_WIDTH_OFFSET: 24, // px
   READOUTS_MAX_WIDTH_OFFSET: 24, // px
 
@@ -572,7 +578,7 @@ export const ESCAPE_SCREEN_VIEW_SETTINGS = {
 export const MOLECULES_NODE_SETTINGS = {
   UPDATE_TICKS_RIGHT_OFFSET: 10, // px
   MOVE_DOTS_X_OFFSET: 6, // px
-  CONSTRUCTOR_MOVE_DOTS_X_OFFSET: 60, // px
+  PLOT_WIDTH_INSET: 60, // px
   NOTE_MAX_WIDTH_OFFSET: 16, // px
 
   GROUND_HEIGHT: 30,
@@ -594,7 +600,7 @@ export const SHORELINE_NODE_SETTINGS = {
   LABEL_LEFT_OFFSET: 5, // px
   BODIES_LEFT_OFFSET: 3, // px
   BODIES_RIGHT_OFFSET: 3, // px
-  CONSTRUCTOR_LEGEND_LINE_WIDTH: 2.5, // px
+  LEGEND_SWATCH_LINE_WIDTH: 2.5, // px
 
   V_MIN: 0.5,
   V_MAX: 100,
@@ -626,10 +632,10 @@ export const SHORELINE_NODE_SETTINGS = {
 /** Settings for escape/view/SpeedDistributionNode.ts. Layout lengths are in px; counts and ratios are dimensionless. */
 export const SPEED_DISTRIBUTION_NODE_SETTINGS = {
   RMS_LINE_LINE_DASH_DASH: 4, // px
-  CONSTRUCTOR_RMS_LINE_LINE_DASH_DASH: 3, // px
-  CONSTRUCTOR_RIGHT_OFFSET: 4, // px
-  CONSTRUCTOR_LEFT_OFFSET: 4, // px
-  CONSTRUCTOR_TOP: 22, // px
+  RMS_LINE_LINE_DASH_GAP: 3, // px
+  RIGHT_OFFSET: 4, // px
+  LEFT_OFFSET: 4, // px
+  TOP: 22, // px
 
   SAMPLES: 240,
   /** Tail opacity (dimensionless). */
@@ -649,8 +655,8 @@ export const GREENHOUSE_MODEL_SETTINGS = {
 
 /** Settings for greenhouse/view/AtmosphereColumnNode.ts. Layout lengths are in px; counts and ratios are dimensionless. */
 export const ATMOSPHERE_COLUMN_NODE_SETTINGS = {
-  CONSTRUCTOR_MAX_WIDTH_OFFSET: 30, // px
-  CONSTRUCTOR_LEFT_OFFSET: 16, // px
+  MAX_WIDTH_OFFSET: 30, // px
+  LEFT_OFFSET: 16, // px
   UNDER_ARROW_TOP_OFFSET: 4, // px
 
   GROUND_HEIGHT: 56,
@@ -665,10 +671,10 @@ export const ATMOSPHERE_COLUMN_NODE_SETTINGS = {
 export const GREENHOUSE_SCREEN_VIEW_SETTINGS = {
   CONTROL_PANEL_MIN_WIDTH_OFFSET: 24, // px
   CONTROL_PANEL_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_TOP_OFFSET: 10, // px
+  TOP_OFFSET: 10, // px
   READOUTS_MIN_WIDTH_OFFSET: 24, // px
   READOUTS_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_LEFT_OFFSET: 12, // px
+  LEFT_OFFSET: 12, // px
 
   COLUMN_WIDTH: 270,
   DIAGRAM_WIDTH: 330,
@@ -723,7 +729,7 @@ export const HABITABILITY_LAB_PREFERENCES_NODE_SETTINGS = {
   SHOW_EQUATIONS_CHECKBOX_SPACING: 8,
   DESCRIPTION_FONT_SIZE: 12,
   DESCRIPTION_MAX_WIDTH: 420,
-  CONSTRUCTOR_SPACING: 12,
+  SPACING: 12,
 } as const;
 
 /** Settings for zone-edges/view/ZoneDiagramNode.ts. Layout lengths are in px; counts and ratios are dimensionless. */
@@ -735,13 +741,13 @@ export const ZONE_DIAGRAM_NODE_SETTINGS = {
   DOT_RADIUS_SEGMENT_5: 9, // px
 
   STAR_LINE_LINE_DASH_DASH: 5, // px
-  CONSTRUCTOR_STAR_LINE_LINE_DASH_DASH: 4, // px
+  STAR_LINE_LINE_DASH_GAP: 4, // px
   CURATED_DOTS_RADIUS: 5, // px
-  CONSTRUCTOR_CURATED_DOTS_RADIUS: 3.5, // px
+  EXOPLANET_DOT_RADIUS: 3.5, // px
   SOLAR_DOTS_BOTTOM_OFFSET: 6, // px
-  CONSTRUCTOR_LEFT_OFFSET: 3, // px
-  CONSTRUCTOR_CENTER_Y_OFFSET: 10, // px
-  CONSTRUCTOR_RIGHT_OFFSET: 3, // px
+  LEFT_OFFSET: 3, // px
+  CENTER_Y_OFFSET: 10, // px
+  RIGHT_OFFSET: 3, // px
 
   S_MIN: 0.1,
   S_MAX: 10,
@@ -773,8 +779,8 @@ export const ZONE_EDGES_SCREEN_VIEW_SETTINGS = {
   SYSTEM_COMBO_BOX_MAX_WIDTH_OFFSET: 50, // px
   CONTROL_PANEL_MIN_WIDTH_OFFSET: 24, // px
   CONTROL_PANEL_MAX_WIDTH_OFFSET: 24, // px
-  CONSTRUCTOR_LEFT_OFFSET: 62, // px
-  CONSTRUCTOR_TOP_OFFSET: 10, // px
+  LEFT_OFFSET: 62, // px
+  TOP_OFFSET: 10, // px
 
   DIAGRAM_WIDTH: 340,
   DIAGRAM_HEIGHT: 420,
@@ -794,8 +800,8 @@ export const ZONE_SYSTEM_VIEW_NODE_SETTINGS = {
   DOT_RADIUS: 9, // px
 
   ORBIT_LINE_WIDTH: 1.5, // px
-  CONSTRUCTOR_ORBIT_LINE_WIDTH: 0.8, // px
-  CONSTRUCTOR_BOTTOM_OFFSET: 18, // px
+  THIN_ORBIT_LINE_WIDTH: 0.8, // px
+  BOTTOM_OFFSET: 18, // px
 
   BACKGROUND_CORNER_RADIUS: 4,
   SCALE_BAR_LINE_WIDTH: 2,

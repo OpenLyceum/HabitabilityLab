@@ -1,4 +1,3 @@
-import { CLIMATE_NUMERICS } from "../../HabitabilityLabConstants.js";
 /**
  * climate.ts
  *
@@ -8,7 +7,14 @@ import { CLIMATE_NUMERICS } from "../../HabitabilityLabConstants.js";
  * See doc/model.md §1–2.
  */
 
-import { MIXED_LAYER_HEAT_CAPACITY, SOLAR_CONSTANT, STEFAN_BOLTZMANN, YEAR_S } from "../../HabitabilityLabConstants.js";
+import {
+  CLIMATE_NUMERICS,
+  GREY_ATMOSPHERE_FACTOR,
+  MIXED_LAYER_HEAT_CAPACITY,
+  SOLAR_CONSTANT,
+  STEFAN_BOLTZMANN,
+  YEAR_S,
+} from "../../HabitabilityLabConstants.js";
 
 /**
  * How a planet spreads absorbed starlight: over its whole surface (it spins or its winds carry
@@ -71,8 +77,8 @@ const absorbedTemperature = (absorbed: number): number => (Math.max(absorbed, 0)
  * approximation): T_s⁴ = T_eq⁴ (1 + ¾τ).
  */
 export const greenhouseSurfaceTemperature = (equilibrium: number, opticalDepth: number): number =>
-  equilibrium * (1 + 0.75 * Math.max(opticalDepth, 0)) ** 0.25;
+  equilibrium * (1 + GREY_ATMOSPHERE_FACTOR * Math.max(opticalDepth, 0)) ** 0.25;
 
 /** Optical depth that gives a surface temperature `surface` over a bare-rock temperature `equilibrium`. */
 export const opticalDepthFor = (surface: number, equilibrium: number): number =>
-  Math.max(0, ((surface / equilibrium) ** 4 - 1) / 0.75);
+  Math.max(0, ((surface / equilibrium) ** 4 - 1) / GREY_ATMOSPHERE_FACTOR);

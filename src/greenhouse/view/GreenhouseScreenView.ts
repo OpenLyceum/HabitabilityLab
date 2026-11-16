@@ -174,7 +174,7 @@ export class GreenhouseScreenView extends ScreenView {
     diagramTitle.left = middleLeft;
     diagramTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
     diagram.left = middleLeft;
-    diagram.top = diagramTitle.bottom + GREENHOUSE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
+    diagram.top = diagramTitle.bottom + GREENHOUSE_SCREEN_VIEW_SETTINGS.TOP_OFFSET;
 
     const dependencies = unitDependencies();
     const bareText = createReadout(
@@ -231,7 +231,7 @@ export class GreenhouseScreenView extends ScreenView {
         maxWidth: DIAGRAM_WIDTH + GREENHOUSE_SCREEN_VIEW_SETTINGS.READOUTS_MAX_WIDTH_OFFSET,
       },
     );
-    readouts.left = middleLeft - GREENHOUSE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+    readouts.left = middleLeft - GREENHOUSE_SCREEN_VIEW_SETTINGS.LEFT_OFFSET;
     readouts.top = diagram.bottom + 48;
 
     const resetAllButton = new ResetAllButton({

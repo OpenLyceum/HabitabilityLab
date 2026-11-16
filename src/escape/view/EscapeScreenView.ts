@@ -147,7 +147,7 @@ export class EscapeScreenView extends ScreenView {
       visibleProperty: moleculesVisibleProperty,
       children: [
         new HBox({
-          spacing: ESCAPE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_MOLECULE_CONTROLS_SPACING,
+          spacing: ESCAPE_SCREEN_VIEW_SETTINGS.MOLECULE_COLUMN_SPACING,
           align: "top",
           children: [
             new VBox({
@@ -209,11 +209,11 @@ export class EscapeScreenView extends ScreenView {
     moleculesTitle.left = bounds.minX + SCREEN_VIEW_MARGIN;
     moleculesTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
     molecules.left = moleculesTitle.left;
-    molecules.top = moleculesTitle.bottom + ESCAPE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
+    molecules.top = moleculesTitle.bottom + ESCAPE_SCREEN_VIEW_SETTINGS.TOP_OFFSET;
 
     const distributionTitle = createTitle(strings.distributionTitleStringProperty, DISTRIBUTION_WIDTH);
     const distribution = new SpeedDistributionNode(model, DISTRIBUTION_WIDTH, DISTRIBUTION_HEIGHT);
-    distribution.left = molecules.right + ESCAPE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+    distribution.left = molecules.right + ESCAPE_SCREEN_VIEW_SETTINGS.LEFT_OFFSET;
     distribution.top = molecules.top;
     distributionTitle.left = distribution.left;
     distributionTitle.top = moleculesTitle.top;

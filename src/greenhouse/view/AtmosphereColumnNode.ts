@@ -98,7 +98,7 @@ export class AtmosphereColumnNode extends Node {
         sunArrow.shape = arrow(xSun, 12, xSun, groundTop - 2, arrowWidthForFlux(absorbed));
         spaceArrow.shape = arrow(xUp, atmosphereTop + 10, xUp, 14, arrowWidthForFlux(absorbed));
         upArrow.shape = arrow(xUp, groundTop - 2, xUp, atmosphereTop + 30, arrowWidthForFlux(up));
-        sunLabel.maxWidth = xUp - xSun - ATMOSPHERE_COLUMN_NODE_SETTINGS.CONSTRUCTOR_MAX_WIDTH_OFFSET;
+        sunLabel.maxWidth = xUp - xSun - ATMOSPHERE_COLUMN_NODE_SETTINGS.MAX_WIDTH_OFFSET;
         spaceLabel.maxWidth = width - xUp - 22;
         backArrow.visible = back > 1;
         backArrow.shape = arrow(xBack, atmosphereTop + 30, xBack, groundTop - 2, arrowWidthForFlux(back));
@@ -112,11 +112,11 @@ export class AtmosphereColumnNode extends Node {
 
         // Sunlight and infrared-to-space labels sit beside their arrows in space; the surface
         // labels sit in the ground band, centred under their arrows.
-        sunLabel.left = xSun + ATMOSPHERE_COLUMN_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        sunLabel.left = xSun + ATMOSPHERE_COLUMN_NODE_SETTINGS.LEFT_OFFSET;
         sunLabel.top = ATMOSPHERE_COLUMN_NODE_SETTINGS.TOP_TOP;
         sunValue.left = sunLabel.left;
         sunValue.top = sunLabel.bottom + 1;
-        spaceLabel.left = xUp + ATMOSPHERE_COLUMN_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        spaceLabel.left = xUp + ATMOSPHERE_COLUMN_NODE_SETTINGS.LEFT_OFFSET;
         spaceLabel.top = ATMOSPHERE_COLUMN_NODE_SETTINGS.TOP_TOP;
         spaceValue.left = spaceLabel.left;
         spaceValue.top = spaceLabel.bottom + 1;

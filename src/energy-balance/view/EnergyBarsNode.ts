@@ -126,7 +126,7 @@ export class EnergyBarsNode extends VBox {
     });
 
     super({
-      spacing: ENERGY_BARS_NODE_SETTINGS.CONSTRUCTOR_SPACING,
+      spacing: ENERGY_BARS_NODE_SETTINGS.SPACING,
       align: "center",
       children: [
         new Text(strings.balanceTitleStringProperty, {

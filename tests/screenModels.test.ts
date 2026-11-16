@@ -7,7 +7,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { AgingStarModel, computeHistory, continuouslyHabitableZone } from "../src/aging-star/model/AgingStarModel.js";
+import { AgingStarModel } from "../src/aging-star/model/AgingStarModel.js";
+import { computeHistory, continuouslyHabitableZone } from "../src/aging-star/model/agingStarHistory.js";
 import { zoneStatus } from "../src/common/model/habitableZone.js";
 import { nearestTrack, sampleTrack } from "../src/common/model/stellarTracks.js";
 import { EnergyBalanceModel } from "../src/energy-balance/model/EnergyBalanceModel.js";

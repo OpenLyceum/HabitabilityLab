@@ -208,7 +208,7 @@ export class ShorelineNode extends Node {
         legendRow(
           new Path(new Shape().moveTo(0, 0).lineTo(SHORELINE_NODE_SETTINGS.LEGEND_X, 0), {
             stroke: HabitabilityLabColors.shorelineColorProperty,
-            lineWidth: SHORELINE_NODE_SETTINGS.CONSTRUCTOR_LEGEND_LINE_WIDTH,
+            lineWidth: SHORELINE_NODE_SETTINGS.LEGEND_SWATCH_LINE_WIDTH,
           }),
           strings.shorelineStringProperty,
         ),

@@ -87,7 +87,7 @@ export class ZoneSystemViewNode extends Node {
             stroke: HabitabilityLabColors.orbitColorProperty,
             lineWidth: isSelected
               ? ZONE_SYSTEM_VIEW_NODE_SETTINGS.ORBIT_LINE_WIDTH
-              : ZONE_SYSTEM_VIEW_NODE_SETTINGS.CONSTRUCTOR_ORBIT_LINE_WIDTH,
+              : ZONE_SYSTEM_VIEW_NODE_SETTINGS.THIN_ORBIT_LINE_WIDTH,
           });
           // Planets spread around their orbits so close ones do not overlap.
           const angle = -Math.PI / 4 + system.planets.indexOf(planet) * 0.9;
@@ -116,7 +116,7 @@ export class ZoneSystemViewNode extends Node {
         scaleBar.setLine(12, size - 14, 12 + barAU * pxPerAU, size - 14);
         scaleText.string = formatAU(barAU);
         scaleText.left = ZONE_SYSTEM_VIEW_NODE_SETTINGS.LEFT_LEFT;
-        scaleText.bottom = size - ZONE_SYSTEM_VIEW_NODE_SETTINGS.CONSTRUCTOR_BOTTOM_OFFSET;
+        scaleText.bottom = size - ZONE_SYSTEM_VIEW_NODE_SETTINGS.BOTTOM_OFFSET;
       },
     );
 

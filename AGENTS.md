@@ -56,7 +56,8 @@ Physics and data: [`doc/model.md`](doc/model.md). Architecture and decisions:
 | `src/common/view/ChartFrameNode.ts` | Chart frame with log and reversed axes, pixel-aware log ticks |
 | `src/common/view/controls.ts` | Number controls (log option), radio groups, checkboxes, explanation dialogs, equations |
 | `src/common/view/StarNode.ts` | Star disc coloured by temperature |
-| `src/aging-star/model/AgingStarModel.ts` | `computeHistory` (status, engulf, lock, time in zone), `continuouslyHabitableZone` |
+| `src/aging-star/model/agingStarHistory.ts` | Pure history: crossings, `computeHistory`, CHZ, engulf/lock ages |
+| `src/aging-star/model/AgingStarModel.ts` | Aging Star Properties, presets, playback; history helpers live in `agingStarHistory.ts` |
 | `src/escape/model/EscapeModel.ts` | Gas, presets, molecule swarm integration |
 
 ## Accessibility
