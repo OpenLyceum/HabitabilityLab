@@ -51,7 +51,6 @@ import {
 import { computeHistory, continuouslyHabitableZone, type PlanetHistory, rowIndexAt } from "./agingStarHistory.js";
 
 export type { HistoryRow, PlanetHistory } from "./agingStarHistory.js";
-export { computeHistory, continuouslyHabitableZone } from "./agingStarHistory.js";
 
 export type AgingPreset =
   | "sunVenus"
