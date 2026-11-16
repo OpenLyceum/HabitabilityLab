@@ -197,9 +197,9 @@ export const AGING_STAR_MODEL_SETTINGS = {
   MAX_FRAME_DT: 0.1,
   /** Cumulative time in the conservative zone at each row, Myr. */
   MYR_PER_YEAR: 1e-6,
-  /** Bracket crossings within each interpolated track interval, including nonmonotonic intervals. */
+  /** Sub-samples per track segment when hunting nonmonotonic zone crossings (count). */
   CROSSING_SUBDIVISIONS: 16,
-  /** Bracket crossings within each interpolated track interval, including nonmonotonic intervals. */
+  /** Bisection iterations to refine a detected zone-boundary crossing (count). */
   CROSSING_BISECTIONS: 48,
 } as const;
 
@@ -265,8 +265,10 @@ export const AGING_SYSTEM_VIEW_NODE_SETTINGS = {
 
 /** Settings for aging-star/view/HRDiagramNode.ts. Layout lengths are in px; counts and ratios are dimensionless. */
 export const HR_DIAGRAM_NODE_SETTINGS = {
-  CONSTRUCTOR_X: 2000, // px
-  CONSTRUCTOR_Y: 1e-4, // px
+  /** Lower clamp for effective temperature when placing the star dot (K). */
+  MIN_TEFF_K: 2000, // K
+  /** Lower clamp for luminosity when placing the star dot (L/L☉). */
+  MIN_LUMINOSITY_SOLAR: 1e-4, // L/L☉
 
   /** Full track opacity (dimensionless). */
   FULL_TRACK_OPACITY: 0.6,

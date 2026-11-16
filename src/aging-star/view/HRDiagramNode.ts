@@ -55,8 +55,10 @@ export class HRDiagramNode extends Node {
         ...points.filter(([age]) => age <= star.ageMyr).map(([, t, l]) => [t, l] as const),
         [star.temperature, star.luminosity],
       ]);
-      dot.x = chart.modelToViewX(Math.min(Math.max(star.temperature, HR_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_X), 100000));
-      dot.y = chart.modelToViewY(Math.min(Math.max(star.luminosity, HR_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_Y), 1e6));
+      dot.x = chart.modelToViewX(Math.min(Math.max(star.temperature, HR_DIAGRAM_NODE_SETTINGS.MIN_TEFF_K), 100000));
+      dot.y = chart.modelToViewY(
+        Math.min(Math.max(star.luminosity, HR_DIAGRAM_NODE_SETTINGS.MIN_LUMINOSITY_SOLAR), 1e6),
+      );
       dot.fill = starColor(star.temperature);
     });
 
