@@ -53,7 +53,7 @@ export function createEnergyBalanceIcon(): ScreenIcon {
       .arc(0, 0, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.NIGHT_RADIUS, -Math.PI / 2, Math.PI / 2, false)
       .close(),
     {
-      fill: "rgba(0,0,0,0.45)",
+      fill: HabitabilityLabColors.nightSideShadeColorProperty,
       x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.NIGHT_X,
       y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.NIGHT_Y,
     },

@@ -131,7 +131,7 @@ export class EnergySpaceNode extends Node {
     });
     // The night side, shading the half away from the star.
     const nightSide = new Path(new Shape().arc(0, 0, PLANET_RADIUS, -Math.PI / 2, Math.PI / 2, false).close(), {
-      fill: "rgba(0,0,0,0.45)",
+      fill: HabitabilityLabColors.nightSideShadeColorProperty,
       pickable: false,
     });
     const planetNode = new Node({

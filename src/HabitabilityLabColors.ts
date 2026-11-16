@@ -340,6 +340,14 @@ const HabitabilityLabColors = {
     default: "#1a1a1a",
     projector: "#1a1a1a",
   }),
+
+  // ── Moved from views (no-inline-color) ─────────────────────────────────────
+
+  /** Translucent shade over a planet's night side (view and screen icon). */
+  nightSideShadeColorProperty: new ProfileColorProperty(HabitabilityLabNamespace, "nightSideShade", {
+    default: "rgba(0,0,0,0.45)",
+    projector: "rgba(0,0,0,0.45)",
+  }),
 };
 
 export default HabitabilityLabColors;
