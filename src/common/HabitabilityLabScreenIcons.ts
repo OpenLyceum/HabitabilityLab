@@ -14,7 +14,7 @@ import { Shape } from "scenerystack/kite";
 import { Circle, LinearGradient, Node, Path, Rectangle } from "scenerystack/scenery";
 import { ScreenIcon } from "scenerystack/sim";
 import HabitabilityLabColors from "../HabitabilityLabColors.js";
-import { SUN_TEMPERATURE_K } from "../HabitabilityLabConstants.js";
+import { HABITABILITY_LAB_SCREEN_ICONS_SETTINGS, SUN_TEMPERATURE_K } from "../HabitabilityLabConstants.js";
 import { arrow } from "./view/fluxArrows.js";
 import { StarNode } from "./view/StarNode.js";
 
@@ -43,37 +43,86 @@ function pseudoRandom(seed: number): () => number {
 }
 
 export function createEnergyBalanceIcon(): ScreenIcon {
-  const planet = new Circle(55, { fill: HabitabilityLabColors.planetColorProperty, x: 330, y: 186 });
-  const night = new Path(new Shape().arc(0, 0, 55, -Math.PI / 2, Math.PI / 2, false).close(), {
-    fill: "rgba(0,0,0,0.45)",
-    x: 330,
-    y: 186,
+  const planet = new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.PLANET_RADIUS, {
+    fill: HabitabilityLabColors.planetColorProperty,
+    x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.PLANET_X,
+    y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.PLANET_Y,
   });
+  const night = new Path(
+    new Shape()
+      .arc(0, 0, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.NIGHT_RADIUS, -Math.PI / 2, Math.PI / 2, false)
+      .close(),
+    {
+      fill: "rgba(0,0,0,0.45)",
+      x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.NIGHT_X,
+      y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.NIGHT_Y,
+    },
+  );
   return iconFrom(
-    new StarNode(70, SUN_TEMPERATURE_K, { x: 40, y: 186 }),
-    new Path(arrow(140, 186, 268, 186, 34), { fill: HabitabilityLabColors.sunlightColorProperty }),
-    new Path(arrow(392, 186, 520, 186, 28), { fill: HabitabilityLabColors.infraredColorProperty }),
-    new Path(arrow(375, 140, 470, 60, 20), { fill: HabitabilityLabColors.infraredColorProperty }),
-    new Path(arrow(375, 232, 470, 312, 20), { fill: HabitabilityLabColors.infraredColorProperty }),
+    new StarNode(70, SUN_TEMPERATURE_K, {
+      x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ENERGY_BALANCE_ICON_X,
+      y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ENERGY_BALANCE_ICON_Y,
+    }),
+    new Path(arrow(140, 186, 268, 186, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ENERGY_BALANCE_ICON_TAIL_WIDTH), {
+      fill: HabitabilityLabColors.sunlightColorProperty,
+    }),
+    new Path(
+      arrow(392, 186, 520, 186, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ENERGY_BALANCE_ICON_TAIL_WIDTH_SEGMENT_2),
+      { fill: HabitabilityLabColors.infraredColorProperty },
+    ),
+    new Path(
+      arrow(375, 140, 470, 60, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ENERGY_BALANCE_ICON_TAIL_WIDTH_SEGMENT_3),
+      { fill: HabitabilityLabColors.infraredColorProperty },
+    ),
+    new Path(
+      arrow(375, 232, 470, 312, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ENERGY_BALANCE_ICON_TAIL_WIDTH_SEGMENT_3),
+      { fill: HabitabilityLabColors.infraredColorProperty },
+    ),
     planet,
     night,
   );
 }
 
 export function createGreenhouseIcon(): ScreenIcon {
-  const atmosphere = new Rectangle(0, 80, W, 223, {
-    fill: new LinearGradient(0, 80, 0, 303)
-      .addColorStop(0, "rgba(79,134,198,0.15)")
-      .addColorStop(1, "rgba(79,134,198,0.85)"),
-  });
-  const ground = new Rectangle(0, 303, W, 70, { fill: HabitabilityLabColors.surfaceColorProperty });
+  const atmosphere = new Rectangle(
+    0,
+    HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.ATMOSPHERE_Y,
+    W,
+    HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.ATMOSPHERE_HEIGHT,
+    {
+      fill: new LinearGradient(0, 80, 0, 303)
+        .addColorStop(0, "rgba(79,134,198,0.15)")
+        .addColorStop(1, "rgba(79,134,198,0.85)"),
+    },
+  );
+  const ground = new Rectangle(
+    0,
+    HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.GROUND_Y,
+    W,
+    HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.GROUND_HEIGHT,
+    { fill: HabitabilityLabColors.surfaceColorProperty },
+  );
   return iconFrom(
     atmosphere,
     ground,
-    new Path(arrow(110, 10, 110, 298, 34), { fill: HabitabilityLabColors.sunlightColorProperty }),
-    new Path(arrow(274, 298, 274, 120, 52), { fill: HabitabilityLabColors.infraredColorProperty }),
-    new Path(arrow(274, 90, 274, 15, 30), { fill: HabitabilityLabColors.infraredColorProperty }),
-    new Path(arrow(430, 130, 430, 298, 42), { fill: HabitabilityLabColors.infraredColorProperty, opacity: 0.7 }),
+    new Path(arrow(110, 10, 110, 298, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_GREENHOUSE_ICON_TAIL_WIDTH), {
+      fill: HabitabilityLabColors.sunlightColorProperty,
+    }),
+    new Path(
+      arrow(274, 298, 274, 120, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_GREENHOUSE_ICON_TAIL_WIDTH_SEGMENT_2),
+      { fill: HabitabilityLabColors.infraredColorProperty },
+    ),
+    new Path(
+      arrow(274, 90, 274, 15, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_GREENHOUSE_ICON_TAIL_WIDTH_SEGMENT_3),
+      { fill: HabitabilityLabColors.infraredColorProperty },
+    ),
+    new Path(
+      arrow(430, 130, 430, 298, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_GREENHOUSE_ICON_TAIL_WIDTH_SEGMENT_4),
+      {
+        fill: HabitabilityLabColors.infraredColorProperty,
+        opacity: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_GREENHOUSE_ICON_OPACITY,
+      },
+    ),
   );
 }
 
@@ -83,27 +132,50 @@ export function createZoneEdgesIcon(): ScreenIcon {
   const ring = (radius: number, fill: typeof HabitabilityLabColors.conservativeZoneColorProperty): Circle =>
     new Circle(radius, { fill: fill, x: cx, y: cy });
   const orbit = (radius: number): Circle =>
-    new Circle(radius, { stroke: HabitabilityLabColors.orbitColorProperty, lineWidth: 3, x: cx, y: cy });
+    new Circle(radius, {
+      stroke: HabitabilityLabColors.orbitColorProperty,
+      lineWidth: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.ORBIT_LINE_WIDTH,
+      x: cx,
+      y: cy,
+    });
   return iconFrom(
-    ring(175, HabitabilityLabColors.optimisticZoneColorProperty),
-    ring(160, HabitabilityLabColors.conservativeZoneColorProperty),
-    ring(100, HabitabilityLabColors.optimisticZoneColorProperty),
-    ring(85, HabitabilityLabColors.spaceColorProperty),
-    orbit(60),
-    orbit(130),
-    orbit(205),
+    ring(
+      HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_2,
+      HabitabilityLabColors.optimisticZoneColorProperty,
+    ),
+    ring(
+      HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_3,
+      HabitabilityLabColors.conservativeZoneColorProperty,
+    ),
+    ring(
+      HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_4,
+      HabitabilityLabColors.optimisticZoneColorProperty,
+    ),
+    ring(
+      HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_5,
+      HabitabilityLabColors.spaceColorProperty,
+    ),
+    orbit(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_6),
+    orbit(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_7),
+    orbit(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_8),
     new StarNode(26, 3400, { x: cx, y: cy }),
-    new Circle(12, {
+    new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS, {
       fill: HabitabilityLabColors.tooHotColorProperty,
-      x: cx + 60 * Math.cos(2.4),
-      y: cy + 60 * Math.sin(2.4),
+      x:
+        cx +
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_X_FACTOR *
+          Math.cos(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_X),
+      y:
+        cy +
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_Y_FACTOR *
+          Math.sin(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_Y),
     }),
-    new Circle(15, {
+    new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS_SEGMENT_9, {
       fill: HabitabilityLabColors.planetColorProperty,
       x: cx + 130 * Math.cos(-0.6),
       y: cy + 130 * Math.sin(-0.6),
     }),
-    new Circle(12, {
+    new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ZONE_EDGES_ICON_RADIUS, {
       fill: HabitabilityLabColors.tooColdColorProperty,
       x: cx + 205 * Math.cos(0.5),
       y: cy + 205 * Math.sin(0.5),
@@ -112,26 +184,61 @@ export function createZoneEdgesIcon(): ScreenIcon {
 }
 
 export function createAgingStarIcon(): ScreenIcon {
-  const giant = new StarNode(150, 3600, { x: 380, y: 186 });
-  const young = new StarNode(30, SUN_TEMPERATURE_K, { x: 90, y: 186 });
-  const track = new Path(new Shape().moveTo(140, 186).quadraticCurveTo(180, 120, 220, 150), {
-    stroke: HabitabilityLabColors.trackColorProperty,
-    lineWidth: 6,
-    lineDash: [14, 10],
+  const giant = new StarNode(150, 3600, {
+    x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.GIANT_X,
+    y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.GIANT_Y,
   });
+  const young = new StarNode(30, SUN_TEMPERATURE_K, {
+    x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.YOUNG_X,
+    y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.YOUNG_Y,
+  });
+  const track = new Path(
+    new Shape()
+      .moveTo(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_X, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_Y)
+      .quadraticCurveTo(
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_CONTROL_X,
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_CONTROL_Y,
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_END_X,
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_END_Y,
+      ),
+    {
+      stroke: HabitabilityLabColors.trackColorProperty,
+      lineWidth: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_LINE_WIDTH,
+      lineDash: [
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRACK_LINE_DASH_DASH,
+        HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_AGING_STAR_ICON_TRACK_LINE_DASH_DASH,
+      ],
+    },
+  );
   return iconFrom(young, track, giant);
 }
 
 export function createEscapeIcon(): ScreenIcon {
   const random = pseudoRandom(7);
-  const limb = new Circle(520, { fill: HabitabilityLabColors.surfaceColorProperty, x: W / 2, y: H + 400 });
+  const limb = new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.LIMB_RADIUS, {
+    fill: HabitabilityLabColors.surfaceColorProperty,
+    x: W / 2,
+    y: H + HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.LIMB_Y_OFFSET,
+  });
   const molecules: Node[] = [];
   for (let i = 0; i < 40; i++) {
     const x = 20 + random() * (W - 40);
     const y = 240 + random() * 100;
-    molecules.push(new Circle(8, { fill: HabitabilityLabColors.moleculeColorProperty, x: x, y: y }));
+    molecules.push(
+      new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.CREATE_ESCAPE_ICON_RADIUS, {
+        fill: HabitabilityLabColors.moleculeColorProperty,
+        x: x,
+        y: y,
+      }),
+    );
   }
-  const escaping = new Circle(10, { fill: HabitabilityLabColors.escapingColorProperty, x: 360, y: 70 });
-  const trail = new Path(arrow(300, 200, 352, 82, 8), { fill: HabitabilityLabColors.escapingColorProperty });
+  const escaping = new Circle(HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.ESCAPING_RADIUS, {
+    fill: HabitabilityLabColors.escapingColorProperty,
+    x: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.ESCAPING_X,
+    y: HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.ESCAPING_Y,
+  });
+  const trail = new Path(arrow(300, 200, 352, 82, HABITABILITY_LAB_SCREEN_ICONS_SETTINGS.TRAIL_TAIL_WIDTH), {
+    fill: HabitabilityLabColors.escapingColorProperty,
+  });
   return iconFrom(limb, ...molecules, trail, escaping);
 }

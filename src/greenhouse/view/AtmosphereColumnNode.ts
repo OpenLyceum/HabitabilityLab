@@ -1,3 +1,4 @@
+import { ATMOSPHERE_COLUMN_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * AtmosphereColumnNode.ts
  *
@@ -17,8 +18,8 @@ import { FONTS } from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { GreenhouseModel } from "../model/GreenhouseModel.js";
 
-const GROUND_HEIGHT = 56;
-const SPACE_HEIGHT = 70;
+const GROUND_HEIGHT: number = ATMOSPHERE_COLUMN_NODE_SETTINGS.GROUND_HEIGHT;
+const SPACE_HEIGHT: number = ATMOSPHERE_COLUMN_NODE_SETTINGS.SPACE_HEIGHT;
 
 /** Opacity of the drawn atmosphere for an optical depth τ (saturates for Venus-like τ). */
 const atmosphereOpacity = (tau: number): number => Math.min(0.92, 0.08 + 0.3 * Math.log10(1 + 10 * tau));
@@ -31,7 +32,7 @@ export class AtmosphereColumnNode extends Node {
     const space = new Rectangle(0, 0, width, height, {
       fill: HabitabilityLabColors.spaceColorProperty,
       stroke: HabitabilityLabColors.spaceBorderColorProperty,
-      cornerRadius: 4,
+      cornerRadius: ATMOSPHERE_COLUMN_NODE_SETTINGS.SPACE_CORNER_RADIUS,
     });
     const atmosphereTop = SPACE_HEIGHT;
     const groundTop = height - GROUND_HEIGHT;
@@ -42,7 +43,10 @@ export class AtmosphereColumnNode extends Node {
 
     const sunArrow = new Path(null, { fill: HabitabilityLabColors.sunlightColorProperty });
     const upArrow = new Path(null, { fill: HabitabilityLabColors.infraredColorProperty });
-    const backArrow = new Path(null, { fill: HabitabilityLabColors.infraredColorProperty, opacity: 0.7 });
+    const backArrow = new Path(null, {
+      fill: HabitabilityLabColors.infraredColorProperty,
+      opacity: ATMOSPHERE_COLUMN_NODE_SETTINGS.BACK_ARROW_OPACITY,
+    });
     const spaceArrow = new Path(null, { fill: HabitabilityLabColors.infraredColorProperty });
 
     const labelWidth = width / 3 - 8;
@@ -94,7 +98,7 @@ export class AtmosphereColumnNode extends Node {
         sunArrow.shape = arrow(xSun, 12, xSun, groundTop - 2, arrowWidthForFlux(absorbed));
         spaceArrow.shape = arrow(xUp, atmosphereTop + 10, xUp, 14, arrowWidthForFlux(absorbed));
         upArrow.shape = arrow(xUp, groundTop - 2, xUp, atmosphereTop + 30, arrowWidthForFlux(up));
-        sunLabel.maxWidth = xUp - xSun - 30;
+        sunLabel.maxWidth = xUp - xSun - ATMOSPHERE_COLUMN_NODE_SETTINGS.CONSTRUCTOR_MAX_WIDTH_OFFSET;
         spaceLabel.maxWidth = width - xUp - 22;
         backArrow.visible = back > 1;
         backArrow.shape = arrow(xBack, atmosphereTop + 30, xBack, groundTop - 2, arrowWidthForFlux(back));
@@ -108,17 +112,17 @@ export class AtmosphereColumnNode extends Node {
 
         // Sunlight and infrared-to-space labels sit beside their arrows in space; the surface
         // labels sit in the ground band, centred under their arrows.
-        sunLabel.left = xSun + 16;
-        sunLabel.top = 8;
+        sunLabel.left = xSun + ATMOSPHERE_COLUMN_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        sunLabel.top = ATMOSPHERE_COLUMN_NODE_SETTINGS.TOP_TOP;
         sunValue.left = sunLabel.left;
         sunValue.top = sunLabel.bottom + 1;
-        spaceLabel.left = xUp + 16;
-        spaceLabel.top = 8;
+        spaceLabel.left = xUp + ATMOSPHERE_COLUMN_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        spaceLabel.top = ATMOSPHERE_COLUMN_NODE_SETTINGS.TOP_TOP;
         spaceValue.left = spaceLabel.left;
         spaceValue.top = spaceLabel.bottom + 1;
         const underArrow = (title: RichText, value: RichText, x: number): void => {
           title.centerX = x;
-          title.top = groundTop + 4;
+          title.top = groundTop + ATMOSPHERE_COLUMN_NODE_SETTINGS.UNDER_ARROW_TOP_OFFSET;
           value.centerX = x;
           value.top = title.bottom + 1;
         };

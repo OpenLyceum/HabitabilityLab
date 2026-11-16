@@ -1,3 +1,4 @@
+import { TIMELINE_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * TimelineNode.ts
  *
@@ -27,8 +28,8 @@ import { FONTS, SUN_AGE_MYR, UNIVERSE_AGE_MYR } from "../../HabitabilityLabConst
 import { StringManager } from "../../i18n/StringManager.js";
 import type { AgingStarModel, HistoryRow } from "../model/AgingStarModel.js";
 
-const STRIP_HEIGHT = 10;
-const STRIP_GAP = 4;
+const STRIP_HEIGHT: number = TIMELINE_NODE_SETTINGS.STRIP_HEIGHT;
+const STRIP_GAP: number = TIMELINE_NODE_SETTINGS.STRIP_GAP;
 
 /** Keyboard step of the cursor, as a fraction of the window (Shift: a fifth of it). */
 const KEYBOARD_STEP = 1 / 200;
@@ -60,7 +61,10 @@ export class TimelineNode extends Node {
     const xOfAge = (age: number): number => chart.modelToViewX(usesGyr() ? age / 1000 : age);
     const ageOfX = (x: number): number => chart.viewToModelX(x) * (usesGyr() ? 1000 : 1);
 
-    const curve = new Path(null, { stroke: HabitabilityLabColors.luminosityCurveColorProperty, lineWidth: 2 });
+    const curve = new Path(null, {
+      stroke: HabitabilityLabColors.luminosityCurveColorProperty,
+      lineWidth: TIMELINE_NODE_SETTINGS.CURVE_LINE_WIDTH,
+    });
     const strip = new Node({ y: -STRIP_GAP - STRIP_HEIGHT });
     const markers = new Node();
 
@@ -132,26 +136,54 @@ export class TimelineNode extends Node {
         .sort(([a], [b]) => a - b)
         .map(([age, label, color]) => {
           const x = xOfAge(age);
-          const text = new Text(label, { font: FONTS.SMALL, fill: color, maxWidth: 110 });
-          text.left = x + 3;
-          text.top = 2 + 13 * (labelRow++ % 3);
+          const text = new Text(label, {
+            font: FONTS.SMALL,
+            fill: color,
+            maxWidth: TIMELINE_NODE_SETTINGS.TEXT_MAX_WIDTH,
+          });
+          text.left = x + TIMELINE_NODE_SETTINGS.REDRAW_LEFT_OFFSET;
+          text.top =
+            2 +
+            TIMELINE_NODE_SETTINGS.REDRAW_TOP_FACTOR *
+              (labelRow++ % TIMELINE_NODE_SETTINGS.CONSTRUCTOR_REDRAW_TOP_FACTOR);
           if (text.right > width) {
-            text.right = x - 3;
+            text.right = x - TIMELINE_NODE_SETTINGS.REDRAW_RIGHT_OFFSET;
           }
           return new Node({
-            children: [new Path(new Shape().moveTo(x, 0).lineTo(x, height), { stroke: color, lineDash: [3, 3] }), text],
+            children: [
+              new Path(new Shape().moveTo(x, 0).lineTo(x, height), {
+                stroke: color,
+                lineDash: [TIMELINE_NODE_SETTINGS.REDRAW_LINE_DASH_DASH, TIMELINE_NODE_SETTINGS.REDRAW_LINE_DASH_DASH],
+              }),
+              text,
+            ],
           });
         });
     };
     Multilink.multilink([model.historyProperty, model.windowProperty], redraw);
 
     // ── Age cursor ────────────────────────────────────────────────────────────
-    const cursorLine = new Path(null, { stroke: HabitabilityLabColors.cursorColorProperty, lineWidth: 2 });
-    const handle = new Path(new Shape().moveTo(0, 0).lineTo(-7, 11).lineTo(7, 11).close(), {
-      fill: HabitabilityLabColors.cursorColorProperty,
-      cursor: "ew-resize",
-      touchArea: Shape.rect(-12, -4, 24, 20),
+    const cursorLine = new Path(null, {
+      stroke: HabitabilityLabColors.cursorColorProperty,
+      lineWidth: TIMELINE_NODE_SETTINGS.CURSOR_LINE_LINE_WIDTH,
     });
+    const handle = new Path(
+      new Shape()
+        .moveTo(0, 0)
+        .lineTo(TIMELINE_NODE_SETTINGS.HANDLE_X, TIMELINE_NODE_SETTINGS.HANDLE_Y)
+        .lineTo(TIMELINE_NODE_SETTINGS.HANDLE_X_SEGMENT_2, TIMELINE_NODE_SETTINGS.HANDLE_Y)
+        .close(),
+      {
+        fill: HabitabilityLabColors.cursorColorProperty,
+        cursor: "ew-resize",
+        touchArea: Shape.rect(
+          TIMELINE_NODE_SETTINGS.HANDLE_X_SEGMENT_3,
+          TIMELINE_NODE_SETTINGS.HANDLE_Y_SEGMENT_2,
+          TIMELINE_NODE_SETTINGS.HANDLE_WIDTH,
+          TIMELINE_NODE_SETTINGS.HANDLE_HEIGHT,
+        ),
+      },
+    );
     const cursorNode = new Node({
       children: [handle],
       tagName: "div",

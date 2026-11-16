@@ -1,3 +1,4 @@
+import { ENERGY_BALANCE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EnergyBalanceScreenSummaryContent.ts
  *
@@ -20,7 +21,9 @@ export class EnergyBalanceScreenSummaryContent extends ScreenSummaryContent {
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
-        starlight: new DerivedProperty([model.starlightProperty], (s) => toPlainText(formatSignificant(s, 3))),
+        starlight: new DerivedProperty([model.starlightProperty], (s) =>
+          toPlainText(formatSignificant(s, ENERGY_BALANCE_SCREEN_SUMMARY_CONTENT_SETTINGS.FORMAT_SIGNIFICANT_DIGITS)),
+        ),
         temperature: new DerivedProperty([model.temperatureProperty], (t) => String(Math.round(t))),
         trend: new DerivedProperty(
           [model.trendProperty, a11y.warmingStringProperty, a11y.coolingStringProperty, a11y.balancedStringProperty],

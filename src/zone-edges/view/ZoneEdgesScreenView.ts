@@ -1,3 +1,4 @@
+import { ZONE_EDGES_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ZoneEdgesScreenView.ts
  *
@@ -57,9 +58,9 @@ import { ZoneSystemViewNode } from "./ZoneSystemViewNode.js";
 
 export type ZoneEdgesScreenViewOptions = ScreenViewOptions;
 
-const DIAGRAM_WIDTH = 340;
-const DIAGRAM_HEIGHT = 420;
-const SYSTEM_SIZE = 250;
+const DIAGRAM_WIDTH: number = ZONE_EDGES_SCREEN_VIEW_SETTINGS.DIAGRAM_WIDTH;
+const DIAGRAM_HEIGHT: number = ZONE_EDGES_SCREEN_VIEW_SETTINGS.DIAGRAM_HEIGHT;
+const SYSTEM_SIZE: number = ZONE_EDGES_SCREEN_VIEW_SETTINGS.SYSTEM_SIZE;
 const CARD_WIDTH = SYSTEM_SIZE;
 
 const limitSymbol = (limit: number): string => (limit === 1 ? "≤" : limit === -1 ? "≥" : "");
@@ -122,19 +123,27 @@ export class ZoneEdgesScreenView extends ScreenView {
             new Text(labelProperty ?? system.key, {
               font: FONTS.LABEL,
               fill: LIGHT_SURFACE_TEXT_FILL,
-              maxWidth: CONTROL_PANEL_WIDTH - 50,
+              maxWidth: CONTROL_PANEL_WIDTH - ZONE_EDGES_SCREEN_VIEW_SETTINGS.SYSTEM_COMBO_BOX_MAX_WIDTH_OFFSET,
             }),
           ...(labelProperty ? { accessibleName: labelProperty } : { accessibleName: system.key }),
         };
       }),
       listParent,
-      { ...HABITABILITY_LAB_COMBO_BOX_OPTIONS, accessibleName: a11y.controls.systemStringProperty, yMargin: 4 },
+      {
+        ...HABITABILITY_LAB_COMBO_BOX_OPTIONS,
+        accessibleName: a11y.controls.systemStringProperty,
+        yMargin: ZONE_EDGES_SCREEN_VIEW_SETTINGS.SYSTEM_COMBO_BOX_Y_MARGIN,
+      },
     );
     const temperatureControl = createNumberControl(
       strings.starTemperatureStringProperty,
       model.customTemperatureProperty,
       KOPPARAPU_TEMPERATURE_RANGE,
-      { unitsProperty: units.kelvinStringProperty, significantFigures: 4, delta: 10 },
+      {
+        unitsProperty: units.kelvinStringProperty,
+        significantFigures: ZONE_EDGES_SCREEN_VIEW_SETTINGS.TEMPERATURE_CONTROL_SIGNIFICANT_FIGURES,
+        delta: ZONE_EDGES_SCREEN_VIEW_SETTINGS.TEMPERATURE_CONTROL_DELTA,
+      },
     );
     temperatureControl.visibleProperty = model.isCustomProperty;
     const starText = createReadout(
@@ -145,7 +154,7 @@ export class ZoneEdgesScreenView extends ScreenView {
         ),
         luminosity: DerivedProperty.deriveAny([model.starLuminosityProperty, ...unitDependencies()], () =>
           valueWithUnits(
-            formatSignificant(model.starLuminosityProperty.value, 2),
+            formatSignificant(model.starLuminosityProperty.value, ZONE_EDGES_SCREEN_VIEW_SETTINGS.STAR_TEXT_DIGITS),
             units.solarLuminosityStringProperty.value,
           ),
         ),
@@ -212,7 +221,7 @@ export class ZoneEdgesScreenView extends ScreenView {
     );
     const controlPanel = new HabitabilityLabPanel(
       new VBox({
-        spacing: 7,
+        spacing: ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_SPACING,
         align: "left",
         children: [
           createTitle(strings.systemStringProperty),
@@ -229,7 +238,10 @@ export class ZoneEdgesScreenView extends ScreenView {
           createExplanationRow(explanationButton),
         ],
       }),
-      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+      {
+        minWidth: CONTROL_PANEL_WIDTH + ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MIN_WIDTH_OFFSET,
+        maxWidth: CONTROL_PANEL_WIDTH + ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MAX_WIDTH_OFFSET,
+      },
     );
     controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
     controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
@@ -237,10 +249,10 @@ export class ZoneEdgesScreenView extends ScreenView {
     // ── Diagram (left) ────────────────────────────────────────────────────────
     const diagramTitle = createTitle(strings.diagramTitleStringProperty, DIAGRAM_WIDTH);
     const diagram = new ZoneDiagramNode(model, DIAGRAM_WIDTH, DIAGRAM_HEIGHT);
-    diagram.left = bounds.minX + SCREEN_VIEW_MARGIN + 62;
+    diagram.left = bounds.minX + SCREEN_VIEW_MARGIN + ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
     diagramTitle.left = diagram.left;
     diagramTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
-    diagram.top = diagramTitle.bottom + 10;
+    diagram.top = diagramTitle.bottom + ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     // ── Top view and planet card (middle) ─────────────────────────────────────
     const systemTitle = createTitle(strings.systemTitleStringProperty, SYSTEM_SIZE);
@@ -302,7 +314,7 @@ export class ZoneEdgesScreenView extends ScreenView {
           strings.radiusPatternStringProperty.value.replace(
             "{{value}}",
             valueWithUnits(
-              `${limitSymbol(planet.radiusLimit)}${formatSignificant(planet.radius, 3)}`,
+              `${limitSymbol(planet.radiusLimit)}${formatSignificant(planet.radius, ZONE_EDGES_SCREEN_VIEW_SETTINGS.RADIUS_FORMAT_SIGNIFICANT_DIGITS)}`,
               units.earthRadiiStringProperty.value,
             ),
           ),
@@ -312,7 +324,7 @@ export class ZoneEdgesScreenView extends ScreenView {
                 .replace(
                   "{{value}}",
                   valueWithUnits(
-                    `${massPrefix(planet)}${formatSignificant(planet.mass, 3)}`,
+                    `${massPrefix(planet)}${formatSignificant(planet.mass, ZONE_EDGES_SCREEN_VIEW_SETTINGS.MASS_FORMAT_SIGNIFICANT_DIGITS)}`,
                     units.earthMassesStringProperty.value,
                   ),
                 )
@@ -345,13 +357,17 @@ export class ZoneEdgesScreenView extends ScreenView {
     conservativeRange.fill = HabitabilityLabColors.habitableColorProperty;
     const optimisticRange = rangeText(strings.optimisticRangePatternStringProperty, "recentVenus", "earlyMars");
     const planetInfo = new VBox({
-      spacing: 6,
+      spacing: ZONE_EDGES_SCREEN_VIEW_SETTINGS.PLANET_INFO_SPACING,
       align: "left",
       children: [cardName, cardStatus, cardLines],
       visibleProperty: new DerivedProperty([model.selectedPlanetProperty], (planet) => planet !== null),
     });
     const card = new HabitabilityLabPanel(
-      new VBox({ spacing: 8, align: "left", children: [conservativeRange, optimisticRange, planetInfo] }),
+      new VBox({
+        spacing: ZONE_EDGES_SCREEN_VIEW_SETTINGS.CARD_SPACING,
+        align: "left",
+        children: [conservativeRange, optimisticRange, planetInfo],
+      }),
       {
         minWidth: CARD_WIDTH,
         maxWidth: CARD_WIDTH,

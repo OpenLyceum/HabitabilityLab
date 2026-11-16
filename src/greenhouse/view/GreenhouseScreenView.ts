@@ -1,3 +1,4 @@
+import { GREENHOUSE_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * GreenhouseScreenView.ts
  *
@@ -46,9 +47,9 @@ import { PhaseDiagramNode } from "./PhaseDiagramNode.js";
 
 export type GreenhouseScreenViewOptions = ScreenViewOptions;
 
-const COLUMN_WIDTH = 270;
-const DIAGRAM_WIDTH = 330;
-const DIAGRAM_HEIGHT = 300;
+const COLUMN_WIDTH: number = GREENHOUSE_SCREEN_VIEW_SETTINGS.COLUMN_WIDTH;
+const DIAGRAM_WIDTH: number = GREENHOUSE_SCREEN_VIEW_SETTINGS.DIAGRAM_WIDTH;
+const DIAGRAM_HEIGHT: number = GREENHOUSE_SCREEN_VIEW_SETTINGS.DIAGRAM_HEIGHT;
 
 /** The verdict colour for each phase. */
 const phaseColor = (phase: WaterPhase) =>
@@ -96,18 +97,21 @@ export class GreenhouseScreenView extends ScreenView {
       {
         logarithmic: true,
         unitsProperty: units.earthFluxStringProperty,
-        significantFigures: 3,
+        significantFigures: GREENHOUSE_SCREEN_VIEW_SETTINGS.STARLIGHT_CONTROL_SIGNIFICANT_FIGURES,
       },
     );
     const albedoControl = createNumberControl(strings.albedoStringProperty, model.albedoProperty, ALBEDO_RANGE, {
-      significantFigures: 2,
-      delta: 0.01,
+      significantFigures: GREENHOUSE_SCREEN_VIEW_SETTINGS.ALBEDO_CONTROL_SIGNIFICANT_FIGURES,
+      delta: GREENHOUSE_SCREEN_VIEW_SETTINGS.ALBEDO_CONTROL_DELTA,
     });
     const opticalDepthControl = createNumberControl(
       strings.opticalDepthStringProperty,
       model.opticalDepthProperty,
       OPTICAL_DEPTH_RANGE,
-      { logarithmic: true, significantFigures: 2 },
+      {
+        logarithmic: true,
+        significantFigures: GREENHOUSE_SCREEN_VIEW_SETTINGS.OPTICAL_DEPTH_CONTROL_SIGNIFICANT_FIGURES,
+      },
     );
     const pressureControl = createNumberControl(
       strings.pressureStringProperty,
@@ -116,7 +120,7 @@ export class GreenhouseScreenView extends ScreenView {
       {
         logarithmic: true,
         unitsProperty: units.barStringProperty,
-        significantFigures: 2,
+        significantFigures: GREENHOUSE_SCREEN_VIEW_SETTINGS.PRESSURE_CONTROL_SIGNIFICANT_FIGURES,
       },
     );
     const explanationButton = createExplanationButton(
@@ -131,7 +135,7 @@ export class GreenhouseScreenView extends ScreenView {
     );
     const controlPanel = new HabitabilityLabPanel(
       new VBox({
-        spacing: 8,
+        spacing: GREENHOUSE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_SPACING,
         align: "left",
         children: [
           createTitle(strings.planetStringProperty),
@@ -144,7 +148,10 @@ export class GreenhouseScreenView extends ScreenView {
           createExplanationRow(explanationButton),
         ],
       }),
-      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+      {
+        minWidth: CONTROL_PANEL_WIDTH + GREENHOUSE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MIN_WIDTH_OFFSET,
+        maxWidth: CONTROL_PANEL_WIDTH + GREENHOUSE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MAX_WIDTH_OFFSET,
+      },
     );
     controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
     controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
@@ -152,7 +159,11 @@ export class GreenhouseScreenView extends ScreenView {
     // ── Atmosphere column (left) ──────────────────────────────────────────────
     const columnTitle = createTitle(strings.columnTitleStringProperty, COLUMN_WIDTH);
     const column = new AtmosphereColumnNode(model, COLUMN_WIDTH, bounds.height - 2 * SCREEN_VIEW_MARGIN - 30);
-    const columnBox = new VBox({ spacing: 8, align: "left", children: [columnTitle, column] });
+    const columnBox = new VBox({
+      spacing: GREENHOUSE_SCREEN_VIEW_SETTINGS.COLUMN_BOX_SPACING,
+      align: "left",
+      children: [columnTitle, column],
+    });
     columnBox.left = bounds.minX + SCREEN_VIEW_MARGIN;
     columnBox.top = bounds.minY + SCREEN_VIEW_MARGIN;
 
@@ -163,7 +174,7 @@ export class GreenhouseScreenView extends ScreenView {
     diagramTitle.left = middleLeft;
     diagramTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
     diagram.left = middleLeft;
-    diagram.top = diagramTitle.bottom + 10;
+    diagram.top = diagramTitle.bottom + GREENHOUSE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     const dependencies = unitDependencies();
     const bareText = createReadout(
@@ -210,10 +221,17 @@ export class GreenhouseScreenView extends ScreenView {
       verdictText.fill = phaseColor(phase);
     });
     const readouts = new HabitabilityLabPanel(
-      new VBox({ spacing: 5, align: "left", children: [bareText, surfaceText, warmingText, verdictText] }),
-      { minWidth: DIAGRAM_WIDTH + 24, maxWidth: DIAGRAM_WIDTH + 24 },
+      new VBox({
+        spacing: GREENHOUSE_SCREEN_VIEW_SETTINGS.READOUTS_SPACING,
+        align: "left",
+        children: [bareText, surfaceText, warmingText, verdictText],
+      }),
+      {
+        minWidth: DIAGRAM_WIDTH + GREENHOUSE_SCREEN_VIEW_SETTINGS.READOUTS_MIN_WIDTH_OFFSET,
+        maxWidth: DIAGRAM_WIDTH + GREENHOUSE_SCREEN_VIEW_SETTINGS.READOUTS_MAX_WIDTH_OFFSET,
+      },
     );
-    readouts.left = middleLeft - 12;
+    readouts.left = middleLeft - GREENHOUSE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
     readouts.top = diagram.bottom + 48;
 
     const resetAllButton = new ResetAllButton({

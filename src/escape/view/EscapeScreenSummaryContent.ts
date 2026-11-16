@@ -1,3 +1,4 @@
+import { ESCAPE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EscapeScreenSummaryContent.ts
  *
@@ -24,9 +25,14 @@ export class EscapeScreenSummaryContent extends ScreenSummaryContent {
         toPlainText(gasNames[`${model.gasProperty.value}StringProperty`].value),
       ),
       temperature: new DerivedProperty([model.temperatureProperty], (t) => String(Math.round(t))),
-      escapeSpeed: new DerivedProperty([model.escapeSpeedProperty], (v) => formatSignificant(v, 3)),
+      escapeSpeed: new DerivedProperty([model.escapeSpeedProperty], (v) =>
+        formatSignificant(v, ESCAPE_SCREEN_SUMMARY_CONTENT_SETTINGS.MOLECULE_DETAILS_DIGITS),
+      ),
       ratio: DerivedProperty.deriveAny([model.escapeSpeedProperty, model.rmsSpeedProperty], () =>
-        formatSignificant(model.escapeSpeedProperty.value / model.rmsSpeedProperty.value, 3),
+        formatSignificant(
+          model.escapeSpeedProperty.value / model.rmsSpeedProperty.value,
+          ESCAPE_SCREEN_SUMMARY_CONTENT_SETTINGS.MOLECULE_DETAILS_DIGITS,
+        ),
       ),
       verdict: new DerivedProperty(
         [model.retainedProperty, strings.retainedStringProperty, strings.lostStringProperty],

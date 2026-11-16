@@ -1,3 +1,4 @@
+import { AGING_STAR_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * AgingStarScreenSummaryContent.ts
  *
@@ -33,8 +34,12 @@ export class AgingStarScreenSummaryContent extends ScreenSummaryContent {
           [model.stageProperty, ...Object.values(stageNames)],
           () => stageNames[`${model.stageProperty.value}StringProperty`].value,
         ),
-        luminosity: new DerivedProperty([model.starProperty], (star) => plain(star.luminosity, 3)),
-        distance: new DerivedProperty([model.planetDistanceProperty], (d) => plain(d, 3)),
+        luminosity: new DerivedProperty([model.starProperty], (star) =>
+          plain(star.luminosity, AGING_STAR_SCREEN_SUMMARY_CONTENT_SETTINGS.LUMINOSITY_PLAIN_DIGITS),
+        ),
+        distance: new DerivedProperty([model.planetDistanceProperty], (d) =>
+          plain(d, AGING_STAR_SCREEN_SUMMARY_CONTENT_SETTINGS.PLAIN_DIGITS),
+        ),
         status: DerivedProperty.deriveAny(
           [model.statusProperty, model.engulfedProperty, strings.engulfedStringProperty, ...zoneStatusDependencies()],
           () =>

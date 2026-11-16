@@ -1,3 +1,4 @@
+import { FORMATTERS_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * formatters.ts
  *
@@ -40,7 +41,7 @@ export function formatTemperature(kelvin: number): string {
 /** Starlight in Earth units: "1.91 S⊕" (rich text). */
 export function formatStarlight(starlightEarth: number): string {
   return valueWithUnits(
-    formatSignificant(starlightEarth, 3),
+    formatSignificant(starlightEarth, FORMATTERS_SETTINGS.FORMAT_STARLIGHT_DIGITS),
     StringManager.getInstance().getUnits().earthFluxStringProperty.value,
   );
 }
@@ -48,22 +49,28 @@ export function formatStarlight(starlightEarth: number): string {
 /** A flux in W/m², to the watt above 100 W/m² and to three significant figures below. */
 export function formatFlux(watts: number): string {
   return valueWithUnits(
-    watts >= 100 ? String(Math.round(watts)) : formatSignificant(watts, 3),
+    watts >= 100 ? String(Math.round(watts)) : formatSignificant(watts, FORMATTERS_SETTINGS.FORMAT_FLUX_DIGITS),
     StringManager.getInstance().getUnits().wattsPerSquareMetreStringProperty.value,
   );
 }
 
 /** A distance in AU to three significant figures. */
 export function formatAU(au: number): string {
-  return valueWithUnits(formatSignificant(au, 3), StringManager.getInstance().getUnits().auStringProperty.value);
+  return valueWithUnits(
+    formatSignificant(au, FORMATTERS_SETTINGS.FORMAT_AU_DIGITS),
+    StringManager.getInstance().getUnits().auStringProperty.value,
+  );
 }
 
 /** An age given in Myr: in Myr below 1000, else in Gyr. */
 export function formatAge(myr: number): string {
   const units = StringManager.getInstance().getUnits();
   return myr < 1000
-    ? valueWithUnits(formatSignificant(myr, 3), units.myrStringProperty.value)
-    : valueWithUnits(formatSignificant(myr / 1000, 3), units.gyrStringProperty.value);
+    ? valueWithUnits(formatSignificant(myr, FORMATTERS_SETTINGS.FORMAT_AGE_DIGITS), units.myrStringProperty.value)
+    : valueWithUnits(
+        formatSignificant(myr / 1000, FORMATTERS_SETTINGS.FORMAT_AGE_DIGITS),
+        units.gyrStringProperty.value,
+      );
 }
 
 /** The unit StringProperties a formatter reads, for DerivedProperty dependencies. */
@@ -99,10 +106,10 @@ export function formatPowerFraction(log10: number): string {
     return "0";
   }
   if (log10 >= -4) {
-    return formatSignificant(10 ** log10, 2);
+    return formatSignificant(10 ** log10, FORMATTERS_SETTINGS.FORMAT_POWER_FRACTION_DIGITS);
   }
   const exponent = Math.floor(log10);
-  let mantissa = Number((10 ** (log10 - exponent)).toPrecision(2));
+  let mantissa = Number((10 ** (log10 - exponent)).toPrecision(FORMATTERS_SETTINGS.MANTISSA_SIGNIFICANT_FIGURES));
   let shown = exponent;
   if (mantissa >= 10) {
     mantissa = 1;

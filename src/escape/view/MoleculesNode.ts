@@ -1,3 +1,4 @@
+import { MOLECULES_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * MoleculesNode.ts
  *
@@ -17,9 +18,9 @@ import { FONTS } from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import { type EscapeModel, TOP_RADIUS } from "../model/EscapeModel.js";
 
-const GROUND_HEIGHT = 30;
-const TOP_MARGIN = 26;
-const MOLECULE_RADIUS = 2.6;
+const GROUND_HEIGHT: number = MOLECULES_NODE_SETTINGS.GROUND_HEIGHT;
+const TOP_MARGIN: number = MOLECULES_NODE_SETTINGS.TOP_MARGIN;
+const MOLECULE_RADIUS: number = MOLECULES_NODE_SETTINGS.MOLECULE_RADIUS;
 
 /** Heights (body radii above the surface) marked on the right. */
 const HEIGHT_TICKS = [0.0001, 0.001, 0.01, 0.1, 1, 2] as const;
@@ -34,7 +35,7 @@ export class MoleculesNode extends Node {
         .addColorStop(0, HabitabilityLabColors.spaceColorProperty)
         .addColorStop(1, HabitabilityLabColors.lowSkyColorProperty),
       stroke: HabitabilityLabColors.spaceBorderColorProperty,
-      cornerRadius: 4,
+      cornerRadius: MOLECULES_NODE_SETTINGS.SKY_CORNER_RADIUS,
     });
     const groundTop = height - GROUND_HEIGHT;
     const ground = new Rectangle(1, groundTop, width - 2, GROUND_HEIGHT - 1, {
@@ -69,7 +70,7 @@ export class MoleculesNode extends Node {
           new Text(`${formatSignificant(h, 1)} R`, {
             font: FONTS.SMALL,
             fill: HabitabilityLabColors.spaceTextColorProperty,
-            right: width - 10,
+            right: width - MOLECULES_NODE_SETTINGS.UPDATE_TICKS_RIGHT_OFFSET,
             centerY: y,
           }),
         );
@@ -83,7 +84,9 @@ export class MoleculesNode extends Node {
       model.molecules.forEach((molecule, i) => {
         const dot = dots[i];
         if (dot) {
-          dot.x = 6 + molecule.x * (width - 60);
+          dot.x =
+            MOLECULES_NODE_SETTINGS.MOVE_DOTS_X_OFFSET +
+            molecule.x * (width - MOLECULES_NODE_SETTINGS.CONSTRUCTOR_MOVE_DOTS_X_OFFSET);
           dot.y = yOf(molecule.r) - MOLECULE_RADIUS;
           dot.fill = molecule.escaping
             ? HabitabilityLabColors.escapingColorProperty
@@ -100,14 +103,14 @@ export class MoleculesNode extends Node {
     const note = new Text(strings.altitudeNoteStringProperty, {
       font: FONTS.SMALL,
       fill: HabitabilityLabColors.spaceTextColorProperty,
-      maxWidth: width - 16,
-      left: 8,
-      top: 6,
+      maxWidth: width - MOLECULES_NODE_SETTINGS.NOTE_MAX_WIDTH_OFFSET,
+      left: MOLECULES_NODE_SETTINGS.NOTE_LEFT,
+      top: MOLECULES_NODE_SETTINGS.NOTE_TOP,
     });
     const escapedText = new Text("", { font: FONTS.LABEL, fill: HabitabilityLabColors.escapingColorProperty });
     Multilink.multilink([model.escapedCountProperty, strings.escapedPatternStringProperty], (count, pattern) => {
       escapedText.string = pattern.replace("{{count}}", String(count));
-      escapedText.left = 8;
+      escapedText.left = MOLECULES_NODE_SETTINGS.LEFT_LEFT;
       escapedText.centerY = groundTop + GROUND_HEIGHT / 2;
     });
 

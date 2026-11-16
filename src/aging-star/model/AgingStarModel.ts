@@ -1,3 +1,4 @@
+import { AGING_STAR_MODEL_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * AgingStarModel.ts
  *
@@ -148,12 +149,12 @@ export type PlanetHistory = {
   readonly timeInZone: readonly number[];
 };
 
-const MYR_PER_YEAR = 1e-6;
+const MYR_PER_YEAR: number = AGING_STAR_MODEL_SETTINGS.MYR_PER_YEAR;
 const AU_PER_SUN_RADIUS = SUN_RADIUS_M / AU_M;
 
 /** Bracket crossings within each interpolated track interval, including nonmonotonic intervals. */
-const CROSSING_SUBDIVISIONS = 16;
-const CROSSING_BISECTIONS = 48;
+const CROSSING_SUBDIVISIONS: number = AGING_STAR_MODEL_SETTINGS.CROSSING_SUBDIVISIONS;
+const CROSSING_BISECTIONS: number = AGING_STAR_MODEL_SETTINGS.CROSSING_BISECTIONS;
 const ZONE_EDGES: readonly ZoneEdge[] = ["recentVenus", "runawayGreenhouse", "maximumGreenhouse", "earlyMars"];
 
 /** Resolve a bracketed edge crossing on the same interpolated track used by the live readouts. */
@@ -236,7 +237,7 @@ export function computeHistory(track: StarRecord, startDistance: number): Planet
       // A red dwarf's first track interval can span Gyr, while locking takes only Myr.
       let low = previous?.star.ageMyr ?? 0;
       let high = star.ageMyr;
-      for (let i = 0; i < 48; i++) {
+      for (let i = 0; i < AGING_STAR_MODEL_SETTINGS.CONTINUOUS_ZONE_ITERATIONS; i++) {
         const age = (low + high) / 2;
         const state = sampleTrack(track, age);
         const orbit = (startDistance * startMass) / state.mass;
@@ -308,8 +309,10 @@ export function continuouslyHabitableZone(
 
 /** Timeline bounds from primitive state, also safe during a track-change notification. */
 function timelineWindow(track: StarRecord, zoom: boolean): Range {
-  const end = Math.min(trackEndMyr(track), remnantAgeMyr(track) * 1.05);
-  return zoom ? new Range(mainSequenceEndMyr(track) * 0.9, end) : new Range(0, end);
+  const end = Math.min(trackEndMyr(track), remnantAgeMyr(track) * AGING_STAR_MODEL_SETTINGS.AGE_RANGE_HEADROOM);
+  return zoom
+    ? new Range(mainSequenceEndMyr(track) * AGING_STAR_MODEL_SETTINGS.LATE_ZOOM_START_FACTOR, end)
+    : new Range(0, end);
 }
 
 export class AgingStarModel implements TModel {
@@ -481,7 +484,7 @@ export class AgingStarModel implements TModel {
       }
       const speed = this.timeSpeedProperty.value;
       const factor = speed === TimeSpeed.SLOW ? SLOW_SPEED_FACTOR : speed === TimeSpeed.FAST ? FAST_SPEED_FACTOR : 1;
-      this.advance(Math.min(dt, 0.1) * factor);
+      this.advance(Math.min(dt, AGING_STAR_MODEL_SETTINGS.MAX_FRAME_DT) * factor);
     }
   }
 }

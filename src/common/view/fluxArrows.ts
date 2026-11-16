@@ -1,3 +1,4 @@
+import { FLUX_ARROWS_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * fluxArrows.ts
  *
@@ -16,6 +17,9 @@ export const arrowWidthForFlux = (flux: number): number => Math.min(26, 1.5 + 2.
 export const arrow = (tailX: number, tailY: number, tipX: number, tipY: number, tailWidth: number): ArrowShape =>
   new ArrowShape(tailX, tailY, tipX, tipY, {
     tailWidth: tailWidth,
-    headWidth: tailWidth + 9,
-    headHeight: Math.min(14, 6 + tailWidth / 2),
+    headWidth: tailWidth + FLUX_ARROWS_SETTINGS.ARROW_HEAD_WIDTH_OFFSET,
+    headHeight: Math.min(
+      FLUX_ARROWS_SETTINGS.ARROW_HEAD_HEIGHT,
+      FLUX_ARROWS_SETTINGS.ARROW_HEAD_HEIGHT_OFFSET + tailWidth / 2,
+    ),
   });

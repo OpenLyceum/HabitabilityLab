@@ -1,3 +1,4 @@
+import { CONTROLS_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * controls.ts
  *
@@ -60,7 +61,7 @@ export type CreateNumberControlOptions = {
   numberControlOptions?: NumberControlOptions;
 };
 
-const DIALOG_TITLE_FONT = new PhetFont({ size: 20, weight: "bold" });
+const DIALOG_TITLE_FONT = new PhetFont({ size: CONTROLS_SETTINGS.DIALOG_TITLE_FONT_SIZE, weight: "bold" });
 
 /** Rounds a value to `significantFigures`. */
 const roundToFigures = (value: number, significantFigures: number): number =>
@@ -138,16 +139,24 @@ export function createNumberControl(
         delta,
         ...(controlledEnabledRangeProperty ? { enabledRangeProperty: controlledEnabledRangeProperty } : {}),
         accessibleName: options.accessibleName ?? titleProperty,
-        titleNodeOptions: { fill: HabitabilityLabColors.textColorProperty, font: FONTS.LABEL, maxWidth: 130 },
+        titleNodeOptions: {
+          fill: HabitabilityLabColors.textColorProperty,
+          font: FONTS.LABEL,
+          maxWidth: CONTROLS_SETTINGS.CREATE_NUMBER_CONTROL_MAX_WIDTH,
+        },
         numberDisplayOptions: {
           useRichText: true,
-          textOptions: { fill: HabitabilityLabColors.controlSurfaceTextColorProperty, font: FONTS.LABEL, maxWidth: 96 },
+          textOptions: {
+            fill: HabitabilityLabColors.controlSurfaceTextColorProperty,
+            font: FONTS.LABEL,
+            maxWidth: CONTROLS_SETTINGS.CREATE_NUMBER_CONTROL_MAX_WIDTH_VARIANT_2,
+          },
           backgroundFill: HabitabilityLabColors.controlSurfaceColorProperty,
           numberFormatter: format,
           numberFormatterDependencies: unitsProperty
             ? [unitsProperty, units.valueUnitsPatternStringProperty]
             : [units.valueUnitsPatternStringProperty],
-          maxWidth: 110,
+          maxWidth: CONTROLS_SETTINGS.CREATE_NUMBER_CONTROL_MAX_WIDTH_VARIANT_3,
           minBackgroundWidth: 100,
         },
       },
@@ -164,7 +173,11 @@ export function createCheckbox(
 ): Checkbox {
   return new Checkbox(
     property,
-    new RichText(labelProperty, { font: FONTS.LABEL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 190 }),
+    new RichText(labelProperty, {
+      font: FONTS.LABEL,
+      fill: HabitabilityLabColors.textColorProperty,
+      maxWidth: CONTROLS_SETTINGS.CREATE_CHECKBOX_MAX_WIDTH,
+    }),
     combineOptions<CheckboxOptions>({ accessibleName: labelProperty }, HABITABILITY_LAB_CHECKBOX_OPTIONS, options),
   );
 }
@@ -182,18 +195,34 @@ export function createExplanationButton(
   const textFill = HabitabilityLabColors.controlSurfaceTextColorProperty;
   return new InfoButton({
     iconFill: HabitabilityLabColors.accentColorProperty,
-    scale: 0.6,
+    scale: CONTROLS_SETTINGS.CREATE_EXPLANATION_BUTTON_SCALE,
     accessibleName: accessibleNameProperty,
     listener: () => {
       if (!dialog) {
         const paragraphs = paragraphProperties.map(
           (paragraph) =>
-            new RichText(paragraph, { font: FONTS.EXPLANATION, fill: textFill, lineWrap: 600, leading: 3 }),
+            new RichText(paragraph, {
+              font: FONTS.EXPLANATION,
+              fill: textFill,
+              lineWrap: CONTROLS_SETTINGS.PARAGRAPHS_LINE_WRAP,
+              leading: 3,
+            }),
         );
-        dialog = new Dialog(new VBox({ align: "left", spacing: 14, children: paragraphs }), {
-          title: new Text(titleProperty, { font: DIALOG_TITLE_FONT, fill: textFill, maxWidth: 600 }),
-          fill: HabitabilityLabColors.controlSurfaceColorProperty,
-        });
+        dialog = new Dialog(
+          new VBox({
+            align: "left",
+            spacing: CONTROLS_SETTINGS.CREATE_EXPLANATION_BUTTON_SPACING,
+            children: paragraphs,
+          }),
+          {
+            title: new Text(titleProperty, {
+              font: DIALOG_TITLE_FONT,
+              fill: textFill,
+              maxWidth: CONTROLS_SETTINGS.CREATE_EXPLANATION_BUTTON_MAX_WIDTH,
+            }),
+            fill: HabitabilityLabColors.controlSurfaceColorProperty,
+          },
+        );
       }
       dialog.show();
     },
@@ -201,7 +230,10 @@ export function createExplanationButton(
 }
 
 /** Rich text visible only while the "Show equations" preference is on. */
-export function createEquationNode(equationProperty: TReadOnlyProperty<string>, maxWidth = 220): Node {
+export function createEquationNode(
+  equationProperty: TReadOnlyProperty<string>,
+  maxWidth: number = CONTROLS_SETTINGS.DEFAULT_MAX_WIDTH,
+): Node {
   return new RichText(equationProperty, {
     font: FONTS.READOUT,
     fill: HabitabilityLabColors.accentColorProperty,
@@ -214,13 +246,13 @@ export function createEquationNode(equationProperty: TReadOnlyProperty<string>, 
 export function createPushButton(
   labelProperty: TReadOnlyProperty<string>,
   listener: () => void,
-  maxTextWidth = 180,
+  maxTextWidth: number = CONTROLS_SETTINGS.DEFAULT_MAX_TEXT_WIDTH,
   compact = false,
 ): TextPushButton {
   return new TextPushButton(labelProperty, {
     ...FLAT_PANEL_PUSH_BUTTON_OPTIONS,
     font: compact ? FONTS.SMALL : FONTS.LABEL,
-    yMargin: compact ? 2 : 5,
+    yMargin: compact ? 2 : CONTROLS_SETTINGS.CREATE_PUSH_BUTTON_Y_MARGIN,
     textFill: LIGHT_SURFACE_TEXT_FILL,
     maxTextWidth: maxTextWidth,
     listener: listener,
@@ -241,7 +273,7 @@ export function createRadioGroup<T>(
   property: Property<T>,
   choices: readonly RadioChoice<T>[],
   accessibleName: TReadOnlyProperty<string>,
-  maxLabelWidth = 180,
+  maxLabelWidth: number = CONTROLS_SETTINGS.DEFAULT_MAX_LABEL_WIDTH,
 ): AquaRadioButtonGroup<T> {
   return new AquaRadioButtonGroup(
     property,
@@ -256,9 +288,9 @@ export function createRadioGroup<T>(
         }),
     })),
     {
-      spacing: 6,
+      spacing: CONTROLS_SETTINGS.CREATE_RADIO_GROUP_SPACING,
       radioButtonOptions: {
-        radius: 7,
+        radius: CONTROLS_SETTINGS.CREATE_RADIO_GROUP_RADIUS,
         selectedColor: HabitabilityLabColors.accentColorProperty,
         deselectedColor: HabitabilityLabColors.panelBackgroundColorProperty,
         stroke: HabitabilityLabColors.textColorProperty,
@@ -269,7 +301,10 @@ export function createRadioGroup<T>(
 }
 
 /** A bold panel title. */
-export function createTitle(labelProperty: TReadOnlyProperty<string>, maxWidth = 220): Text {
+export function createTitle(
+  labelProperty: TReadOnlyProperty<string>,
+  maxWidth: number = CONTROLS_SETTINGS.DEFAULT_MAX_WIDTH,
+): Text {
   return new Text(labelProperty, {
     font: FONTS.TITLE,
     fill: HabitabilityLabColors.textColorProperty,
@@ -278,7 +313,10 @@ export function createTitle(labelProperty: TReadOnlyProperty<string>, maxWidth =
 }
 
 /** A rich-text readout line on a dark panel. */
-export function createReadout(stringProperty: TReadOnlyProperty<string>, maxWidth = 220): RichText {
+export function createReadout(
+  stringProperty: TReadOnlyProperty<string>,
+  maxWidth: number = CONTROLS_SETTINGS.DEFAULT_MAX_WIDTH,
+): RichText {
   return new RichText(stringProperty, {
     font: FONTS.READOUT,
     fill: HabitabilityLabColors.textColorProperty,
@@ -289,7 +327,7 @@ export function createReadout(stringProperty: TReadOnlyProperty<string>, maxWidt
 /** An explanation button with its "What's going on?" label beside it. */
 export function createExplanationRow(button: InfoButton, maxWidth = 180): HBox {
   return new HBox({
-    spacing: 8,
+    spacing: CONTROLS_SETTINGS.CREATE_EXPLANATION_ROW_SPACING,
     children: [
       button,
       new Text(StringManager.getInstance().getCommonStrings().explanationButtonStringProperty, {

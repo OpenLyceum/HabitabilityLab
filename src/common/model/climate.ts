@@ -1,3 +1,4 @@
+import { CLIMATE_NUMERICS } from "../../HabitabilityLabConstants.js";
 /**
  * climate.ts
  *
@@ -50,7 +51,11 @@ export function stepTemperature(temperature: number, absorbed: number, years: nu
   let remaining = years;
   let current = temperature;
   while (remaining > 0) {
-    const dt = Math.min(remaining, 0.2 * relaxationTimeYears(Math.max(current, absorbedTemperature(absorbed))));
+    const dt = Math.min(
+      remaining,
+      CLIMATE_NUMERICS.MAX_RELAXATION_STEP_FRACTION *
+        relaxationTimeYears(Math.max(current, absorbedTemperature(absorbed))),
+    );
     const rate = ((absorbed - emittedFlux(current)) * YEAR_S) / MIXED_LAYER_HEAT_CAPACITY;
     current = Math.max(0, current + rate * dt);
     remaining -= dt;

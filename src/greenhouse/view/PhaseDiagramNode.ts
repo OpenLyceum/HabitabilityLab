@@ -1,3 +1,4 @@
+import { PHASE_DIAGRAM_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * PhaseDiagramNode.ts
  *
@@ -26,11 +27,11 @@ import {
 import { StringManager } from "../../i18n/StringManager.js";
 import type { GreenhouseModel } from "../model/GreenhouseModel.js";
 
-const T_MIN = 150;
-const T_MAX = 800;
-const P_MIN_BAR = 1e-4;
-const P_MAX_BAR = 1000;
-const SAMPLES = 120;
+const T_MIN: number = PHASE_DIAGRAM_NODE_SETTINGS.T_MIN;
+const T_MAX: number = PHASE_DIAGRAM_NODE_SETTINGS.T_MAX;
+const P_MIN_BAR: number = PHASE_DIAGRAM_NODE_SETTINGS.P_MIN_BAR;
+const P_MAX_BAR: number = PHASE_DIAGRAM_NODE_SETTINGS.P_MAX_BAR;
+const SAMPLES: number = PHASE_DIAGRAM_NODE_SETTINGS.SAMPLES;
 
 export class PhaseDiagramNode extends Node {
   public constructor(model: GreenhouseModel, width: number, height: number) {
@@ -112,19 +113,19 @@ export class PhaseDiagramNode extends Node {
     }
     const boundaries = new Path(boundaryShape, {
       stroke: HabitabilityLabColors.phaseBoundaryColorProperty,
-      lineWidth: 1.5,
+      lineWidth: PHASE_DIAGRAM_NODE_SETTINGS.BOUNDARIES_LINE_WIDTH,
     });
 
     const regionLabel = (
       stringProperty: TReadOnlyProperty<string>,
       kelvin: number,
       bar: number,
-      maxWidth = 100,
+      maxWidth: number = PHASE_DIAGRAM_NODE_SETTINGS.DEFAULT_MAX_WIDTH,
     ): Text => {
       const text = new Text(stringProperty, {
         font: FONTS.LABEL,
         fill: HabitabilityLabColors.textColorProperty,
-        opacity: 0.85,
+        opacity: PHASE_DIAGRAM_NODE_SETTINGS.TEXT_OPACITY,
         maxWidth: maxWidth,
       });
       text.boundsProperty.link(() => {
@@ -134,7 +135,7 @@ export class PhaseDiagramNode extends Node {
       return text;
     };
     const labels = [
-      regionLabel(strings.iceStringProperty, 200, 30, 50),
+      regionLabel(strings.iceStringProperty, 200, 30, PHASE_DIAGRAM_NODE_SETTINGS.ICE_REGION_LABEL_MAX_WIDTH),
       regionLabel(strings.liquidStringProperty, 380, 100),
       regionLabel(strings.vapourStringProperty, 500, 0.003),
       regionLabel(
@@ -152,22 +153,26 @@ export class PhaseDiagramNode extends Node {
       labelBelow: boolean,
       labelLeft: boolean,
     ): Node => {
-      const dot = new Circle(3, { fill: HabitabilityLabColors.phaseBoundaryColorProperty, x: x(kelvin), y: y(bar) });
+      const dot = new Circle(PHASE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS, {
+        fill: HabitabilityLabColors.phaseBoundaryColorProperty,
+        x: x(kelvin),
+        y: y(bar),
+      });
       const text = new Text(stringProperty, {
         font: FONTS.SMALL,
         fill: HabitabilityLabColors.textColorProperty,
-        maxWidth: 90,
+        maxWidth: PHASE_DIAGRAM_NODE_SETTINGS.TEXT_MAX_WIDTH,
       });
       text.boundsProperty.link(() => {
         if (labelLeft) {
-          text.right = dot.x - 6;
+          text.right = dot.x - PHASE_DIAGRAM_NODE_SETTINGS.POINT_MARKER_RIGHT_OFFSET;
         } else {
-          text.left = dot.x + 6;
+          text.left = dot.x + PHASE_DIAGRAM_NODE_SETTINGS.POINT_MARKER_LEFT_OFFSET;
         }
         if (labelBelow) {
-          text.top = dot.y + 3;
+          text.top = dot.y + PHASE_DIAGRAM_NODE_SETTINGS.POINT_MARKER_TOP_OFFSET;
         } else {
-          text.bottom = dot.y - 3;
+          text.bottom = dot.y - PHASE_DIAGRAM_NODE_SETTINGS.POINT_MARKER_BOTTOM_OFFSET;
         }
       });
       return new Node({ children: [dot, text] });
@@ -177,28 +182,28 @@ export class PhaseDiagramNode extends Node {
 
     // Venus, Earth and Mars as they are measured today.
     const references = SOLAR_PLANETS.filter((planet) => planet.surfacePressure > 0).map((planet) => {
-      const dot = new Circle(3.5, {
+      const dot = new Circle(PHASE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS_SEGMENT_2, {
         stroke: HabitabilityLabColors.earthColorProperty,
-        lineWidth: 1.5,
+        lineWidth: PHASE_DIAGRAM_NODE_SETTINGS.DOT_LINE_WIDTH,
         x: x(planet.surfaceTemperature),
         y: y(planet.surfacePressure),
       });
       const name = new Text(bodyNameProperty(planet.key), {
         font: FONTS.SMALL,
         fill: HabitabilityLabColors.earthColorProperty,
-        maxWidth: 60,
+        maxWidth: PHASE_DIAGRAM_NODE_SETTINGS.NAME_MAX_WIDTH,
       });
       name.boundsProperty.link(() => {
-        name.right = dot.x - 5;
+        name.right = dot.x - PHASE_DIAGRAM_NODE_SETTINGS.REFERENCES_RIGHT_OFFSET;
         name.centerY = dot.y;
       });
       return new Node({ children: [dot, name] });
     });
 
-    const planetDot = new Circle(7, {
+    const planetDot = new Circle(PHASE_DIAGRAM_NODE_SETTINGS.PLANET_DOT_RADIUS, {
       fill: HabitabilityLabColors.planetColorProperty,
       stroke: HabitabilityLabColors.selectedColorProperty,
-      lineWidth: 2,
+      lineWidth: PHASE_DIAGRAM_NODE_SETTINGS.PLANET_DOT_LINE_WIDTH,
     });
     Multilink.multilink([model.surfaceTemperatureProperty, model.pressureProperty], (kelvin, bar) => {
       planetDot.x = Math.min(width, Math.max(0, x(kelvin)));

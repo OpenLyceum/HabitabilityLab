@@ -1,3 +1,4 @@
+import { ENERGY_BALANCE_MODEL_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EnergyBalanceModel.ts
  *
@@ -46,7 +47,7 @@ export type EnergyPreset = BodyKey | "custom";
 export const ENERGY_PRESETS: readonly EnergyPreset[] = [...SOLAR_PLANETS.map((planet) => planet.key), "custom"];
 
 /** Relative difference below which absorbed and emitted count as balanced. */
-const BALANCE_TOLERANCE = 0.01;
+const BALANCE_TOLERANCE: number = ENERGY_BALANCE_MODEL_SETTINGS.BALANCE_TOLERANCE;
 
 export type Trend = "warming" | "cooling" | "balanced";
 
@@ -98,7 +99,7 @@ export class EnergyBalanceModel implements TModel {
       (s, albedo, spread) => equilibriumTemperature(s, albedo, spread),
     );
     this.trendProperty = new DerivedProperty([this.absorbedProperty, this.emittedProperty], (absorbed, emitted) => {
-      const scale = Math.max(absorbed, emitted, 1e-9);
+      const scale = Math.max(absorbed, emitted, ENERGY_BALANCE_MODEL_SETTINGS.MIN_FLUX_SCALE);
       return Math.abs(absorbed - emitted) / scale < BALANCE_TOLERANCE
         ? "balanced"
         : absorbed > emitted
@@ -179,7 +180,7 @@ export class EnergyBalanceModel implements TModel {
       const speed = this.timeSpeedProperty.value;
       const factor = speed === TimeSpeed.SLOW ? SLOW_SPEED_FACTOR : speed === TimeSpeed.FAST ? FAST_SPEED_FACTOR : 1;
       // Cap dt so a backgrounded tab does not jump decades at once.
-      this.advance(Math.min(dt, 0.1) * YEARS_PER_SECOND * factor);
+      this.advance(Math.min(dt, ENERGY_BALANCE_MODEL_SETTINGS.MAX_FRAME_DT) * YEARS_PER_SECOND * factor);
     }
   }
 }

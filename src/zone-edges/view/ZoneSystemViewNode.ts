@@ -1,3 +1,4 @@
+import { ZONE_SYSTEM_VIEW_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ZoneSystemViewNode.ts
  *
@@ -32,7 +33,7 @@ export class ZoneSystemViewNode extends Node {
     const background = new Rectangle(0, 0, size, size, {
       fill: HabitabilityLabColors.spaceColorProperty,
       stroke: HabitabilityLabColors.spaceBorderColorProperty,
-      cornerRadius: 4,
+      cornerRadius: ZONE_SYSTEM_VIEW_NODE_SETTINGS.BACKGROUND_CORNER_RADIUS,
     });
 
     // Four nested discs make the two rings: optimistic outer, conservative outer,
@@ -49,7 +50,10 @@ export class ZoneSystemViewNode extends Node {
 
     const star = new StarNode(4, 5772, { x: center, y: center });
     const orbits = new Node({ x: center, y: center });
-    const scaleBar = new Line(0, 0, 1, 0, { stroke: HabitabilityLabColors.spaceTextColorProperty, lineWidth: 2 });
+    const scaleBar = new Line(0, 0, 1, 0, {
+      stroke: HabitabilityLabColors.spaceTextColorProperty,
+      lineWidth: ZONE_SYSTEM_VIEW_NODE_SETTINGS.SCALE_BAR_LINE_WIDTH,
+    });
     const scaleText = new Text("", { font: FONTS.SMALL, fill: HabitabilityLabColors.spaceTextColorProperty });
 
     Multilink.multilink(
@@ -81,7 +85,9 @@ export class ZoneSystemViewNode extends Node {
           const isSelected = planet === selected;
           const orbit = new Path(Shape.circle(0, 0, r), {
             stroke: HabitabilityLabColors.orbitColorProperty,
-            lineWidth: isSelected ? 1.5 : 0.8,
+            lineWidth: isSelected
+              ? ZONE_SYSTEM_VIEW_NODE_SETTINGS.ORBIT_LINE_WIDTH
+              : ZONE_SYSTEM_VIEW_NODE_SETTINGS.CONSTRUCTOR_ORBIT_LINE_WIDTH,
           });
           // Planets spread around their orbits so close ones do not overlap.
           const angle = -Math.PI / 4 + system.planets.indexOf(planet) * 0.9;
@@ -90,11 +96,11 @@ export class ZoneSystemViewNode extends Node {
               ? HabitabilityLabColors.earthColorProperty
               : HabitabilityLabColors.exoplanetColorProperty,
             stroke: isSelected ? HabitabilityLabColors.selectedColorProperty : null,
-            lineWidth: 2,
+            lineWidth: ZONE_SYSTEM_VIEW_NODE_SETTINGS.DOT_LINE_WIDTH,
             x: r * Math.cos(angle),
             y: r * Math.sin(angle),
             cursor: "pointer",
-            touchArea: Shape.circle(0, 0, 9),
+            touchArea: Shape.circle(0, 0, ZONE_SYSTEM_VIEW_NODE_SETTINGS.DOT_RADIUS),
           });
           dot.addInputListener(
             new FireListener({
@@ -109,8 +115,8 @@ export class ZoneSystemViewNode extends Node {
         const barAU = niceFloor(farthest / 3);
         scaleBar.setLine(12, size - 14, 12 + barAU * pxPerAU, size - 14);
         scaleText.string = formatAU(barAU);
-        scaleText.left = 12;
-        scaleText.bottom = size - 18;
+        scaleText.left = ZONE_SYSTEM_VIEW_NODE_SETTINGS.LEFT_LEFT;
+        scaleText.bottom = size - ZONE_SYSTEM_VIEW_NODE_SETTINGS.CONSTRUCTOR_BOTTOM_OFFSET;
       },
     );
 

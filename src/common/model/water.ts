@@ -1,3 +1,4 @@
+import { WATER_NUMERICS } from "../../HabitabilityLabConstants.js";
 /**
  * water.ts
  *
@@ -63,9 +64,9 @@ export function meltingTemperature(pressure: number): number {
   if (pressure <= WATER_TRIPLE_POINT_PA) {
     return WATER_TRIPLE_POINT_K;
   }
-  let low = 251.165;
+  let low: number = WATER_NUMERICS.MIN_ICE_I_TEMPERATURE_K;
   let high = WATER_TRIPLE_POINT_K;
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < WATER_NUMERICS.INVERSION_ITERATIONS; i++) {
     const mid = 0.5 * (low + high);
     if (meltingPressure(mid) > pressure) {
       low = mid;

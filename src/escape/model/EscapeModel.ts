@@ -1,3 +1,4 @@
+import { ESCAPE_MODEL_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EscapeModel.ts
  *
@@ -78,13 +79,13 @@ export const ESCAPE_PRESETS: readonly EscapePreset[] = [
 export type EscapeView = "molecules" | "shoreline";
 
 /** Height of the top of the animation, in body radii from the centre. */
-export const TOP_RADIUS = 3;
+export const TOP_RADIUS: number = ESCAPE_MODEL_SETTINGS.TOP_RADIUS;
 
 /** Wall-clock seconds for a typical hop (a molecule at the most probable speed going up and down). */
-const HOP_SECONDS = 1.6;
+const HOP_SECONDS: number = ESCAPE_MODEL_SETTINGS.HOP_SECONDS;
 
 /** Largest integration step, as a fraction of a typical hop time. */
-const MAX_STEP_FRACTION = 0.01;
+const MAX_STEP_FRACTION: number = ESCAPE_MODEL_SETTINGS.MAX_STEP_FRACTION;
 
 /** One molecule: distance from the centre (body radii), radial speed (escape speeds), horizontal place (0–1). */
 export type Molecule = { r: number; v: number; x: number; escaping: boolean };
@@ -224,7 +225,7 @@ export class EscapeModel implements TModel {
         // Velocity Verlet in r'' = −1/(2r²).
         const a0 = -0.5 / molecule.r ** 2;
         molecule.r += molecule.v * dt + 0.5 * a0 * dt * dt;
-        const a1 = -0.5 / Math.max(molecule.r, 1e-6) ** 2;
+        const a1 = -0.5 / Math.max(molecule.r, ESCAPE_MODEL_SETTINGS.MIN_RADIUS) ** 2;
         molecule.v += 0.5 * (a0 + a1) * dt;
         if (molecule.r <= 1 && molecule.v < 0) {
           this.launch(molecule);
@@ -254,7 +255,7 @@ export class EscapeModel implements TModel {
 
   public step(dt: number): void {
     if (this.viewProperty.value === "molecules") {
-      this.advance(Math.min(dt, 0.1));
+      this.advance(Math.min(dt, ESCAPE_MODEL_SETTINGS.MAX_FRAME_DT));
     }
   }
 }

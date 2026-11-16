@@ -1,3 +1,4 @@
+import { ESCAPE_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EscapeScreenView.ts
  *
@@ -50,10 +51,10 @@ import { SpeedDistributionNode } from "./SpeedDistributionNode.js";
 
 export type EscapeScreenViewOptions = ScreenViewOptions;
 
-const MOLECULES_WIDTH = 210;
-const DISTRIBUTION_WIDTH = 360;
-const DISTRIBUTION_HEIGHT = 200;
-const READOUT_WIDTH = 420;
+const MOLECULES_WIDTH: number = ESCAPE_SCREEN_VIEW_SETTINGS.MOLECULES_WIDTH;
+const DISTRIBUTION_WIDTH: number = ESCAPE_SCREEN_VIEW_SETTINGS.DISTRIBUTION_WIDTH;
+const DISTRIBUTION_HEIGHT: number = ESCAPE_SCREEN_VIEW_SETTINGS.DISTRIBUTION_HEIGHT;
+const READOUT_WIDTH: number = ESCAPE_SCREEN_VIEW_SETTINGS.READOUT_WIDTH;
 
 export class EscapeScreenView extends ScreenView {
   public constructor(model: EscapeModel, providedOptions?: EscapeScreenViewOptions) {
@@ -100,19 +101,27 @@ export class EscapeScreenView extends ScreenView {
         accessibleNameProperty: gasNames[`${gas}StringProperty`],
       })),
       a11y.controls.gasStringProperty,
-      80,
+      ESCAPE_SCREEN_VIEW_SETTINGS.GAS_CREATE_RADIO_GROUP_MAX_LABEL_WIDTH,
     );
     const escapeSpeedControl = createNumberControl(
       strings.escapeSpeedStringProperty,
       model.escapeSpeedProperty,
       ESCAPE_SPEED_RANGE,
-      { logarithmic: true, unitsProperty: units.kmPerSecondStringProperty, significantFigures: 3 },
+      {
+        logarithmic: true,
+        unitsProperty: units.kmPerSecondStringProperty,
+        significantFigures: ESCAPE_SCREEN_VIEW_SETTINGS.ESCAPE_SPEED_CONTROL_SIGNIFICANT_FIGURES,
+      },
     );
     const temperatureControl = createNumberControl(
       strings.temperatureStringProperty,
       model.temperatureProperty,
       GAS_TEMPERATURE_RANGE,
-      { logarithmic: true, unitsProperty: units.kelvinStringProperty, significantFigures: 3 },
+      {
+        logarithmic: true,
+        unitsProperty: units.kelvinStringProperty,
+        significantFigures: ESCAPE_SCREEN_VIEW_SETTINGS.TEMPERATURE_CONTROL_SIGNIFICANT_FIGURES,
+      },
     );
     const exoplanetsCheckbox = createCheckbox(model.showExoplanetsProperty, strings.showExoplanetsStringProperty);
     const shorelineNote = new RichText(strings.shorelineNoteStringProperty, {
@@ -133,20 +142,30 @@ export class EscapeScreenView extends ScreenView {
 
     // Bodies and gases side by side, so the panel fits above Reset All.
     const moleculeControls = new VBox({
-      spacing: 6,
+      spacing: ESCAPE_SCREEN_VIEW_SETTINGS.MOLECULE_CONTROLS_SPACING,
       align: "left",
       visibleProperty: moleculesVisibleProperty,
       children: [
         new HBox({
-          spacing: 18,
+          spacing: ESCAPE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_MOLECULE_CONTROLS_SPACING,
           align: "top",
           children: [
             new VBox({
-              spacing: 6,
+              spacing: ESCAPE_SCREEN_VIEW_SETTINGS.MOLECULE_CONTROLS_SPACING,
               align: "left",
-              children: [createTitle(strings.bodyStringProperty, 110), bodyRadios],
+              children: [
+                createTitle(strings.bodyStringProperty, ESCAPE_SCREEN_VIEW_SETTINGS.BODY_CREATE_TITLE_MAX_WIDTH),
+                bodyRadios,
+              ],
             }),
-            new VBox({ spacing: 6, align: "left", children: [createTitle(strings.gasStringProperty, 90), gasRadios] }),
+            new VBox({
+              spacing: ESCAPE_SCREEN_VIEW_SETTINGS.MOLECULE_CONTROLS_SPACING,
+              align: "left",
+              children: [
+                createTitle(strings.gasStringProperty, ESCAPE_SCREEN_VIEW_SETTINGS.GAS_CREATE_TITLE_MAX_WIDTH),
+                gasRadios,
+              ],
+            }),
           ],
         }),
         escapeSpeedControl,
@@ -155,7 +174,7 @@ export class EscapeScreenView extends ScreenView {
       ],
     });
     const shorelineControls = new VBox({
-      spacing: 8,
+      spacing: ESCAPE_SCREEN_VIEW_SETTINGS.SHORELINE_CONTROLS_SPACING,
       align: "left",
       visibleProperty: shorelineVisibleProperty,
       children: [
@@ -166,7 +185,7 @@ export class EscapeScreenView extends ScreenView {
     });
     const controlPanel = new HabitabilityLabPanel(
       new VBox({
-        spacing: 8,
+        spacing: ESCAPE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_SPACING,
         align: "left",
         children: [
           createTitle(strings.viewStringProperty),
@@ -176,7 +195,10 @@ export class EscapeScreenView extends ScreenView {
           createExplanationRow(explanationButton),
         ],
       }),
-      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+      {
+        minWidth: CONTROL_PANEL_WIDTH + ESCAPE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MIN_WIDTH_OFFSET,
+        maxWidth: CONTROL_PANEL_WIDTH + ESCAPE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MAX_WIDTH_OFFSET,
+      },
     );
     controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
     controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
@@ -187,11 +209,11 @@ export class EscapeScreenView extends ScreenView {
     moleculesTitle.left = bounds.minX + SCREEN_VIEW_MARGIN;
     moleculesTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
     molecules.left = moleculesTitle.left;
-    molecules.top = moleculesTitle.bottom + 8;
+    molecules.top = moleculesTitle.bottom + ESCAPE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     const distributionTitle = createTitle(strings.distributionTitleStringProperty, DISTRIBUTION_WIDTH);
     const distribution = new SpeedDistributionNode(model, DISTRIBUTION_WIDTH, DISTRIBUTION_HEIGHT);
-    distribution.left = molecules.right + 70;
+    distribution.left = molecules.right + ESCAPE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
     distribution.top = molecules.top;
     distributionTitle.left = distribution.left;
     distributionTitle.top = moleculesTitle.top;
@@ -199,7 +221,10 @@ export class EscapeScreenView extends ScreenView {
     const dependencies = unitDependencies();
     const speed = (property: TReadOnlyProperty<number>): TReadOnlyProperty<string> =>
       DerivedProperty.deriveAny([property, units.kmPerSecondStringProperty, ...dependencies], () =>
-        valueWithUnits(formatSignificant(property.value, 3), units.kmPerSecondStringProperty.value),
+        valueWithUnits(
+          formatSignificant(property.value, ESCAPE_SCREEN_VIEW_SETTINGS.VALUE_FORMAT_SIGNIFICANT_DIGITS),
+          units.kmPerSecondStringProperty.value,
+        ),
       );
     const gasFormulas = strings.gasFormulas;
     const gasList = (keep: boolean): TReadOnlyProperty<string> =>
@@ -226,7 +251,7 @@ export class EscapeScreenView extends ScreenView {
     });
     const readouts = new HabitabilityLabPanel(
       new VBox({
-        spacing: 4,
+        spacing: ESCAPE_SCREEN_VIEW_SETTINGS.READOUTS_SPACING,
         align: "left",
         children: [
           createReadout(
@@ -236,14 +261,19 @@ export class EscapeScreenView extends ScreenView {
           createReadout(
             new PatternStringProperty(strings.ratioPatternStringProperty, {
               value: DerivedProperty.deriveAny([model.escapeSpeedProperty, model.rmsSpeedProperty], () =>
-                formatSignificant(model.escapeSpeedProperty.value / model.rmsSpeedProperty.value, 3),
+                formatSignificant(
+                  model.escapeSpeedProperty.value / model.rmsSpeedProperty.value,
+                  ESCAPE_SCREEN_VIEW_SETTINGS.READOUTS_DIGITS,
+                ),
               ),
             }),
             READOUT_WIDTH,
           ),
           createReadout(
             new PatternStringProperty(strings.jeansPatternStringProperty, {
-              value: new DerivedProperty([model.jeansParameterProperty], (lambda) => formatSignificant(lambda, 3)),
+              value: new DerivedProperty([model.jeansParameterProperty], (lambda) =>
+                formatSignificant(lambda, ESCAPE_SCREEN_VIEW_SETTINGS.READOUTS_DIGITS),
+              ),
             }),
             READOUT_WIDTH,
           ),
@@ -264,7 +294,10 @@ export class EscapeScreenView extends ScreenView {
           ),
         ],
       }),
-      { minWidth: READOUT_WIDTH + 24, maxWidth: READOUT_WIDTH + 24 },
+      {
+        minWidth: READOUT_WIDTH + ESCAPE_SCREEN_VIEW_SETTINGS.READOUTS_MIN_WIDTH_OFFSET,
+        maxWidth: READOUT_WIDTH + ESCAPE_SCREEN_VIEW_SETTINGS.READOUTS_MAX_WIDTH_OFFSET,
+      },
     );
     readouts.left = distribution.left - 50;
     readouts.top = distribution.bottom + 50;
@@ -275,7 +308,10 @@ export class EscapeScreenView extends ScreenView {
     });
 
     // ── Shoreline view ────────────────────────────────────────────────────────
-    const shorelineTitle = createTitle(strings.shorelineTitleStringProperty, 400);
+    const shorelineTitle = createTitle(
+      strings.shorelineTitleStringProperty,
+      ESCAPE_SCREEN_VIEW_SETTINGS.SHORELINE_TITLE_CREATE_TITLE_MAX_WIDTH,
+    );
     const shorelineLeft = bounds.minX + SCREEN_VIEW_MARGIN + 66;
     const shoreline = new ShorelineNode(
       model,

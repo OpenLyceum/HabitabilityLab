@@ -1,3 +1,4 @@
+import { CHART_FRAME_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ChartFrameNode.ts
  *
@@ -47,7 +48,7 @@ function formatLogTick(value: number): string {
   if (Math.abs(value - 10 ** exponent) < 1e-9 * value && (exponent < -3 || exponent > 4)) {
     return `10<sup>${String(exponent).replace("-", "−")}</sup>`;
   }
-  return formatSignificant(value, 2);
+  return formatSignificant(value, CHART_FRAME_NODE_SETTINGS.FORMAT_LOG_TICK_DIGITS);
 }
 
 /**
@@ -123,8 +124,8 @@ export class ChartFrameNode extends Node {
     this.gridPath = new Path(null, { stroke: HabitabilityLabColors.chartGridColorProperty, lineWidth: 1 });
     this.minorGridPath = new Path(null, {
       stroke: HabitabilityLabColors.chartGridColorProperty,
-      lineWidth: 0.5,
-      opacity: 0.6,
+      lineWidth: CHART_FRAME_NODE_SETTINGS.MINOR_GRID_PATH_LINE_WIDTH,
+      opacity: CHART_FRAME_NODE_SETTINGS.MINOR_GRID_PATH_OPACITY,
     });
     this.tickPath = new Path(null, { stroke: HabitabilityLabColors.chartAxisColorProperty, lineWidth: 1 });
     this.tickLabels = new Node();
@@ -144,11 +145,11 @@ export class ChartFrameNode extends Node {
     });
     const placeAxisLabels = (): void => {
       xAxisLabel.centerX = this.viewWidth / 2;
-      xAxisLabel.top = this.viewHeight + 20;
+      xAxisLabel.top = this.viewHeight + CHART_FRAME_NODE_SETTINGS.PLACE_AXIS_LABELS_TOP_OFFSET;
       yAxisLabel.centerY = this.viewHeight / 2;
       const yLabels = this.tickLabels.children.filter((child) => child.centerX < 0);
       const labelsLeft = yLabels.length > 0 ? Math.min(...yLabels.map((child) => child.left)) : 0;
-      yAxisLabel.right = Math.min(-30, labelsLeft - 6);
+      yAxisLabel.right = Math.min(-30, labelsLeft - CHART_FRAME_NODE_SETTINGS.PLACE_AXIS_LABELS_RIGHT_OFFSET);
     };
     xAxisLabel.boundsProperty.lazyLink(placeAxisLabels);
     yAxisLabel.boundsProperty.lazyLink(placeAxisLabels);
@@ -260,7 +261,7 @@ export class ChartFrameNode extends Node {
         ticks.moveTo(px, this.viewHeight).lineTo(px, this.viewHeight + 5);
         const label = makeLabel(this.xAxis.log ? formatLogTick(tick.value) : formatTickValue(tick.value, xDecimals));
         label.centerX = px;
-        label.top = this.viewHeight + 6;
+        label.top = this.viewHeight + CHART_FRAME_NODE_SETTINGS.REDRAW_AXES_TOP_OFFSET;
         labels.push(label);
       }
     }
@@ -272,9 +273,9 @@ export class ChartFrameNode extends Node {
       const py = this.modelToViewY(tick.value);
       (tick.label ? grid : minorGrid).moveTo(0, py).lineTo(this.viewWidth, py);
       if (tick.label) {
-        ticks.moveTo(-5, py).lineTo(0, py);
+        ticks.moveTo(CHART_FRAME_NODE_SETTINGS.REDRAW_AXES_X, py).lineTo(0, py);
         const label = makeLabel(this.yAxis.log ? formatLogTick(tick.value) : formatTickValue(tick.value, yDecimals));
-        label.right = -7;
+        label.right = CHART_FRAME_NODE_SETTINGS.RIGHT_RIGHT;
         label.centerY = py;
         labels.push(label);
       }

@@ -1,3 +1,4 @@
+import { AGING_STAR_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * AgingStarScreenView.ts
  *
@@ -63,14 +64,14 @@ import { TimelineNode } from "./TimelineNode.js";
 
 export type AgingStarScreenViewOptions = ScreenViewOptions;
 
-const SYSTEM_SIZE = 290;
-const HR_WIDTH = 250;
-const HR_HEIGHT = 135;
-const TIMELINE_HEIGHT = 95;
-const READOUT_WIDTH = 330;
+const SYSTEM_SIZE: number = AGING_STAR_SCREEN_VIEW_SETTINGS.SYSTEM_SIZE;
+const HR_WIDTH: number = AGING_STAR_SCREEN_VIEW_SETTINGS.HR_WIDTH;
+const HR_HEIGHT: number = AGING_STAR_SCREEN_VIEW_SETTINGS.HR_HEIGHT;
+const TIMELINE_HEIGHT: number = AGING_STAR_SCREEN_VIEW_SETTINGS.TIMELINE_HEIGHT;
+const READOUT_WIDTH: number = AGING_STAR_SCREEN_VIEW_SETTINGS.READOUT_WIDTH;
 
 /** Seconds advanced by one press of the step button (a two-hundredth of the window). */
-const STEP_SECONDS = 0.2;
+const STEP_SECONDS: number = AGING_STAR_SCREEN_VIEW_SETTINGS.STEP_SECONDS;
 
 export class AgingStarScreenView extends ScreenView {
   private readonly systemView: AgingSystemViewNode;
@@ -120,7 +121,11 @@ export class AgingStarScreenView extends ScreenView {
         accessibleName: massLabel(mass),
       })),
       listParent,
-      { ...HABITABILITY_LAB_COMBO_BOX_OPTIONS, accessibleName: a11y.controls.starMassStringProperty, yMargin: 3 },
+      {
+        ...HABITABILITY_LAB_COMBO_BOX_OPTIONS,
+        accessibleName: a11y.controls.starMassStringProperty,
+        yMargin: AGING_STAR_SCREEN_VIEW_SETTINGS.MASS_COMBO_BOX_Y_MARGIN,
+      },
     );
     const distanceControl = createNumberControl(
       strings.distanceStringProperty,
@@ -129,11 +134,11 @@ export class AgingStarScreenView extends ScreenView {
       {
         logarithmic: true,
         unitsProperty: units.auStringProperty,
-        significantFigures: 3,
+        significantFigures: AGING_STAR_SCREEN_VIEW_SETTINGS.DISTANCE_CONTROL_SIGNIFICANT_FIGURES,
       },
     );
     const chzRadios = new HBox({
-      spacing: 6,
+      spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CHZ_RADIOS_SPACING,
       children: [
         createRadioGroup(
           model.chzDurationProperty,
@@ -160,18 +165,18 @@ export class AgingStarScreenView extends ScreenView {
     );
     const controlPanel = new HabitabilityLabPanel(
       new VBox({
-        spacing: 6,
+        spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_SPACING,
         align: "left",
         children: [
           createTitle(strings.presetStringProperty),
           presetRadios,
           new HBox({
-            spacing: 8,
+            spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_CONTROL_PANEL_SPACING,
             children: [
               new Text(strings.starMassStringProperty, {
                 font: FONTS.LABEL,
                 fill: HabitabilityLabColors.textColorProperty,
-                maxWidth: 100,
+                maxWidth: AGING_STAR_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MAX_WIDTH,
               }),
               massComboBox,
             ],
@@ -187,7 +192,10 @@ export class AgingStarScreenView extends ScreenView {
           createExplanationRow(explanationButton),
         ],
       }),
-      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+      {
+        minWidth: CONTROL_PANEL_WIDTH + AGING_STAR_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MIN_WIDTH_OFFSET,
+        maxWidth: CONTROL_PANEL_WIDTH + AGING_STAR_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MAX_WIDTH_OFFSET,
+      },
     );
     controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
     controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
@@ -204,15 +212,31 @@ export class AgingStarScreenView extends ScreenView {
       dashed = false,
     ): HBox =>
       new HBox({
-        spacing: 4,
+        spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_ITEM_SPACING,
         children: [
           dashed
-            ? new Rectangle(0, 0, 14, 3, { fill: fill })
-            : new Rectangle(0, 0, 14, 9, {
-                fill: fill,
-                opacity: fill === HabitabilityLabColors.continuousZoneColorProperty ? 0.6 : 1,
-              }),
-          new RichText(label, { font: FONTS.SMALL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 120 }),
+            ? new Rectangle(
+                0,
+                0,
+                AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_ITEM_WIDTH,
+                AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_ITEM_HEIGHT,
+                { fill: fill },
+              )
+            : new Rectangle(
+                0,
+                0,
+                AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_ITEM_WIDTH,
+                AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_ITEM_HEIGHT_SEGMENT_2,
+                {
+                  fill: fill,
+                  opacity: fill === HabitabilityLabColors.continuousZoneColorProperty ? 0.6 : 1,
+                },
+              ),
+          new RichText(label, {
+            font: FONTS.SMALL,
+            fill: HabitabilityLabColors.textColorProperty,
+            maxWidth: AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_ITEM_MAX_WIDTH,
+          }),
         ],
       });
     const common = stringManager.getCommonStrings();
@@ -222,18 +246,18 @@ export class AgingStarScreenView extends ScreenView {
       ),
     });
     const legend = new VBox({
-      spacing: 2,
+      spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_SPACING,
       align: "left",
       children: [
         new HBox({
-          spacing: 10,
+          spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEGEND_SPACING,
           children: [
             legendItem(HabitabilityLabColors.conservativeZoneColorProperty, common.conservativeZoneStringProperty),
             legendItem(HabitabilityLabColors.optimisticZoneColorProperty, common.optimisticZoneStringProperty),
           ],
         }),
         new HBox({
-          spacing: 10,
+          spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEGEND_SPACING,
           children: [
             legendItem(HabitabilityLabColors.continuousZoneColorProperty, chzLabel),
             legendItem(HabitabilityLabColors.tidalLockColorProperty, strings.lockDistanceStringProperty, true),
@@ -242,12 +266,12 @@ export class AgingStarScreenView extends ScreenView {
       ],
     });
     legend.left = this.systemView.left;
-    legend.top = this.systemView.bottom + 4;
+    legend.top = this.systemView.bottom + AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     // ── HR diagram and readouts (top middle) ──────────────────────────────────
     const hrDiagram = new HRDiagramNode(model, HR_WIDTH, HR_HEIGHT);
-    hrDiagram.left = this.systemView.right + 62;
-    hrDiagram.top = this.systemView.top + 4;
+    hrDiagram.left = this.systemView.right + AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+    hrDiagram.top = this.systemView.top + AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     const dependencies = unitDependencies();
     const derived = (format: () => string, extra: TReadOnlyProperty<unknown>[]): TReadOnlyProperty<string> =>
@@ -274,7 +298,10 @@ export class AgingStarScreenView extends ScreenView {
         luminosity: derived(
           () =>
             valueWithUnits(
-              formatSignificant(model.starProperty.value.luminosity, 3),
+              formatSignificant(
+                model.starProperty.value.luminosity,
+                AGING_STAR_SCREEN_VIEW_SETTINGS.LUMINOSITY_FORMAT_SIGNIFICANT_DIGITS,
+              ),
               units.solarLuminosityStringProperty.value,
             ),
           [model.starProperty, units.solarLuminosityStringProperty],
@@ -282,7 +309,13 @@ export class AgingStarScreenView extends ScreenView {
         temperature: derived(() => formatKelvin(model.starProperty.value.temperature), [model.starProperty]),
         radius: derived(
           () =>
-            valueWithUnits(formatSignificant(model.starProperty.value.radius, 3), units.solarRadiiStringProperty.value),
+            valueWithUnits(
+              formatSignificant(
+                model.starProperty.value.radius,
+                AGING_STAR_SCREEN_VIEW_SETTINGS.RADIUS_FORMAT_SIGNIFICANT_DIGITS,
+              ),
+              units.solarRadiiStringProperty.value,
+            ),
           [model.starProperty, units.solarRadiiStringProperty],
         ),
       }),
@@ -344,7 +377,7 @@ export class AgingStarScreenView extends ScreenView {
       visibleProperty: model.extrapolatedProperty,
     });
     const readouts = new VBox({
-      spacing: 2,
+      spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.READOUTS_SPACING,
       align: "left",
       children: [
         ageText,
@@ -365,7 +398,7 @@ export class AgingStarScreenView extends ScreenView {
     const timelineLeft = this.systemView.left + 58;
     const timeline = new TimelineNode(model, controlPanel.left - 20 - timelineLeft, TIMELINE_HEIGHT);
     timeline.left = timelineLeft;
-    timeline.bottom = bounds.maxY - SCREEN_VIEW_MARGIN - 32;
+    timeline.bottom = bounds.maxY - SCREEN_VIEW_MARGIN - AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_BOTTOM_OFFSET;
 
     // ── Time controls and Reset All ───────────────────────────────────────────
     const timeControlNode = new TimeControlNode(model.timer.isPlayingProperty, {
@@ -389,7 +422,7 @@ export class AgingStarScreenView extends ScreenView {
       right: bounds.maxX - SCREEN_VIEW_MARGIN,
       bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    timeControlNode.right = resetAllButton.left - 20;
+    timeControlNode.right = resetAllButton.left - AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
     timeControlNode.centerY = resetAllButton.centerY;
 
     this.children = [

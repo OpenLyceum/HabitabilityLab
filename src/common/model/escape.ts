@@ -1,3 +1,4 @@
+import { ESCAPE_NUMERICS } from "../../HabitabilityLabConstants.js";
 /**
  * escape.ts
  *
@@ -64,7 +65,7 @@ export function fractionFasterThan(escapeSpeed: number, temperature: number, mas
 /** log₁₀ of that fraction, valid far into the tail where the fraction underflows. */
 export function log10FractionFasterThan(escapeSpeed: number, temperature: number, massAmu: number): number {
   const lambda = jeansParameter(escapeSpeed, temperature, massAmu);
-  if (lambda < 600) {
+  if (lambda < ESCAPE_NUMERICS.ASYMPTOTIC_JEANS_THRESHOLD) {
     return Math.log10(fractionFasterThan(escapeSpeed, temperature, massAmu));
   }
   // Asymptotically the fraction is 2√(λ/π) e^(−λ) (1 + 1/(2λ)).

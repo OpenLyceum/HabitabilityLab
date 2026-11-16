@@ -1,3 +1,4 @@
+import { TEMPERATURE_HISTORY_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * TemperatureHistoryNode.ts
  *
@@ -33,28 +34,34 @@ export class TemperatureHistoryNode extends Node {
       yAxisLabelProperty: strings.temperatureAxisStringProperty,
     });
 
-    const curve = new Path(null, { stroke: HabitabilityLabColors.temperatureCurveColorProperty, lineWidth: 2.5 });
+    const curve = new Path(null, {
+      stroke: HabitabilityLabColors.temperatureCurveColorProperty,
+      lineWidth: TEMPERATURE_HISTORY_NODE_SETTINGS.CURVE_LINE_WIDTH,
+    });
     const equilibriumLine = new Path(null, {
       stroke: HabitabilityLabColors.equilibriumLineColorProperty,
-      lineWidth: 1.5,
-      lineDash: [6, 4],
+      lineWidth: TEMPERATURE_HISTORY_NODE_SETTINGS.EQUILIBRIUM_LINE_LINE_WIDTH,
+      lineDash: [
+        TEMPERATURE_HISTORY_NODE_SETTINGS.EQUILIBRIUM_LINE_LINE_DASH_DASH,
+        TEMPERATURE_HISTORY_NODE_SETTINGS.CONSTRUCTOR_EQUILIBRIUM_LINE_LINE_DASH_DASH,
+      ],
     });
     const measuredLine = new Path(null, {
       stroke: HabitabilityLabColors.measuredColorProperty,
-      lineWidth: 1.5,
-      lineDash: [2, 3],
+      lineWidth: TEMPERATURE_HISTORY_NODE_SETTINGS.MEASURED_LINE_LINE_WIDTH,
+      lineDash: [2, TEMPERATURE_HISTORY_NODE_SETTINGS.MEASURED_LINE_LINE_DASH_DASH],
     });
     chart.plotLayer.children = [equilibriumLine, measuredLine, curve];
 
     const equilibriumLabel = new RichText(strings.equilibriumStringProperty, {
       font: FONTS.SMALL,
       fill: HabitabilityLabColors.equilibriumLineColorProperty,
-      maxWidth: 110,
+      maxWidth: TEMPERATURE_HISTORY_NODE_SETTINGS.EQUILIBRIUM_LABEL_MAX_WIDTH,
     });
     const measuredLabel = new RichText(strings.measuredStringProperty, {
       font: FONTS.SMALL,
       fill: HabitabilityLabColors.measuredColorProperty,
-      maxWidth: 110,
+      maxWidth: TEMPERATURE_HISTORY_NODE_SETTINGS.MEASURED_LABEL_MAX_WIDTH,
     });
     chart.overlayLayer.children = [equilibriumLabel, measuredLabel];
 
@@ -73,7 +80,7 @@ export class TemperatureHistoryNode extends Node {
 
       const yEq = chart.modelToViewY(model.equilibriumTemperatureProperty.value);
       equilibriumLine.shape = new Shape().moveTo(0, yEq).lineTo(width, yEq);
-      equilibriumLabel.left = width + 6;
+      equilibriumLabel.left = width + TEMPERATURE_HISTORY_NODE_SETTINGS.REDRAW_LEFT_OFFSET;
       equilibriumLabel.centerY = yEq;
 
       const measured = model.measuredTemperatureProperty.value;
@@ -82,11 +89,11 @@ export class TemperatureHistoryNode extends Node {
       if (measured !== null) {
         const yMeasured = chart.modelToViewY(measured);
         measuredLine.shape = new Shape().moveTo(0, yMeasured).lineTo(width, yMeasured);
-        measuredLabel.left = width + 6;
+        measuredLabel.left = width + TEMPERATURE_HISTORY_NODE_SETTINGS.REDRAW_LEFT_OFFSET;
         measuredLabel.centerY = yMeasured;
         // Keep the two labels from overlapping when the values are close (Mars).
         if (Math.abs(yMeasured - yEq) < 14) {
-          measuredLabel.centerY = yEq + (yMeasured >= yEq ? 14 : -14);
+          measuredLabel.centerY = yEq + (yMeasured >= yEq ? TEMPERATURE_HISTORY_NODE_SETTINGS.REDRAW_CENTER_Y : -14);
         }
       }
     };

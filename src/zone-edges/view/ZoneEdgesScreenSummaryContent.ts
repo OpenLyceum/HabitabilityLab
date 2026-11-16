@@ -1,3 +1,4 @@
+import { ZONE_EDGES_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ZoneEdgesScreenSummaryContent.ts
  *
@@ -25,8 +26,12 @@ export class ZoneEdgesScreenSummaryContent extends ScreenSummaryContent {
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
         temperature: new DerivedProperty([model.starTemperatureProperty], (t) => String(Math.round(t))),
-        inner: new DerivedProperty([model.distancesProperty], (d) => plain(d.runawayGreenhouse, 2)),
-        outer: new DerivedProperty([model.distancesProperty], (d) => plain(d.maximumGreenhouse, 2)),
+        inner: new DerivedProperty([model.distancesProperty], (d) =>
+          plain(d.runawayGreenhouse, ZONE_EDGES_SCREEN_SUMMARY_CONTENT_SETTINGS.PLAIN_DIGITS),
+        ),
+        outer: new DerivedProperty([model.distancesProperty], (d) =>
+          plain(d.maximumGreenhouse, ZONE_EDGES_SCREEN_SUMMARY_CONTENT_SETTINGS.PLAIN_DIGITS),
+        ),
         planet: DerivedProperty.deriveAny(
           [
             model.selectedPlanetProperty,
@@ -42,7 +47,7 @@ export class ZoneEdgesScreenSummaryContent extends ScreenSummaryContent {
             }
             return StringUtils.fillIn(a11y.planetDetailsPatternStringProperty.value, {
               name: planet.bodyKey ? bodyNameProperty(planet.bodyKey).value : planet.name,
-              starlight: plain(planet.insolation, 3),
+              starlight: plain(planet.insolation, ZONE_EDGES_SCREEN_SUMMARY_CONTENT_SETTINGS.INSOLATION_PLAIN_DIGITS),
               status: zoneStatusStringProperty(status).value,
             });
           },

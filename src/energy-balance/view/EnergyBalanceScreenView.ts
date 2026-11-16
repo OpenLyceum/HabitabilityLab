@@ -1,3 +1,4 @@
+import { ENERGY_BALANCE_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EnergyBalanceScreenView.ts
  *
@@ -53,10 +54,10 @@ export type EnergyBalanceScreenViewOptions = ScreenViewOptions;
 /** Years advanced by one press of the step button. */
 const STEP_YEARS = 1;
 
-const SPACE_HEIGHT = 215;
-const CHART_WIDTH = 320;
-const CHART_HEIGHT = 230;
-const BARS_PANEL_WIDTH = 220;
+const SPACE_HEIGHT: number = ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.SPACE_HEIGHT;
+const CHART_WIDTH: number = ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CHART_WIDTH;
+const CHART_HEIGHT: number = ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CHART_HEIGHT;
+const BARS_PANEL_WIDTH: number = ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.BARS_PANEL_WIDTH;
 
 export class EnergyBalanceScreenView extends ScreenView {
   public constructor(model: EnergyBalanceModel, providedOptions?: EnergyBalanceScreenViewOptions) {
@@ -88,7 +89,11 @@ export class EnergyBalanceScreenView extends ScreenView {
       strings.starLuminosityStringProperty,
       model.luminosityProperty,
       LUMINOSITY_RANGE,
-      { logarithmic: true, unitsProperty: units.solarLuminosityStringProperty, significantFigures: 2 },
+      {
+        logarithmic: true,
+        unitsProperty: units.solarLuminosityStringProperty,
+        significantFigures: ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.LUMINOSITY_CONTROL_SIGNIFICANT_FIGURES,
+      },
     );
     const distanceControl = createNumberControl(
       strings.distanceStringProperty,
@@ -97,12 +102,12 @@ export class EnergyBalanceScreenView extends ScreenView {
       {
         logarithmic: true,
         unitsProperty: units.auStringProperty,
-        significantFigures: 3,
+        significantFigures: ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.DISTANCE_CONTROL_SIGNIFICANT_FIGURES,
       },
     );
     const albedoControl = createNumberControl(strings.albedoStringProperty, model.albedoProperty, ALBEDO_RANGE, {
-      significantFigures: 2,
-      delta: 0.01,
+      significantFigures: ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.ALBEDO_CONTROL_SIGNIFICANT_FIGURES,
+      delta: ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.ALBEDO_CONTROL_DELTA,
     });
     const heatSpreadRadios = createRadioGroup(
       model.heatSpreadProperty,
@@ -131,7 +136,7 @@ export class EnergyBalanceScreenView extends ScreenView {
     );
     const controlPanel = new HabitabilityLabPanel(
       new VBox({
-        spacing: 8,
+        spacing: ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_SPACING,
         align: "left",
         children: [
           createTitle(strings.planetStringProperty),
@@ -145,7 +150,10 @@ export class EnergyBalanceScreenView extends ScreenView {
           createExplanationRow(explanationButton),
         ],
       }),
-      { minWidth: CONTROL_PANEL_WIDTH + 24, maxWidth: CONTROL_PANEL_WIDTH + 24 },
+      {
+        minWidth: CONTROL_PANEL_WIDTH + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MIN_WIDTH_OFFSET,
+        maxWidth: CONTROL_PANEL_WIDTH + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONTROL_PANEL_MAX_WIDTH_OFFSET,
+      },
     );
     controlPanel.right = bounds.maxX - SCREEN_VIEW_MARGIN;
     controlPanel.top = bounds.minY + SCREEN_VIEW_MARGIN;
@@ -158,8 +166,8 @@ export class EnergyBalanceScreenView extends ScreenView {
 
     // ── Temperature history (bottom left) ─────────────────────────────────────
     const historyNode = new TemperatureHistoryNode(model, CHART_WIDTH, CHART_HEIGHT);
-    historyNode.left = spaceNode.left + 58;
-    historyNode.top = spaceNode.bottom + 24;
+    historyNode.left = spaceNode.left + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+    historyNode.top = spaceNode.bottom + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     // ── Bars and temperatures (bottom middle) ─────────────────────────────────
     const temperatureDependencies = unitDependencies();
@@ -220,7 +228,7 @@ export class EnergyBalanceScreenView extends ScreenView {
 
     const barsPanel = new HabitabilityLabPanel(
       new VBox({
-        spacing: 6,
+        spacing: ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.BARS_PANEL_SPACING,
         align: "left",
         children: [
           new EnergyBarsNode(model, BARS_PANEL_WIDTH),
@@ -231,7 +239,10 @@ export class EnergyBalanceScreenView extends ScreenView {
           jumpButton,
         ],
       }),
-      { minWidth: BARS_PANEL_WIDTH + 24, maxWidth: BARS_PANEL_WIDTH + 24 },
+      {
+        minWidth: BARS_PANEL_WIDTH + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.BARS_PANEL_MIN_WIDTH_OFFSET,
+        maxWidth: BARS_PANEL_WIDTH + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.BARS_PANEL_MAX_WIDTH_OFFSET,
+      },
     );
     barsPanel.right = spaceNode.right;
     barsPanel.top = spaceNode.bottom + 10;
@@ -258,7 +269,7 @@ export class EnergyBalanceScreenView extends ScreenView {
       right: bounds.maxX - SCREEN_VIEW_MARGIN,
       bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    timeControlNode.right = resetAllButton.left - 20;
+    timeControlNode.right = resetAllButton.left - ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
     timeControlNode.centerY = resetAllButton.centerY;
 
     this.children = [spaceNode, historyNode, barsPanel, controlPanel, timeControlNode, resetAllButton];

@@ -1,3 +1,4 @@
+import { HABITABILITY_LAB_PANEL_SETTINGS } from "../HabitabilityLabConstants.js";
 /**
  * HabitabilityLabPanel.ts
  *
@@ -40,8 +41,8 @@ export class HabitabilityLabPanel extends Panel {
         fill: HabitabilityLabColors.panelBackgroundColorProperty,
         stroke: HabitabilityLabColors.panelBorderColorProperty,
         cornerRadius: PANEL_CORNER_RADIUS,
-        xMargin: 12,
-        yMargin: 10,
+        xMargin: HABITABILITY_LAB_PANEL_SETTINGS.OPTIONS_X_MARGIN,
+        yMargin: HABITABILITY_LAB_PANEL_SETTINGS.OPTIONS_Y_MARGIN,
       },
       providedOptions,
     );

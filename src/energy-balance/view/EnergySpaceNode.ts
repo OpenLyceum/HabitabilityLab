@@ -1,3 +1,4 @@
+import { ENERGY_SPACE_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EnergySpaceNode.ts
  *
@@ -31,13 +32,13 @@ import { ENERGY_DISTANCE_RANGE, FONTS, SOLAR_CONSTANT, SUN_TEMPERATURE_K } from 
 import { StringManager } from "../../i18n/StringManager.js";
 import type { EnergyBalanceModel } from "../model/EnergyBalanceModel.js";
 
-const STAR_X = 42;
-const AXIS_LEFT_MARGIN = 100;
-const AXIS_RIGHT_MARGIN = 40;
-const PLANET_RADIUS = 13;
+const STAR_X: number = ENERGY_SPACE_NODE_SETTINGS.STAR_X;
+const AXIS_LEFT_MARGIN: number = ENERGY_SPACE_NODE_SETTINGS.AXIS_LEFT_MARGIN;
+const AXIS_RIGHT_MARGIN: number = ENERGY_SPACE_NODE_SETTINGS.AXIS_RIGHT_MARGIN;
+const PLANET_RADIUS: number = ENERGY_SPACE_NODE_SETTINGS.PLANET_RADIUS;
 
 /** Keyboard step of the planet, decades of distance (Shift: a quarter of it). */
-const KEYBOARD_STEP_DECADES = 0.02;
+const KEYBOARD_STEP_DECADES: number = ENERGY_SPACE_NODE_SETTINGS.KEYBOARD_STEP_DECADES;
 
 export class EnergySpaceNode extends Node {
   public readonly planetNode: Node;
@@ -50,7 +51,7 @@ export class EnergySpaceNode extends Node {
     const background = new Rectangle(0, 0, width, height, {
       fill: HabitabilityLabColors.spaceColorProperty,
       stroke: HabitabilityLabColors.spaceBorderColorProperty,
-      cornerRadius: 4,
+      cornerRadius: ENERGY_SPACE_NODE_SETTINGS.BACKGROUND_CORNER_RADIUS,
     });
 
     const axisY = height - 34;
@@ -76,7 +77,7 @@ export class EnergySpaceNode extends Node {
           font: FONTS.TICK_LABEL,
           fill: HabitabilityLabColors.spaceTextColorProperty,
           centerX: x,
-          top: axisY + 6,
+          top: axisY + ENERGY_SPACE_NODE_SETTINGS.CONSTRUCTOR_TOP_OFFSET,
         }),
       );
     }
@@ -96,13 +97,16 @@ export class EnergySpaceNode extends Node {
       const x = xForDistance(planet.distance);
       return new Node({
         children: [
-          new Line(x, axisY - 6, x, axisY, { stroke: HabitabilityLabColors.earthColorProperty, lineWidth: 2 }),
+          new Line(x, axisY - 6, x, axisY, {
+            stroke: HabitabilityLabColors.earthColorProperty,
+            lineWidth: ENERGY_SPACE_NODE_SETTINGS.SOLAR_MARKS_LINE_WIDTH,
+          }),
           new Text(bodyNameProperty(planet.key), {
             font: FONTS.SMALL,
             fill: HabitabilityLabColors.mutedTextColorProperty,
             centerX: x,
-            bottom: axisY - 8,
-            maxWidth: 60,
+            bottom: axisY - ENERGY_SPACE_NODE_SETTINGS.SOLAR_MARKS_BOTTOM_OFFSET,
+            maxWidth: ENERGY_SPACE_NODE_SETTINGS.SOLAR_MARKS_MAX_WIDTH,
           }),
         ],
       });
@@ -221,8 +225,8 @@ export class EnergySpaceNode extends Node {
       {
         font: FONTS.READOUT,
         fill: HabitabilityLabColors.spaceTextColorProperty,
-        left: 12,
-        top: 10,
+        left: ENERGY_SPACE_NODE_SETTINGS.STARLIGHT_READOUT_LEFT,
+        top: ENERGY_SPACE_NODE_SETTINGS.STARLIGHT_READOUT_TOP,
         maxWidth: width / 2,
       },
     );
@@ -230,13 +234,19 @@ export class EnergySpaceNode extends Node {
     const legendItem = (fill: TColor, label: TReadOnlyProperty<string>): Node =>
       new Node({
         children: [
-          new Rectangle(0, 0, 14, 6, { fill: fill, centerY: 0 }),
+          new Rectangle(
+            0,
+            0,
+            ENERGY_SPACE_NODE_SETTINGS.LEGEND_ITEM_WIDTH,
+            ENERGY_SPACE_NODE_SETTINGS.LEGEND_ITEM_HEIGHT,
+            { fill: fill, centerY: 0 },
+          ),
           new Text(label, {
             font: FONTS.SMALL,
             fill: HabitabilityLabColors.spaceTextColorProperty,
-            left: 20,
+            left: ENERGY_SPACE_NODE_SETTINGS.LEGEND_ITEM_LEFT,
             centerY: 0,
-            maxWidth: 150,
+            maxWidth: ENERGY_SPACE_NODE_SETTINGS.LEGEND_ITEM_MAX_WIDTH,
           }),
         ],
       });
@@ -248,10 +258,10 @@ export class EnergySpaceNode extends Node {
       ],
     });
     legend.children.forEach((child, i) => {
-      child.y = i * 16;
+      child.y = i * ENERGY_SPACE_NODE_SETTINGS.CONSTRUCTOR_Y_FACTOR;
     });
-    legend.right = width - 12;
-    legend.top = 14;
+    legend.right = width - ENERGY_SPACE_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+    legend.top = ENERGY_SPACE_NODE_SETTINGS.TOP_TOP;
 
     this.children = [
       background,

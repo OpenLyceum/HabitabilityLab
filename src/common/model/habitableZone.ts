@@ -1,3 +1,4 @@
+import { STELLAR_REFERENCE } from "../../HabitabilityLabConstants.js";
 /**
  * habitableZone.ts
  *
@@ -126,4 +127,4 @@ export function dwarfStar(temperature: number): { luminosity: number; mass: numb
 
 /** Star radius, R☉, from luminosity (L☉) and temperature (K): L = R² (T/T☉)⁴. */
 export const starRadius = (luminosity: number, temperature: number): number =>
-  Math.sqrt(luminosity) / (temperature / 5772) ** 2;
+  Math.sqrt(luminosity) / (temperature / STELLAR_REFERENCE.SUN_TEMPERATURE_K) ** 2;

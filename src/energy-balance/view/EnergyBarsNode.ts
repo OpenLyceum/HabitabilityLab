@@ -1,3 +1,4 @@
+import { ENERGY_BARS_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EnergyBarsNode.ts
  *
@@ -17,9 +18,9 @@ import { FONTS, TEMPERATURE_DISPLAY_RANGE } from "../../HabitabilityLabConstants
 import { StringManager } from "../../i18n/StringManager.js";
 import type { EnergyBalanceModel } from "../model/EnergyBalanceModel.js";
 
-const BAR_WIDTH = 34;
-const BAR_HEIGHT = 120;
-const BAR_SPACING = 26;
+const BAR_WIDTH: number = ENERGY_BARS_NODE_SETTINGS.BAR_WIDTH;
+const BAR_HEIGHT: number = ENERGY_BARS_NODE_SETTINGS.BAR_HEIGHT;
+const BAR_SPACING: number = ENERGY_BARS_NODE_SETTINGS.BAR_SPACING;
 
 /** The smallest of 1, 2 or 5 × 10ⁿ at least `value`. */
 const niceCeil = (value: number): number => {
@@ -41,14 +42,14 @@ export class EnergyBarsNode extends VBox {
       const valueText = new RichText("", {
         font: FONTS.SMALL,
         fill: HabitabilityLabColors.textColorProperty,
-        maxWidth: 80,
+        maxWidth: ENERGY_BARS_NODE_SETTINGS.VALUE_TEXT_MAX_WIDTH,
       });
       Multilink.multilinkAny([fluxProperty, scaleProperty, ...unitDependencies()], () => {
         const height = Math.max(1, (BAR_HEIGHT * fluxProperty.value) / scaleProperty.value);
         bar.setRect(0, BAR_HEIGHT - height, BAR_WIDTH, height);
         valueText.string = formatFlux(fluxProperty.value);
         valueText.centerX = BAR_WIDTH / 2;
-        valueText.bottom = bar.top - 3;
+        valueText.bottom = bar.top - ENERGY_BARS_NODE_SETTINGS.MAKE_BAR_BOTTOM_OFFSET;
       });
       const caption = new Text(label, {
         font: FONTS.SMALL,
@@ -57,7 +58,7 @@ export class EnergyBarsNode extends VBox {
       });
       caption.boundsProperty.link(() => {
         caption.centerX = BAR_WIDTH / 2;
-        caption.top = BAR_HEIGHT + 4;
+        caption.top = BAR_HEIGHT + ENERGY_BARS_NODE_SETTINGS.MAKE_BAR_TOP_OFFSET;
       });
       return new Node({ children: [bar, valueText, caption] });
     };
@@ -73,12 +74,18 @@ export class EnergyBarsNode extends VBox {
       strings.emittedShortStringProperty,
     );
     emittedBar.x = BAR_WIDTH + BAR_SPACING;
-    const baseline = new Line(-6, BAR_HEIGHT, 2 * BAR_WIDTH + BAR_SPACING + 6, BAR_HEIGHT, {
-      stroke: HabitabilityLabColors.chartAxisColorProperty,
-    });
+    const baseline = new Line(
+      ENERGY_BARS_NODE_SETTINGS.BASELINE_START_X,
+      BAR_HEIGHT,
+      2 * BAR_WIDTH + BAR_SPACING + 6,
+      BAR_HEIGHT,
+      {
+        stroke: HabitabilityLabColors.chartAxisColorProperty,
+      },
+    );
     const scaleText = new Text("", { font: FONTS.SMALL, fill: HabitabilityLabColors.mutedTextColorProperty });
     scaleProperty.link((scale) => {
-      scaleText.string = `0–${formatSignificant(scale, 2)}`;
+      scaleText.string = `0–${formatSignificant(scale, ENERGY_BARS_NODE_SETTINGS.SCALE_TEXT_DIGITS)}`;
     });
     const bars = new Node({ children: [baseline, absorbedBar, emittedBar] });
 
@@ -119,7 +126,7 @@ export class EnergyBarsNode extends VBox {
     });
 
     super({
-      spacing: 8,
+      spacing: ENERGY_BARS_NODE_SETTINGS.CONSTRUCTOR_SPACING,
       align: "center",
       children: [
         new Text(strings.balanceTitleStringProperty, {
@@ -127,7 +134,7 @@ export class EnergyBarsNode extends VBox {
           fill: HabitabilityLabColors.textColorProperty,
           maxWidth: width,
         }),
-        new HBox({ spacing: 26, align: "bottom", children: [bars, thermometer] }),
+        new HBox({ spacing: ENERGY_BARS_NODE_SETTINGS.ITEM_2_SPACING, align: "bottom", children: [bars, thermometer] }),
         trendText,
       ],
     });

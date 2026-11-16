@@ -1,3 +1,4 @@
+import { HR_DIAGRAM_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * HRDiagramNode.ts
  *
@@ -28,9 +29,19 @@ export class HRDiagramNode extends Node {
       yAxisLabelProperty: strings.luminosityAxisStringProperty,
     });
 
-    const fullTrack = new Path(null, { stroke: HabitabilityLabColors.trackColorProperty, lineWidth: 1, opacity: 0.6 });
-    const livedTrack = new Path(null, { stroke: HabitabilityLabColors.luminosityCurveColorProperty, lineWidth: 2 });
-    const dot = new Circle(5, { stroke: HabitabilityLabColors.selectedColorProperty, lineWidth: 1.5 });
+    const fullTrack = new Path(null, {
+      stroke: HabitabilityLabColors.trackColorProperty,
+      lineWidth: 1,
+      opacity: HR_DIAGRAM_NODE_SETTINGS.FULL_TRACK_OPACITY,
+    });
+    const livedTrack = new Path(null, {
+      stroke: HabitabilityLabColors.luminosityCurveColorProperty,
+      lineWidth: HR_DIAGRAM_NODE_SETTINGS.LIVED_TRACK_LINE_WIDTH,
+    });
+    const dot = new Circle(HR_DIAGRAM_NODE_SETTINGS.DOT_RADIUS, {
+      stroke: HabitabilityLabColors.selectedColorProperty,
+      lineWidth: HR_DIAGRAM_NODE_SETTINGS.DOT_LINE_WIDTH,
+    });
 
     let points: [number, number, number][] = [];
     model.windowProperty.link((window) => {
@@ -44,8 +55,8 @@ export class HRDiagramNode extends Node {
         ...points.filter(([age]) => age <= star.ageMyr).map(([, t, l]) => [t, l] as const),
         [star.temperature, star.luminosity],
       ]);
-      dot.x = chart.modelToViewX(Math.min(Math.max(star.temperature, 2000), 100000));
-      dot.y = chart.modelToViewY(Math.min(Math.max(star.luminosity, 1e-4), 1e6));
+      dot.x = chart.modelToViewX(Math.min(Math.max(star.temperature, HR_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_X), 100000));
+      dot.y = chart.modelToViewY(Math.min(Math.max(star.luminosity, HR_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_Y), 1e6));
       dot.fill = starColor(star.temperature);
     });
 

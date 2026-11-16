@@ -1,3 +1,4 @@
+import { GREENHOUSE_MODEL_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * GreenhouseModel.ts
  *
@@ -41,10 +42,10 @@ type PresetValues = {
 };
 
 /** The Sun's luminosity 3.8 billion years ago, L☉ (the faint young Sun, ~75 % of today). */
-const EARLY_SUN_LUMINOSITY = 0.75;
+const EARLY_SUN_LUMINOSITY: number = GREENHOUSE_MODEL_SETTINGS.EARLY_SUN_LUMINOSITY;
 
 /** A thick early-Mars CO₂ atmosphere: about 1 bar, τ ≈ 1.5 (still below freezing in this model). */
-const EARLY_MARS_OPTICAL_DEPTH = 1.5;
+const EARLY_MARS_OPTICAL_DEPTH: number = GREENHOUSE_MODEL_SETTINGS.EARLY_MARS_OPTICAL_DEPTH;
 const EARLY_MARS_PRESSURE_BAR = 1;
 
 /** A Solar System planet as it is today: τ chosen to give its measured surface temperature. */

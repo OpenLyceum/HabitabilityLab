@@ -1,3 +1,4 @@
+import { AGING_SYSTEM_VIEW_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * AgingSystemViewNode.ts
  *
@@ -20,7 +21,7 @@ import type { AgingStarModel } from "../model/AgingStarModel.js";
 const PLANET_ANGLE = -Math.PI / 5;
 
 /** How fast the scale catches up with its target, per second. */
-const SCALE_RATE = 3;
+const SCALE_RATE: number = AGING_SYSTEM_VIEW_NODE_SETTINGS.SCALE_RATE;
 
 const niceFloor = (value: number): number => {
   const decade = 10 ** Math.floor(Math.log10(value));
@@ -43,28 +44,44 @@ export class AgingSystemViewNode extends Node {
   // A thick dashed stroke draws the band as radial hatching, distinct from the zone fills.
   private readonly chzRing = new Circle(1, {
     stroke: HabitabilityLabColors.continuousZoneColorProperty,
-    lineDash: [2, 3],
-    opacity: 0.85,
+    lineDash: [2, AGING_SYSTEM_VIEW_NODE_SETTINGS.CHZ_RING_LINE_DASH_DASH],
+    opacity: AGING_SYSTEM_VIEW_NODE_SETTINGS.CHZ_RING_OPACITY,
   });
   private readonly lockCircle = new Circle(1, {
     stroke: HabitabilityLabColors.tidalLockColorProperty,
-    lineWidth: 1.5,
-    lineDash: [5, 4],
+    lineWidth: AGING_SYSTEM_VIEW_NODE_SETTINGS.LOCK_CIRCLE_LINE_WIDTH,
+    lineDash: [AGING_SYSTEM_VIEW_NODE_SETTINGS.LOCK_CIRCLE_LINE_DASH_DASH, 4],
   });
   private readonly orbit = new Circle(1, { stroke: HabitabilityLabColors.orbitColorProperty, lineWidth: 1 });
-  private readonly planet = new Circle(5, {
+  private readonly planet = new Circle(AGING_SYSTEM_VIEW_NODE_SETTINGS.PLANET_RADIUS, {
     fill: HabitabilityLabColors.planetColorProperty,
     stroke: HabitabilityLabColors.selectedColorProperty,
     lineWidth: 1,
   });
-  private readonly engulfedMark = new Path(new Shape().moveTo(-5, -5).lineTo(5, 5).moveTo(-5, 5).lineTo(5, -5), {
-    stroke: HabitabilityLabColors.tooHotColorProperty,
-    lineWidth: 2.5,
-  });
+  private readonly engulfedMark = new Path(
+    new Shape()
+      .moveTo(AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_X, AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_Y)
+      .lineTo(
+        AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_X_SEGMENT_2,
+        AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_Y_SEGMENT_2,
+      )
+      .moveTo(
+        AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_X,
+        AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_X_MOVE_TO_Y,
+      )
+      .lineTo(
+        AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_X_SEGMENT_2,
+        AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_Y,
+      ),
+    {
+      stroke: HabitabilityLabColors.tooHotColorProperty,
+      lineWidth: AGING_SYSTEM_VIEW_NODE_SETTINGS.ENGULFED_MARK_LINE_WIDTH,
+    },
+  );
   private readonly star = new StarNode(4, 5772);
   private readonly scaleBar = new Line(0, 0, 1, 0, {
     stroke: HabitabilityLabColors.spaceTextColorProperty,
-    lineWidth: 2,
+    lineWidth: AGING_SYSTEM_VIEW_NODE_SETTINGS.SCALE_BAR_LINE_WIDTH,
   });
   private readonly scaleText = new Text("", { font: FONTS.SMALL, fill: HabitabilityLabColors.spaceTextColorProperty });
 
@@ -78,7 +95,7 @@ export class AgingSystemViewNode extends Node {
     const background = new Rectangle(0, 0, size, size, {
       fill: HabitabilityLabColors.spaceColorProperty,
       stroke: HabitabilityLabColors.spaceBorderColorProperty,
-      cornerRadius: 4,
+      cornerRadius: AGING_SYSTEM_VIEW_NODE_SETTINGS.BACKGROUND_CORNER_RADIUS,
     });
     const centered = new Node({
       x: this.middle,
@@ -159,8 +176,8 @@ export class AgingSystemViewNode extends Node {
     const barAU = niceFloor(this.extent / 2);
     this.scaleBar.setLine(10, this.size - 12, 10 + barAU * pxPerAU, this.size - 12);
     this.scaleText.string = formatAU(barAU);
-    this.scaleText.left = 10;
-    this.scaleText.bottom = this.size - 16;
+    this.scaleText.left = AGING_SYSTEM_VIEW_NODE_SETTINGS.LEFT_LEFT;
+    this.scaleText.bottom = this.size - AGING_SYSTEM_VIEW_NODE_SETTINGS.REDRAW_BOTTOM_OFFSET;
   }
 
   /** Eases the scale towards its target. */

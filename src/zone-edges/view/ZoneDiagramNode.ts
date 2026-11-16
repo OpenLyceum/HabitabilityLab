@@ -1,3 +1,4 @@
+import { ZONE_DIAGRAM_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ZoneDiagramNode.ts
  *
@@ -21,11 +22,11 @@ import { FONTS, KOPPARAPU_TEMPERATURE_RANGE, SUN_TEMPERATURE_K } from "../../Hab
 import { StringManager } from "../../i18n/StringManager.js";
 import { SOLAR_SYSTEM, type ZoneEdgesModel } from "../model/ZoneEdgesModel.js";
 
-const S_MIN = 0.1;
-const S_MAX = 10;
-const T_MIN = 2400;
-const T_MAX = 7400;
-const SAMPLES = 60;
+const S_MIN: number = ZONE_DIAGRAM_NODE_SETTINGS.S_MIN;
+const S_MAX: number = ZONE_DIAGRAM_NODE_SETTINGS.S_MAX;
+const T_MIN: number = ZONE_DIAGRAM_NODE_SETTINGS.T_MIN;
+const T_MAX: number = ZONE_DIAGRAM_NODE_SETTINGS.T_MAX;
+const SAMPLES: number = ZONE_DIAGRAM_NODE_SETTINGS.SAMPLES;
 
 export class ZoneDiagramNode extends Node {
   public constructor(model: ZoneEdgesModel, width: number, height: number) {
@@ -75,7 +76,7 @@ export class ZoneDiagramNode extends Node {
     const archiveShape = new Shape();
     for (const [s, t] of SMALL_PLANETS) {
       if (s >= S_MIN && s <= S_MAX && t >= T_MIN && t <= T_MAX) {
-        archiveShape.circle(px(s), py(t), 1.3);
+        archiveShape.circle(px(s), py(t), ZONE_DIAGRAM_NODE_SETTINGS.CIRCLE_RADIUS);
       }
     }
     const archiveDots = new Path(archiveShape, {
@@ -88,8 +89,11 @@ export class ZoneDiagramNode extends Node {
     const starLine = new Path(null, {
       stroke: HabitabilityLabColors.textColorProperty,
       lineWidth: 1,
-      lineDash: [5, 4],
-      opacity: 0.7,
+      lineDash: [
+        ZONE_DIAGRAM_NODE_SETTINGS.STAR_LINE_LINE_DASH_DASH,
+        ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_STAR_LINE_LINE_DASH_DASH,
+      ],
+      opacity: ZONE_DIAGRAM_NODE_SETTINGS.STAR_LINE_OPACITY,
     });
     model.starTemperatureProperty.link((t) => {
       const y = py(Math.min(Math.max(t, T_MIN), T_MAX));
@@ -98,18 +102,20 @@ export class ZoneDiagramNode extends Node {
 
     // Curated exoplanets: small dots, larger with an outline when in the chosen system.
     const curatedDots = CURATED_PLANETS.map((planet) => {
-      const dot = new Circle(3.5, {
+      const dot = new Circle(ZONE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS, {
         fill: HabitabilityLabColors.exoplanetColorProperty,
         x: px(Math.min(Math.max(planet.insolation, S_MIN), S_MAX)),
         y: py(planet.starTemperature),
         cursor: "pointer",
-        touchArea: Shape.circle(0, 0, 8),
-        mouseArea: Shape.circle(0, 0, 6),
+        touchArea: Shape.circle(0, 0, ZONE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS_SEGMENT_2),
+        mouseArea: Shape.circle(0, 0, ZONE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS_SEGMENT_3),
       });
       dot.addInputListener(new FireListener({ fire: () => model.selectByName(planet.name) }));
       model.systemProperty.link((system) => {
         const inSystem = system.key === planet.host;
-        dot.radius = inSystem ? 5 : 3.5;
+        dot.radius = inSystem
+          ? ZONE_DIAGRAM_NODE_SETTINGS.CURATED_DOTS_RADIUS
+          : ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_CURATED_DOTS_RADIUS;
         dot.stroke = inSystem ? HabitabilityLabColors.selectedColorProperty : null;
         dot.opacity = inSystem ? 1 : 0.75;
       });
@@ -118,12 +124,12 @@ export class ZoneDiagramNode extends Node {
 
     // Solar System planets on the Sun's temperature, labelled.
     const solarDots = SOLAR_SYSTEM.planets.map((planet) => {
-      const dot = new Circle(4.5, {
+      const dot = new Circle(ZONE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS_SEGMENT_4, {
         fill: HabitabilityLabColors.earthColorProperty,
         x: px(planet.insolation),
         y: py(SUN_TEMPERATURE_K),
         cursor: "pointer",
-        touchArea: Shape.circle(0, 0, 9),
+        touchArea: Shape.circle(0, 0, ZONE_DIAGRAM_NODE_SETTINGS.DOT_RADIUS_SEGMENT_5),
       });
       dot.addInputListener(
         new FireListener({
@@ -136,26 +142,26 @@ export class ZoneDiagramNode extends Node {
       const label = new Text(planet.bodyKey ? bodyNameProperty(planet.bodyKey) : "", {
         font: FONTS.SMALL,
         fill: HabitabilityLabColors.earthColorProperty,
-        maxWidth: 60,
+        maxWidth: ZONE_DIAGRAM_NODE_SETTINGS.LABEL_MAX_WIDTH,
         pickable: false,
       });
       label.boundsProperty.link(() => {
         label.centerX = dot.x;
-        label.bottom = dot.y - 6;
+        label.bottom = dot.y - ZONE_DIAGRAM_NODE_SETTINGS.SOLAR_DOTS_BOTTOM_OFFSET;
       });
       return new Node({ children: [dot, label] });
     });
 
     // A ring and a name on the selected planet.
-    const selectionRing = new Circle(9, {
+    const selectionRing = new Circle(ZONE_DIAGRAM_NODE_SETTINGS.SELECTION_RING_RADIUS, {
       stroke: HabitabilityLabColors.selectedColorProperty,
-      lineWidth: 2,
+      lineWidth: ZONE_DIAGRAM_NODE_SETTINGS.SELECTION_RING_LINE_WIDTH,
       pickable: false,
     });
     const selectionLabel = new Text("", {
       font: FONTS.SMALL,
       fill: HabitabilityLabColors.selectedColorProperty,
-      maxWidth: 120,
+      maxWidth: ZONE_DIAGRAM_NODE_SETTINGS.SELECTION_LABEL_MAX_WIDTH,
       pickable: false,
     });
     Multilink.multilink([model.selectedPlanetProperty, model.systemProperty], (planet, system) => {
@@ -165,10 +171,10 @@ export class ZoneDiagramNode extends Node {
         selectionRing.x = px(Math.min(Math.max(planet.insolation, S_MIN), S_MAX));
         selectionRing.y = py(planet.bodyKey ? SUN_TEMPERATURE_K : system.temperature);
         selectionLabel.string = planet.name;
-        selectionLabel.left = selectionRing.right + 3;
-        selectionLabel.centerY = selectionRing.y + 10;
+        selectionLabel.left = selectionRing.right + ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        selectionLabel.centerY = selectionRing.y + ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_CENTER_Y_OFFSET;
         if (selectionLabel.right > width) {
-          selectionLabel.right = selectionRing.left - 3;
+          selectionLabel.right = selectionRing.left - ZONE_DIAGRAM_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
         }
       }
     });
@@ -179,22 +185,28 @@ export class ZoneDiagramNode extends Node {
       label: typeof strings.systemStringProperty,
     ) =>
       new HBox({
-        spacing: 5,
+        spacing: ZONE_DIAGRAM_NODE_SETTINGS.SWATCH_SPACING,
         children: [
-          new Rectangle(0, 0, 14, 10, { fill: fill }),
-          new Text(label, { font: FONTS.SMALL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 120 }),
+          new Rectangle(0, 0, ZONE_DIAGRAM_NODE_SETTINGS.SWATCH_WIDTH, ZONE_DIAGRAM_NODE_SETTINGS.SWATCH_HEIGHT, {
+            fill: fill,
+          }),
+          new Text(label, {
+            font: FONTS.SMALL,
+            fill: HabitabilityLabColors.textColorProperty,
+            maxWidth: ZONE_DIAGRAM_NODE_SETTINGS.SWATCH_MAX_WIDTH,
+          }),
         ],
       });
     const legend = new VBox({
-      spacing: 3,
+      spacing: ZONE_DIAGRAM_NODE_SETTINGS.LEGEND_SPACING,
       align: "left",
       children: [
         swatch(HabitabilityLabColors.conservativeZoneColorProperty, common.conservativeZoneStringProperty),
         swatch(HabitabilityLabColors.optimisticZoneColorProperty, common.optimisticZoneStringProperty),
       ],
     });
-    legend.left = 6;
-    legend.top = 6;
+    legend.left = ZONE_DIAGRAM_NODE_SETTINGS.LEFT_LEFT;
+    legend.top = ZONE_DIAGRAM_NODE_SETTINGS.TOP_TOP;
 
     chart.plotLayer.children = [optimisticBand, conservativeBand, archiveDots, starLine, ...curatedDots, ...solarDots];
     chart.overlayLayer.children = [selectionRing, selectionLabel, legend];

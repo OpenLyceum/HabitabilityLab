@@ -1,3 +1,4 @@
+import { SPEED_DISTRIBUTION_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * SpeedDistributionNode.ts
  *
@@ -17,7 +18,7 @@ import { FONTS } from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import { type EscapeModel, GAS_MASSES } from "../model/EscapeModel.js";
 
-const SAMPLES = 240;
+const SAMPLES: number = SPEED_DISTRIBUTION_NODE_SETTINGS.SAMPLES;
 
 export class SpeedDistributionNode extends Node {
   public constructor(model: EscapeModel, width: number, height: number) {
@@ -33,10 +34,26 @@ export class SpeedDistributionNode extends Node {
       targetDivisions: 6,
     });
 
-    const tail = new Path(null, { fill: HabitabilityLabColors.escapingColorProperty, opacity: 0.6 });
-    const curve = new Path(null, { stroke: HabitabilityLabColors.distributionColorProperty, lineWidth: 2.5 });
-    const escapeLine = new Path(null, { stroke: HabitabilityLabColors.escapingColorProperty, lineWidth: 2 });
-    const rmsLine = new Path(null, { stroke: HabitabilityLabColors.textColorProperty, lineWidth: 1, lineDash: [4, 3] });
+    const tail = new Path(null, {
+      fill: HabitabilityLabColors.escapingColorProperty,
+      opacity: SPEED_DISTRIBUTION_NODE_SETTINGS.TAIL_OPACITY,
+    });
+    const curve = new Path(null, {
+      stroke: HabitabilityLabColors.distributionColorProperty,
+      lineWidth: SPEED_DISTRIBUTION_NODE_SETTINGS.CURVE_LINE_WIDTH,
+    });
+    const escapeLine = new Path(null, {
+      stroke: HabitabilityLabColors.escapingColorProperty,
+      lineWidth: SPEED_DISTRIBUTION_NODE_SETTINGS.ESCAPE_LINE_LINE_WIDTH,
+    });
+    const rmsLine = new Path(null, {
+      stroke: HabitabilityLabColors.textColorProperty,
+      lineWidth: 1,
+      lineDash: [
+        SPEED_DISTRIBUTION_NODE_SETTINGS.RMS_LINE_LINE_DASH_DASH,
+        SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_RMS_LINE_LINE_DASH_DASH,
+      ],
+    });
     const escapeLabel = new RichText(strings.vEscStringProperty, {
       font: FONTS.LABEL,
       fill: HabitabilityLabColors.escapingColorProperty,
@@ -72,14 +89,14 @@ export class SpeedDistributionNode extends Node {
 
         const xEsc = chart.modelToViewX(escapeSpeed);
         escapeLine.shape = new Shape().moveTo(xEsc, 0).lineTo(xEsc, height);
-        escapeLabel.right = xEsc - 4;
-        escapeLabel.top = 4;
+        escapeLabel.right = xEsc - SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+        escapeLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.TOP_TOP;
         const xRms = chart.modelToViewX(vRms);
         rmsLine.shape = new Shape().moveTo(xRms, 0).lineTo(xRms, height);
-        rmsLabel.left = xRms + 4;
-        rmsLabel.top = 4;
+        rmsLabel.left = xRms + SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        rmsLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.TOP_TOP;
         if (rmsLabel.right > escapeLabel.left - 4) {
-          rmsLabel.top = 22;
+          rmsLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_TOP;
         }
       },
     );

@@ -1,3 +1,4 @@
+import { SHORELINE_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ShorelineNode.ts
  *
@@ -19,13 +20,13 @@ import { FONTS } from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { EscapeModel } from "../model/EscapeModel.js";
 
-const V_MIN = 0.5;
-const V_MAX = 100;
-const S_MIN = 1e-4;
-const S_MAX = 1e4;
+const V_MIN: number = SHORELINE_NODE_SETTINGS.V_MIN;
+const V_MAX: number = SHORELINE_NODE_SETTINGS.V_MAX;
+const S_MIN: number = SHORELINE_NODE_SETTINGS.S_MIN;
+const S_MAX: number = SHORELINE_NODE_SETTINGS.S_MAX;
 
 /** Hosts cooler than this are drawn as red dwarfs, K. */
-const RED_DWARF_TEMPERATURE = 4000;
+const RED_DWARF_TEMPERATURE: number = SHORELINE_NODE_SETTINGS.RED_DWARF_TEMPERATURE;
 
 /** Label offsets (px) that keep crowded Solar System names apart. */
 const LABEL_OFFSETS: Partial<Record<string, readonly [number, number]>> = {
@@ -69,8 +70,14 @@ export class ShorelineNode extends Node {
       bareSide.lineTo(px(v), y);
     }
     bareSide.lineTo(width, 0).close();
-    const bareRegion = new Path(bareSide, { fill: HabitabilityLabColors.tooHotColorProperty, opacity: 0.12 });
-    const line = new Path(lineShape, { stroke: HabitabilityLabColors.shorelineColorProperty, lineWidth: 2.5 });
+    const bareRegion = new Path(bareSide, {
+      fill: HabitabilityLabColors.tooHotColorProperty,
+      opacity: SHORELINE_NODE_SETTINGS.BARE_REGION_OPACITY,
+    });
+    const line = new Path(lineShape, {
+      stroke: HabitabilityLabColors.shorelineColorProperty,
+      lineWidth: SHORELINE_NODE_SETTINGS.LINE_LINE_WIDTH,
+    });
 
     // Exoplanets, one path per host colour.
     const redShape = new Shape();
@@ -85,20 +92,26 @@ export class ShorelineNode extends Node {
         (planet.starTemperature < RED_DWARF_TEMPERATURE ? redShape : otherShape).circle(
           px(planet.escapeSpeed),
           py(planet.insolation),
-          1.8,
+          SHORELINE_NODE_SETTINGS.CIRCLE_RADIUS,
         );
       }
     }
     const exoplanets = new Node({
       visibleProperty: model.showExoplanetsProperty,
       children: [
-        new Path(otherShape, { fill: HabitabilityLabColors.exoplanetColorProperty, opacity: 0.55 }),
-        new Path(redShape, { fill: HabitabilityLabColors.infraredColorProperty, opacity: 0.8 }),
+        new Path(otherShape, {
+          fill: HabitabilityLabColors.exoplanetColorProperty,
+          opacity: SHORELINE_NODE_SETTINGS.EXOPLANETS_OPACITY,
+        }),
+        new Path(redShape, {
+          fill: HabitabilityLabColors.infraredColorProperty,
+          opacity: SHORELINE_NODE_SETTINGS.EXOPLANETS_ITEM_2_OPACITY,
+        }),
       ],
     });
     const highlights = new Node({ visibleProperty: model.showExoplanetsProperty });
     highlights.children = SHORELINE_PLANETS.filter((p) => SHORELINE_HIGHLIGHTS.includes(p.name)).map((planet) => {
-      const dot = new Circle(3.5, {
+      const dot = new Circle(SHORELINE_NODE_SETTINGS.DOT_RADIUS, {
         fill:
           planet.starTemperature < RED_DWARF_TEMPERATURE
             ? HabitabilityLabColors.infraredColorProperty
@@ -110,7 +123,7 @@ export class ShorelineNode extends Node {
       const label = new Text(planet.name, {
         font: FONTS.SMALL,
         fill: HabitabilityLabColors.textColorProperty,
-        left: dot.x + 5,
+        left: dot.x + SHORELINE_NODE_SETTINGS.LABEL_LEFT_OFFSET,
         centerY: dot.y,
       });
       return new Node({ children: [dot, label] });
@@ -118,24 +131,24 @@ export class ShorelineNode extends Node {
 
     // Solar System bodies.
     const bodies = SHORELINE_BODIES.map((body) => {
-      const dot = new Circle(5, {
+      const dot = new Circle(SHORELINE_NODE_SETTINGS.DOT_RADIUS_SEGMENT_2, {
         fill: body.hasAtmosphere ? HabitabilityLabColors.earthColorProperty : null,
         stroke: HabitabilityLabColors.earthColorProperty,
-        lineWidth: 2,
+        lineWidth: SHORELINE_NODE_SETTINGS.DOT_LINE_WIDTH,
         x: px(body.escapeSpeed),
         y: py(body.insolation),
       });
       const label = new Text(bodyNameProperty(body.key), {
         font: FONTS.SMALL,
         fill: HabitabilityLabColors.earthColorProperty,
-        maxWidth: 70,
+        maxWidth: SHORELINE_NODE_SETTINGS.LABEL_MAX_WIDTH,
       });
       const [dx, dy] = LABEL_OFFSETS[body.key] ?? [6, 0];
       label.boundsProperty.link(() => {
         if (dx >= 0) {
-          label.left = dot.x + dx + 3;
+          label.left = dot.x + dx + SHORELINE_NODE_SETTINGS.BODIES_LEFT_OFFSET;
         } else {
-          label.right = dot.x + dx - 3;
+          label.right = dot.x + dx - SHORELINE_NODE_SETTINGS.BODIES_RIGHT_OFFSET;
         }
         label.centerY = dot.y + dy;
       });
@@ -146,52 +159,63 @@ export class ShorelineNode extends Node {
       new Text(stringProperty, {
         font: FONTS.TITLE,
         fill: HabitabilityLabColors.textColorProperty,
-        opacity: 0.6,
+        opacity: SHORELINE_NODE_SETTINGS.SIDE_LABEL_OPACITY,
         centerX: px(v),
         centerY: py(s),
-        maxWidth: 160,
+        maxWidth: SHORELINE_NODE_SETTINGS.SIDE_LABEL_MAX_WIDTH,
       });
 
     // Legend.
     const legendRow = (dot: Node, label: typeof strings.hasAtmosphereStringProperty): HBox =>
       new HBox({
-        spacing: 6,
+        spacing: SHORELINE_NODE_SETTINGS.LEGEND_ROW_SPACING,
         children: [
           dot,
-          new Text(label, { font: FONTS.SMALL, fill: HabitabilityLabColors.textColorProperty, maxWidth: 170 }),
+          new Text(label, {
+            font: FONTS.SMALL,
+            fill: HabitabilityLabColors.textColorProperty,
+            maxWidth: SHORELINE_NODE_SETTINGS.LEGEND_ROW_MAX_WIDTH,
+          }),
         ],
       });
     const legend = new VBox({
-      spacing: 3,
+      spacing: SHORELINE_NODE_SETTINGS.LEGEND_SPACING,
       align: "left",
       children: [
         legendRow(
-          new Circle(4, { fill: HabitabilityLabColors.earthColorProperty }),
+          new Circle(SHORELINE_NODE_SETTINGS.LEGEND_RADIUS, { fill: HabitabilityLabColors.earthColorProperty }),
           strings.hasAtmosphereStringProperty,
         ),
         legendRow(
-          new Circle(4, { stroke: HabitabilityLabColors.earthColorProperty, lineWidth: 2 }),
+          new Circle(SHORELINE_NODE_SETTINGS.LEGEND_RADIUS, {
+            stroke: HabitabilityLabColors.earthColorProperty,
+            lineWidth: SHORELINE_NODE_SETTINGS.LEGEND_LINE_WIDTH,
+          }),
           strings.noAtmosphereStringProperty,
         ),
         legendRow(
-          new Circle(3, { fill: HabitabilityLabColors.infraredColorProperty }),
+          new Circle(SHORELINE_NODE_SETTINGS.LEGEND_RADIUS_SEGMENT_2, {
+            fill: HabitabilityLabColors.infraredColorProperty,
+          }),
           strings.redDwarfHostsStringProperty,
         ),
         legendRow(
-          new Circle(3, { fill: HabitabilityLabColors.exoplanetColorProperty }),
+          new Circle(SHORELINE_NODE_SETTINGS.LEGEND_RADIUS_SEGMENT_2, {
+            fill: HabitabilityLabColors.exoplanetColorProperty,
+          }),
           strings.otherHostsStringProperty,
         ),
         legendRow(
-          new Path(new Shape().moveTo(0, 0).lineTo(14, 0), {
+          new Path(new Shape().moveTo(0, 0).lineTo(SHORELINE_NODE_SETTINGS.LEGEND_X, 0), {
             stroke: HabitabilityLabColors.shorelineColorProperty,
-            lineWidth: 2.5,
+            lineWidth: SHORELINE_NODE_SETTINGS.CONSTRUCTOR_LEGEND_LINE_WIDTH,
           }),
           strings.shorelineStringProperty,
         ),
       ],
     });
-    legend.left = 8;
-    legend.top = 8;
+    legend.left = SHORELINE_NODE_SETTINGS.LEFT_LEFT;
+    legend.top = SHORELINE_NODE_SETTINGS.TOP_TOP;
 
     chart.plotLayer.children = [
       bareRegion,
