@@ -99,6 +99,12 @@ export const STARLIGHT_RANGE = new Range(0.1, 10);
 /** Infrared optical depth of the grey atmosphere (log slider; 0 handled by a "none" floor). */
 export const OPTICAL_DEPTH_RANGE = new Range(0.01, 300);
 
+/**
+ * Eddington grey-atmosphere factor in T_s⁴ = T_eq⁴ (1 + ¾τ).
+ * The ¾ comes from the two-stream / Eddington approximation for a grey IR atmosphere.
+ */
+export const GREY_ATMOSPHERE_FACTOR = 0.75;
+
 /** Surface pressure, bar. */
 export const PRESSURE_RANGE = new Range(1e-4, 200);
 

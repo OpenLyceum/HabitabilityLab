@@ -1,4 +1,3 @@
-import { AGING_STAR_MODEL_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * AgingStarModel.ts
  *
@@ -9,6 +8,9 @@ import { AGING_STAR_MODEL_SETTINGS } from "../../HabitabilityLabConstants.js";
  * Earth-like planet there is tidally locked once the age passes its locking
  * time. The continuously habitable zone is the range of distances inside the
  * conservative zone over the whole of the last Δt.
+ *
+ * History math (crossings, CHZ, engulf/lock ages) lives in agingStarHistory.ts;
+ * this file owns the Properties and playback.
  */
 
 import {
@@ -24,14 +26,7 @@ import type { TModel } from "scenerystack/joist";
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import { equilibriumTemperature } from "../../common/model/climate.js";
 import type { StarRecord } from "../../common/model/data/shzStars.js";
-import {
-  edgeStarlight,
-  type ZoneDistances,
-  type ZoneEdge,
-  type ZoneStatus,
-  zoneDistances,
-  zoneStatus,
-} from "../../common/model/habitableZone.js";
+import { type ZoneDistances, type ZoneStatus, zoneDistances, zoneStatus } from "../../common/model/habitableZone.js";
 import {
   mainSequenceEndMyr,
   nearestTrack,
@@ -40,21 +35,23 @@ import {
   sampleTrack,
   TRACK_MASSES,
   trackEndMyr,
-  trackStates,
 } from "../../common/model/stellarTracks.js";
-import { tidalLockDistance, tidalLockYears } from "../../common/model/tidalLock.js";
+import { tidalLockDistance } from "../../common/model/tidalLock.js";
 import { TimeModel } from "../../common/TimeModel.js";
 import {
   AGING_DISTANCE_RANGE,
   AGING_PLANET_ALBEDO,
-  AU_M,
+  AGING_STAR_MODEL_SETTINGS,
   CHZ_DURATIONS_MYR,
   FAST_SPEED_FACTOR,
   KOPPARAPU_TEMPERATURE_RANGE,
   SECONDS_PER_LIFETIME,
   SLOW_SPEED_FACTOR,
-  SUN_RADIUS_M,
 } from "../../HabitabilityLabConstants.js";
+import { computeHistory, continuouslyHabitableZone, type PlanetHistory, rowIndexAt } from "./agingStarHistory.js";
+
+export type { HistoryRow, PlanetHistory } from "./agingStarHistory.js";
+export { computeHistory, continuouslyHabitableZone } from "./agingStarHistory.js";
 
 export type AgingPreset =
   | "sunVenus"
@@ -128,184 +125,7 @@ function stageOfType(type: number): Stage {
   return "whiteDwarf";
 }
 
-/** The planet's situation at a tabulated age or a resolved zone crossing. */
-export type HistoryRow = {
-  readonly star: StarState;
-  /** Planet's orbit, AU. */
-  readonly distance: number;
-  readonly zone: ZoneDistances;
-  /** Status during the interval from this row to the next (right-hand limit at a crossing). */
-  readonly status: ZoneStatus;
-};
-
-/** Everything that depends only on the track and the starting distance, computed once per change. */
-export type PlanetHistory = {
-  readonly rows: readonly HistoryRow[];
-  /** Age at which the star swallows the planet, Myr (Infinity if never). */
-  readonly engulfAge: number;
-  /** Age at which an Earth-like planet here becomes tidally locked, Myr (Infinity if never). */
-  readonly lockAge: number;
-  /** Cumulative time in the conservative zone at each row, Myr. */
-  readonly timeInZone: readonly number[];
-};
-
 const MYR_PER_YEAR: number = AGING_STAR_MODEL_SETTINGS.MYR_PER_YEAR;
-const AU_PER_SUN_RADIUS = SUN_RADIUS_M / AU_M;
-
-/** Bracket crossings within each interpolated track interval, including nonmonotonic intervals. */
-const CROSSING_SUBDIVISIONS: number = AGING_STAR_MODEL_SETTINGS.CROSSING_SUBDIVISIONS;
-const CROSSING_BISECTIONS: number = AGING_STAR_MODEL_SETTINGS.CROSSING_BISECTIONS;
-const ZONE_EDGES: readonly ZoneEdge[] = ["recentVenus", "runawayGreenhouse", "maximumGreenhouse", "earlyMars"];
-
-/** Resolve a bracketed edge crossing on the same interpolated track used by the live readouts. */
-function crossingAge(lowAge: number, highAge: number, offsetAt: (age: number) => number): number | null {
-  const lowOffset = offsetAt(lowAge);
-  const highOffset = offsetAt(highAge);
-  if (lowOffset === 0) {
-    return lowAge;
-  }
-  if (highOffset === 0) {
-    return highAge;
-  }
-  if (Math.sign(lowOffset) === Math.sign(highOffset)) {
-    return null;
-  }
-  let low = lowAge;
-  let high = highAge;
-  for (let i = 0; i < CROSSING_BISECTIONS; i++) {
-    const mid = (low + high) / 2;
-    if (Math.sign(offsetAt(mid)) === Math.sign(lowOffset)) {
-      low = mid;
-    } else {
-      high = mid;
-    }
-  }
-  return (low + high) / 2;
-}
-
-/** Track samples plus edge crossings, so every history interval has a single zone status. */
-function zoneHistoryRows(track: StarRecord, startDistance: number): HistoryRow[] {
-  const orbitAt = (star: StarState): number => (startDistance * track.mass) / star.mass;
-  const edgeOffset = (star: StarState, edge: ZoneEdge): number =>
-    star.luminosity / orbitAt(star) ** 2 - edgeStarlight(edge, star.temperature);
-  const samples = trackStates(track);
-  const ages = samples.map((star) => star.ageMyr);
-  for (let i = 1; i < samples.length; i++) {
-    const start = samples[i - 1] as StarState;
-    const end = samples[i] as StarState;
-    let before = start;
-    for (let j = 1; j <= CROSSING_SUBDIVISIONS; j++) {
-      const after = sampleTrack(track, start.ageMyr + ((end.ageMyr - start.ageMyr) * j) / CROSSING_SUBDIVISIONS);
-      for (const edge of ZONE_EDGES) {
-        const crossing = crossingAge(before.ageMyr, after.ageMyr, (age) => edgeOffset(sampleTrack(track, age), edge));
-        if (crossing !== null) {
-          ages.push(crossing);
-        }
-      }
-      before = after;
-    }
-  }
-  const sortedAges = [...new Set(ages)].sort((a, b) => a - b);
-  return sortedAges.map((age, i) => {
-    const star = sampleTrack(track, age);
-    // Equality at an edge is sensitive to rounding. Classify the interval at its midpoint.
-    const intervalStar = sampleTrack(track, (age + (sortedAges[i + 1] ?? age)) / 2);
-    return {
-      star,
-      distance: orbitAt(star),
-      zone: zoneDistances(star.luminosity, star.temperature),
-      status: zoneStatus(intervalStar.luminosity / orbitAt(intervalStar) ** 2, intervalStar.temperature),
-    };
-  });
-}
-
-/** @internal Exported for unit tests; not part of the application API. */
-export function computeHistory(track: StarRecord, startDistance: number): PlanetHistory {
-  const startMass = track.mass;
-  let engulfAge = Number.POSITIVE_INFINITY;
-  let lockAge = Number.POSITIVE_INFINITY;
-  const rows = zoneHistoryRows(track, startDistance);
-  const timeInZone: number[] = [];
-  let cumulative = 0;
-  let previous: HistoryRow | null = null;
-  for (const row of rows) {
-    const { star, distance } = row;
-    if (engulfAge === Number.POSITIVE_INFINITY && star.radius * AU_PER_SUN_RADIUS >= distance) {
-      engulfAge = star.ageMyr;
-    }
-    if (lockAge === Number.POSITIVE_INFINITY && star.ageMyr >= tidalLockYears(distance, star.mass) * MYR_PER_YEAR) {
-      // A red dwarf's first track interval can span Gyr, while locking takes only Myr.
-      let low = previous?.star.ageMyr ?? 0;
-      let high = star.ageMyr;
-      for (let i = 0; i < AGING_STAR_MODEL_SETTINGS.CONTINUOUS_ZONE_ITERATIONS; i++) {
-        const age = (low + high) / 2;
-        const state = sampleTrack(track, age);
-        const orbit = (startDistance * startMass) / state.mass;
-        if (age >= tidalLockYears(orbit, state.mass) * MYR_PER_YEAR) {
-          high = age;
-        } else {
-          low = age;
-        }
-      }
-      lockAge = high;
-    }
-    if (previous && previous.status === "conservative" && previous.star.ageMyr < engulfAge) {
-      cumulative += star.ageMyr - previous.star.ageMyr;
-    }
-    timeInZone.push(cumulative);
-    previous = row;
-  }
-  return { rows, engulfAge, lockAge, timeInZone };
-}
-
-/** Index of the last row at or before `age` (0 before the first). */
-function rowIndexAt(rows: readonly HistoryRow[], age: number): number {
-  let low = 0;
-  let high = rows.length - 1;
-  if (age >= (rows[high]?.star.ageMyr ?? 0)) {
-    return high;
-  }
-  while (high - low > 1) {
-    const mid = (low + high) >> 1;
-    if ((rows[mid] as HistoryRow).star.ageMyr <= age) {
-      low = mid;
-    } else {
-      high = mid;
-    }
-  }
-  return low;
-}
-
-/**
- * The continuously habitable zone over [age − duration, age], AU, or null when empty or too young.
- * @internal Exported for unit tests; not part of the application API.
- */
-export function continuouslyHabitableZone(
-  history: PlanetHistory,
-  track: StarRecord,
-  age: number,
-  duration: number,
-): { inner: number; outer: number } | null {
-  const start = age - duration;
-  if (start < 0) {
-    return null;
-  }
-  const atStart = sampleTrack(track, start);
-  const atAge = sampleTrack(track, age);
-  const startZone = zoneDistances(atStart.luminosity, atStart.temperature);
-  const ageZone = zoneDistances(atAge.luminosity, atAge.temperature);
-  let inner = Math.max(startZone.runawayGreenhouse, ageZone.runawayGreenhouse);
-  let outer = Math.min(startZone.maximumGreenhouse, ageZone.maximumGreenhouse);
-  for (let i = rowIndexAt(history.rows, start) + 1; i < history.rows.length; i++) {
-    const row = history.rows[i] as HistoryRow;
-    if (row.star.ageMyr > age) {
-      break;
-    }
-    inner = Math.max(inner, row.zone.runawayGreenhouse);
-    outer = Math.min(outer, row.zone.maximumGreenhouse);
-  }
-  return inner < outer ? { inner, outer } : null;
-}
 
 /** Timeline bounds from primitive state, also safe during a track-change notification. */
 function timelineWindow(track: StarRecord, zoom: boolean): Range {
@@ -391,7 +211,7 @@ export class AgingStarModel implements TModel {
     );
     this.timeInZoneProperty = new DerivedProperty([this.historyProperty, this.ageProperty], (history, age) => {
       const i = rowIndexAt(history.rows, age);
-      const row = history.rows[i] as HistoryRow;
+      const row = history.rows[i] as PlanetHistory["rows"][number];
       const extra = row.status === "conservative" && age < history.engulfAge ? Math.max(0, age - row.star.ageMyr) : 0;
       const next = history.timeInZone[i + 1];
       const base = history.timeInZone[i] ?? 0;
