@@ -51,7 +51,7 @@ export class HabitabilityLabPreferencesNode extends VBox {
 
     super({
       align: "left",
-      spacing: HABITABILITY_LAB_PREFERENCES_NODE_SETTINGS.CONSTRUCTOR_SPACING,
+      spacing: HABITABILITY_LAB_PREFERENCES_NODE_SETTINGS.SPACING,
       children: [header, showEquationsCheckbox, description],
     });
   }

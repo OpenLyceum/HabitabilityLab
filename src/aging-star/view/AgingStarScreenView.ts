@@ -171,7 +171,7 @@ export class AgingStarScreenView extends ScreenView {
           createTitle(strings.presetStringProperty),
           presetRadios,
           new HBox({
-            spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_CONTROL_PANEL_SPACING,
+            spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONTROL_COLUMN_SPACING,
             children: [
               new Text(strings.starMassStringProperty, {
                 font: FONTS.LABEL,
@@ -250,14 +250,14 @@ export class AgingStarScreenView extends ScreenView {
       align: "left",
       children: [
         new HBox({
-          spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEGEND_SPACING,
+          spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_COLUMN_SPACING,
           children: [
             legendItem(HabitabilityLabColors.conservativeZoneColorProperty, common.conservativeZoneStringProperty),
             legendItem(HabitabilityLabColors.optimisticZoneColorProperty, common.optimisticZoneStringProperty),
           ],
         }),
         new HBox({
-          spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEGEND_SPACING,
+          spacing: AGING_STAR_SCREEN_VIEW_SETTINGS.LEGEND_COLUMN_SPACING,
           children: [
             legendItem(HabitabilityLabColors.continuousZoneColorProperty, chzLabel),
             legendItem(HabitabilityLabColors.tidalLockColorProperty, strings.lockDistanceStringProperty, true),
@@ -266,12 +266,12 @@ export class AgingStarScreenView extends ScreenView {
       ],
     });
     legend.left = this.systemView.left;
-    legend.top = this.systemView.bottom + AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
+    legend.top = this.systemView.bottom + AGING_STAR_SCREEN_VIEW_SETTINGS.TOP_OFFSET;
 
     // ── HR diagram and readouts (top middle) ──────────────────────────────────
     const hrDiagram = new HRDiagramNode(model, HR_WIDTH, HR_HEIGHT);
-    hrDiagram.left = this.systemView.right + AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
-    hrDiagram.top = this.systemView.top + AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
+    hrDiagram.left = this.systemView.right + AGING_STAR_SCREEN_VIEW_SETTINGS.LEFT_OFFSET;
+    hrDiagram.top = this.systemView.top + AGING_STAR_SCREEN_VIEW_SETTINGS.TOP_OFFSET;
 
     const dependencies = unitDependencies();
     const derived = (format: () => string, extra: TReadOnlyProperty<unknown>[]): TReadOnlyProperty<string> =>
@@ -398,7 +398,7 @@ export class AgingStarScreenView extends ScreenView {
     const timelineLeft = this.systemView.left + 58;
     const timeline = new TimelineNode(model, controlPanel.left - 20 - timelineLeft, TIMELINE_HEIGHT);
     timeline.left = timelineLeft;
-    timeline.bottom = bounds.maxY - SCREEN_VIEW_MARGIN - AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_BOTTOM_OFFSET;
+    timeline.bottom = bounds.maxY - SCREEN_VIEW_MARGIN - AGING_STAR_SCREEN_VIEW_SETTINGS.BOTTOM_OFFSET;
 
     // ── Time controls and Reset All ───────────────────────────────────────────
     const timeControlNode = new TimeControlNode(model.timer.isPlayingProperty, {
@@ -422,7 +422,7 @@ export class AgingStarScreenView extends ScreenView {
       right: bounds.maxX - SCREEN_VIEW_MARGIN,
       bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    timeControlNode.right = resetAllButton.left - AGING_STAR_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+    timeControlNode.right = resetAllButton.left - AGING_STAR_SCREEN_VIEW_SETTINGS.RIGHT_OFFSET;
     timeControlNode.centerY = resetAllButton.centerY;
 
     this.children = [

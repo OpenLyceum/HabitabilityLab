@@ -86,7 +86,7 @@ export class MoleculesNode extends Node {
         if (dot) {
           dot.x =
             MOLECULES_NODE_SETTINGS.MOVE_DOTS_X_OFFSET +
-            molecule.x * (width - MOLECULES_NODE_SETTINGS.CONSTRUCTOR_MOVE_DOTS_X_OFFSET);
+            molecule.x * (width - MOLECULES_NODE_SETTINGS.PLOT_WIDTH_INSET);
           dot.y = yOf(molecule.r) - MOLECULE_RADIUS;
           dot.fill = molecule.escaping
             ? HabitabilityLabColors.escapingColorProperty

@@ -143,9 +143,7 @@ export class TimelineNode extends Node {
           });
           text.left = x + TIMELINE_NODE_SETTINGS.REDRAW_LEFT_OFFSET;
           text.top =
-            2 +
-            TIMELINE_NODE_SETTINGS.REDRAW_TOP_FACTOR *
-              (labelRow++ % TIMELINE_NODE_SETTINGS.CONSTRUCTOR_REDRAW_TOP_FACTOR);
+            2 + TIMELINE_NODE_SETTINGS.REDRAW_TOP_FACTOR * (labelRow++ % TIMELINE_NODE_SETTINGS.LABEL_ROW_MODULUS);
           if (text.right > width) {
             text.right = x - TIMELINE_NODE_SETTINGS.REDRAW_RIGHT_OFFSET;
           }

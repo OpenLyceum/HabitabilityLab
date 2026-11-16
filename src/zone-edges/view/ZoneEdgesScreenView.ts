@@ -249,10 +249,10 @@ export class ZoneEdgesScreenView extends ScreenView {
     // ── Diagram (left) ────────────────────────────────────────────────────────
     const diagramTitle = createTitle(strings.diagramTitleStringProperty, DIAGRAM_WIDTH);
     const diagram = new ZoneDiagramNode(model, DIAGRAM_WIDTH, DIAGRAM_HEIGHT);
-    diagram.left = bounds.minX + SCREEN_VIEW_MARGIN + ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+    diagram.left = bounds.minX + SCREEN_VIEW_MARGIN + ZONE_EDGES_SCREEN_VIEW_SETTINGS.LEFT_OFFSET;
     diagramTitle.left = diagram.left;
     diagramTitle.top = bounds.minY + SCREEN_VIEW_MARGIN;
-    diagram.top = diagramTitle.bottom + ZONE_EDGES_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
+    diagram.top = diagramTitle.bottom + ZONE_EDGES_SCREEN_VIEW_SETTINGS.TOP_OFFSET;
 
     // ── Top view and planet card (middle) ─────────────────────────────────────
     const systemTitle = createTitle(strings.systemTitleStringProperty, SYSTEM_SIZE);

@@ -77,7 +77,7 @@ export class EnergySpaceNode extends Node {
           font: FONTS.TICK_LABEL,
           fill: HabitabilityLabColors.spaceTextColorProperty,
           centerX: x,
-          top: axisY + ENERGY_SPACE_NODE_SETTINGS.CONSTRUCTOR_TOP_OFFSET,
+          top: axisY + ENERGY_SPACE_NODE_SETTINGS.TOP_OFFSET,
         }),
       );
     }
@@ -258,9 +258,9 @@ export class EnergySpaceNode extends Node {
       ],
     });
     legend.children.forEach((child, i) => {
-      child.y = i * ENERGY_SPACE_NODE_SETTINGS.CONSTRUCTOR_Y_FACTOR;
+      child.y = i * ENERGY_SPACE_NODE_SETTINGS.Y_FACTOR;
     });
-    legend.right = width - ENERGY_SPACE_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+    legend.right = width - ENERGY_SPACE_NODE_SETTINGS.RIGHT_OFFSET;
     legend.top = ENERGY_SPACE_NODE_SETTINGS.TOP_TOP;
 
     this.children = [

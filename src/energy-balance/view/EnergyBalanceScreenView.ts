@@ -166,8 +166,8 @@ export class EnergyBalanceScreenView extends ScreenView {
 
     // ── Temperature history (bottom left) ─────────────────────────────────────
     const historyNode = new TemperatureHistoryNode(model, CHART_WIDTH, CHART_HEIGHT);
-    historyNode.left = spaceNode.left + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
-    historyNode.top = spaceNode.bottom + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
+    historyNode.left = spaceNode.left + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.LEFT_OFFSET;
+    historyNode.top = spaceNode.bottom + ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.TOP_OFFSET;
 
     // ── Bars and temperatures (bottom middle) ─────────────────────────────────
     const temperatureDependencies = unitDependencies();
@@ -269,7 +269,7 @@ export class EnergyBalanceScreenView extends ScreenView {
       right: bounds.maxX - SCREEN_VIEW_MARGIN,
       bottom: bounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    timeControlNode.right = resetAllButton.left - ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+    timeControlNode.right = resetAllButton.left - ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.RIGHT_OFFSET;
     timeControlNode.centerY = resetAllButton.centerY;
 
     this.children = [spaceNode, historyNode, barsPanel, controlPanel, timeControlNode, resetAllButton];

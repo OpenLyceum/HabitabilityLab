@@ -51,7 +51,7 @@ export class SpeedDistributionNode extends Node {
       lineWidth: 1,
       lineDash: [
         SPEED_DISTRIBUTION_NODE_SETTINGS.RMS_LINE_LINE_DASH_DASH,
-        SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_RMS_LINE_LINE_DASH_DASH,
+        SPEED_DISTRIBUTION_NODE_SETTINGS.RMS_LINE_LINE_DASH_GAP,
       ],
     });
     const escapeLabel = new RichText(strings.vEscStringProperty, {
@@ -89,14 +89,14 @@ export class SpeedDistributionNode extends Node {
 
         const xEsc = chart.modelToViewX(escapeSpeed);
         escapeLine.shape = new Shape().moveTo(xEsc, 0).lineTo(xEsc, height);
-        escapeLabel.right = xEsc - SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+        escapeLabel.right = xEsc - SPEED_DISTRIBUTION_NODE_SETTINGS.RIGHT_OFFSET;
         escapeLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.TOP_TOP;
         const xRms = chart.modelToViewX(vRms);
         rmsLine.shape = new Shape().moveTo(xRms, 0).lineTo(xRms, height);
-        rmsLabel.left = xRms + SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
+        rmsLabel.left = xRms + SPEED_DISTRIBUTION_NODE_SETTINGS.LEFT_OFFSET;
         rmsLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.TOP_TOP;
         if (rmsLabel.right > escapeLabel.left - 4) {
-          rmsLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.CONSTRUCTOR_TOP;
+          rmsLabel.top = SPEED_DISTRIBUTION_NODE_SETTINGS.TOP;
         }
       },
     );
