@@ -73,9 +73,9 @@ Standard fleet pattern:
 
 ## Compliance carve-outs
 
-- `src/common/view/StarNode.ts`: the table of star colours by effective temperature is physical
-  data (apparent colour of a blackbody-like star), not theme colour, so it stays out of
-  `HabitabilityLabColors.ts`.
+- **Hardcoded colours (physical LUT):** `STAR_COLORS` in `HabitabilityLabColors.ts` is an
+  apparent-colour-vs-T_eff table, not a themeable `ProfileColorProperty`. `StarNode` interpolates
+  it at paint time; compliance greps still flag the hex strings.
 
 ## Commands
 

@@ -350,4 +350,21 @@ const HabitabilityLabColors = {
   }),
 };
 
+/**
+ * Approximate apparent colours of stars by effective temperature (K).
+ * Physical LUT for drawing — same in every profile, not a themeable color.
+ */
+export const STAR_COLORS: readonly (readonly [number, string])[] = [
+  [2400, "#ff8a3d"],
+  [3000, "#ffa552"],
+  [3600, "#ffbf72"],
+  [4400, "#ffd59a"],
+  [5200, "#ffe6bf"],
+  [5800, "#fff3dc"],
+  [6600, "#f4f3ff"],
+  [7500, "#dbe3ff"],
+  [10000, "#c3d2ff"],
+  [30000, "#a8beff"],
+];
+
 export default HabitabilityLabColors;
