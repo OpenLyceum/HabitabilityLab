@@ -146,7 +146,7 @@ export class AgingStarModel implements TModel {
   });
   public readonly zoomLateProperty = new BooleanProperty(false);
 
-  public readonly timer = new TimeModel(false);
+  public readonly timer = new TimeModel();
   public readonly timeSpeedProperty = new EnumerationProperty(TimeSpeed.NORMAL);
 
   public readonly trackProperty: TReadOnlyProperty<StarRecord>;

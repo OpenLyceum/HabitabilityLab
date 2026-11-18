@@ -63,7 +63,7 @@ export class EnergyBalanceModel implements TModel {
   /** The planet's current temperature, K. */
   public readonly temperatureProperty = new NumberProperty(INITIAL_PLANET_TEMPERATURE_K);
 
-  public readonly timer = new TimeModel(true);
+  public readonly timer = new TimeModel({ initiallyPlaying: true });
   public readonly timeSpeedProperty = new EnumerationProperty(TimeSpeed.NORMAL);
 
   /** Elapsed simulated time, years. */
