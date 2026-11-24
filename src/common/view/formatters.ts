@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { FORMATTERS_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * formatters.ts
@@ -22,7 +23,7 @@ export function valueWithUnits(value: string, units: string): string {
 }
 
 /** Rounds to the nearest whole number and writes a true minus sign. */
-const formatWhole = (value: number): string => String(Math.round(value)).replace("-", "−");
+const formatWhole = (value: number): string => String(roundSymmetric(value)).replace("-", "−");
 
 /** A temperature in kelvin: "288 K". */
 export function formatKelvin(kelvin: number): string {
@@ -49,7 +50,7 @@ export function formatStarlight(starlightEarth: number): string {
 /** A flux in W/m², to the watt above 100 W/m² and to three significant figures below. */
 export function formatFlux(watts: number): string {
   return valueWithUnits(
-    watts >= 100 ? String(Math.round(watts)) : formatSignificant(watts, FORMATTERS_SETTINGS.FORMAT_FLUX_DIGITS),
+    watts >= 100 ? String(roundSymmetric(watts)) : formatSignificant(watts, FORMATTERS_SETTINGS.FORMAT_FLUX_DIGITS),
     StringManager.getInstance().getUnits().wattsPerSquareMetreStringProperty.value,
   );
 }

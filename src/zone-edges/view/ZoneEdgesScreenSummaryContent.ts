@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { ZONE_EDGES_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ZoneEdgesScreenSummaryContent.ts
@@ -25,7 +26,7 @@ export class ZoneEdgesScreenSummaryContent extends ScreenSummaryContent {
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
-        temperature: new DerivedProperty([model.starTemperatureProperty], (t) => String(Math.round(t))),
+        temperature: new DerivedProperty([model.starTemperatureProperty], (t) => String(roundSymmetric(t))),
         inner: new DerivedProperty([model.distancesProperty], (d) =>
           plain(d.runawayGreenhouse, ZONE_EDGES_SCREEN_SUMMARY_CONTENT_SETTINGS.PLAIN_DIGITS),
         ),

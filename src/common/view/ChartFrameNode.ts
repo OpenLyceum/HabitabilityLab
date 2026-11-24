@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { CHART_FRAME_NODE_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * ChartFrameNode.ts
@@ -44,7 +45,7 @@ type Tick = { readonly value: number; readonly label: boolean };
 
 /** Writes a power-of-ten tick as a plain number when short, else as 10ⁿ. */
 function formatLogTick(value: number): string {
-  const exponent = Math.round(Math.log10(value));
+  const exponent = roundSymmetric(Math.log10(value));
   if (Math.abs(value - 10 ** exponent) < 1e-9 * value && (exponent < -3 || exponent > 4)) {
     return `10<sup>${String(exponent).replace("-", "−")}</sup>`;
   }
