@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { ENERGY_BALANCE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EnergyBalanceScreenSummaryContent.ts
@@ -24,13 +25,13 @@ export class EnergyBalanceScreenSummaryContent extends ScreenSummaryContent {
         starlight: new DerivedProperty([model.starlightProperty], (s) =>
           toPlainText(formatSignificant(s, ENERGY_BALANCE_SCREEN_SUMMARY_CONTENT_SETTINGS.FORMAT_SIGNIFICANT_DIGITS)),
         ),
-        temperature: new DerivedProperty([model.temperatureProperty], (t) => String(Math.round(t))),
+        temperature: new DerivedProperty([model.temperatureProperty], (t) => String(roundSymmetric(t))),
         trend: new DerivedProperty(
           [model.trendProperty, a11y.warmingStringProperty, a11y.coolingStringProperty, a11y.balancedStringProperty],
           (trend, warming, cooling, balanced) =>
             trend === "warming" ? warming : trend === "cooling" ? cooling : balanced,
         ),
-        equilibrium: new DerivedProperty([model.equilibriumTemperatureProperty], (t) => String(Math.round(t))),
+        equilibrium: new DerivedProperty([model.equilibriumTemperatureProperty], (t) => String(roundSymmetric(t))),
       }),
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });

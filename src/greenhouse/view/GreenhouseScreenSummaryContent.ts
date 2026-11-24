@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { GREENHOUSE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * GreenhouseScreenSummaryContent.ts
@@ -23,8 +24,8 @@ export class GreenhouseScreenSummaryContent extends ScreenSummaryContent {
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
-        bare: new DerivedProperty([model.equilibriumTemperatureProperty], (t) => String(Math.round(t))),
-        surface: new DerivedProperty([model.surfaceTemperatureProperty], (t) => String(Math.round(t))),
+        bare: new DerivedProperty([model.equilibriumTemperatureProperty], (t) => String(roundSymmetric(t))),
+        surface: new DerivedProperty([model.surfaceTemperatureProperty], (t) => String(roundSymmetric(t))),
         pressure: new DerivedProperty([model.pressureProperty], (bar) =>
           toPlainText(formatSignificant(bar, GREENHOUSE_SCREEN_SUMMARY_CONTENT_SETTINGS.FORMAT_SIGNIFICANT_DIGITS)),
         ),

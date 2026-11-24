@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { ESCAPE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../HabitabilityLabConstants.js";
 /**
  * EscapeScreenSummaryContent.ts
@@ -24,7 +25,7 @@ export class EscapeScreenSummaryContent extends ScreenSummaryContent {
       gas: DerivedProperty.deriveAny([model.gasProperty, ...Object.values(gasNames)], () =>
         toPlainText(gasNames[`${model.gasProperty.value}StringProperty`].value),
       ),
-      temperature: new DerivedProperty([model.temperatureProperty], (t) => String(Math.round(t))),
+      temperature: new DerivedProperty([model.temperatureProperty], (t) => String(roundSymmetric(t))),
       escapeSpeed: new DerivedProperty([model.escapeSpeedProperty], (v) =>
         formatSignificant(v, ESCAPE_SCREEN_SUMMARY_CONTENT_SETTINGS.MOLECULE_DETAILS_DIGITS),
       ),
