@@ -1,4 +1,5 @@
 import { ESCAPE_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
+import type { HabitabilityLabPreferencesModel } from "../../preferences/HabitabilityLabPreferencesModel.js";
 /**
  * EscapeScreenView.ts
  *
@@ -57,7 +58,11 @@ const DISTRIBUTION_HEIGHT: number = ESCAPE_SCREEN_VIEW_SETTINGS.DISTRIBUTION_HEI
 const READOUT_WIDTH: number = ESCAPE_SCREEN_VIEW_SETTINGS.READOUT_WIDTH;
 
 export class EscapeScreenView extends ScreenView {
-  public constructor(model: EscapeModel, providedOptions?: EscapeScreenViewOptions) {
+  public constructor(
+    model: EscapeModel,
+    preferences: HabitabilityLabPreferencesModel,
+    providedOptions?: EscapeScreenViewOptions,
+  ) {
     const options = optionize<EscapeScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new EscapeScreenSummaryContent(model),
@@ -170,7 +175,7 @@ export class EscapeScreenView extends ScreenView {
         }),
         escapeSpeedControl,
         temperatureControl,
-        createEquationNode(strings.equationStringProperty, CONTROL_PANEL_WIDTH),
+        createEquationNode(preferences.showEquationsProperty, strings.equationStringProperty, CONTROL_PANEL_WIDTH),
       ],
     });
     const shorelineControls = new VBox({
@@ -180,7 +185,11 @@ export class EscapeScreenView extends ScreenView {
       children: [
         exoplanetsCheckbox,
         shorelineNote,
-        createEquationNode(strings.shorelineEquationStringProperty, CONTROL_PANEL_WIDTH),
+        createEquationNode(
+          preferences.showEquationsProperty,
+          strings.shorelineEquationStringProperty,
+          CONTROL_PANEL_WIDTH,
+        ),
       ],
     });
     const controlPanel = new HabitabilityLabPanel(

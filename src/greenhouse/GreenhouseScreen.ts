@@ -8,18 +8,20 @@
  * Registered in the screens array in src/main.ts. Its home-screen and navigation-bar
  * icons come from createGreenhouseIcon() in src/common/HabitabilityLabScreenIcons.ts.
  */
+
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import { createGreenhouseIcon } from "../common/HabitabilityLabScreenIcons.js";
 import HabitabilityLabColors from "../HabitabilityLabColors.js";
+import type { HabitabilityLabPreferencesModel } from "../preferences/HabitabilityLabPreferencesModel.js";
 import { GreenhouseModel } from "./model/GreenhouseModel.js";
 import { GreenhouseKeyboardHelpContent } from "./view/GreenhouseKeyboardHelpContent.js";
 import { GreenhouseScreenView } from "./view/GreenhouseScreenView.js";
 
 // Require tandem to be explicit — accidental omission would break PhET-iO.
-type GreenhouseScreenOptions = ScreenOptions & { tandem: Tandem };
+type GreenhouseScreenOptions = ScreenOptions & { tandem: Tandem; preferences: HabitabilityLabPreferencesModel };
 
 export class GreenhouseScreen extends Screen<GreenhouseModel, GreenhouseScreenView> {
   public constructor(options: GreenhouseScreenOptions) {
@@ -28,7 +30,7 @@ export class GreenhouseScreen extends Screen<GreenhouseModel, GreenhouseScreenVi
       () => new GreenhouseModel(),
       // View factory — receives the model instance
       (model) =>
-        new GreenhouseScreenView(model, {
+        new GreenhouseScreenView(model, options.preferences, {
           tandem: options.tandem.createTandem("view"),
         }),
       optionize<GreenhouseScreenOptions, EmptySelfOptions, ScreenOptions>()(

@@ -19,24 +19,29 @@ import { EscapeScreen } from "../../src/escape/EscapeScreen.js";
 import { GreenhouseScreen } from "../../src/greenhouse/GreenhouseScreen.js";
 import HabitabilityLabColors from "../../src/HabitabilityLabColors.js";
 import { StringManager } from "../../src/i18n/StringManager.js";
+import { HabitabilityLabPreferencesModel } from "../../src/preferences/HabitabilityLabPreferencesModel.js";
 import { ZoneEdgesScreen } from "../../src/zone-edges/ZoneEdgesScreen.js";
 import { describeHeadlessSoak } from "../helpers/headlessSoak.js";
 
 function buildSim() {
   const stringManager = StringManager.getInstance();
 
+  const simPreferences = new HabitabilityLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
   const screens = [
     new EnergyBalanceScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().energyBalanceStringProperty,
       tandem: Tandem.ROOT.createTandem("energyBalanceScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
     new GreenhouseScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().greenhouseStringProperty,
       tandem: Tandem.ROOT.createTandem("greenhouseScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
     new ZoneEdgesScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().zoneEdgesStringProperty,
       tandem: Tandem.ROOT.createTandem("zoneEdgesScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
@@ -47,6 +52,7 @@ function buildSim() {
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
     new EscapeScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().escapeStringProperty,
       tandem: Tandem.ROOT.createTandem("escapeScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,

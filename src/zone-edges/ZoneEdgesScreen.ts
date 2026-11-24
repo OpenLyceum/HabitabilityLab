@@ -8,18 +8,20 @@
  * Registered in the screens array in src/main.ts. Its home-screen and navigation-bar
  * icons come from createZoneEdgesIcon() in src/common/HabitabilityLabScreenIcons.ts.
  */
+
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import { createZoneEdgesIcon } from "../common/HabitabilityLabScreenIcons.js";
 import HabitabilityLabColors from "../HabitabilityLabColors.js";
+import type { HabitabilityLabPreferencesModel } from "../preferences/HabitabilityLabPreferencesModel.js";
 import { ZoneEdgesModel } from "./model/ZoneEdgesModel.js";
 import { ZoneEdgesKeyboardHelpContent } from "./view/ZoneEdgesKeyboardHelpContent.js";
 import { ZoneEdgesScreenView } from "./view/ZoneEdgesScreenView.js";
 
 // Require tandem to be explicit — accidental omission would break PhET-iO.
-type ZoneEdgesScreenOptions = ScreenOptions & { tandem: Tandem };
+type ZoneEdgesScreenOptions = ScreenOptions & { tandem: Tandem; preferences: HabitabilityLabPreferencesModel };
 
 export class ZoneEdgesScreen extends Screen<ZoneEdgesModel, ZoneEdgesScreenView> {
   public constructor(options: ZoneEdgesScreenOptions) {
@@ -28,7 +30,7 @@ export class ZoneEdgesScreen extends Screen<ZoneEdgesModel, ZoneEdgesScreenView>
       () => new ZoneEdgesModel(),
       // View factory — receives the model instance
       (model) =>
-        new ZoneEdgesScreenView(model, {
+        new ZoneEdgesScreenView(model, options.preferences, {
           tandem: options.tandem.createTandem("view"),
         }),
       optionize<ZoneEdgesScreenOptions, EmptySelfOptions, ScreenOptions>()(

@@ -1,4 +1,5 @@
 import { GREENHOUSE_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
+import type { HabitabilityLabPreferencesModel } from "../../preferences/HabitabilityLabPreferencesModel.js";
 /**
  * GreenhouseScreenView.ts
  *
@@ -60,7 +61,11 @@ const phaseColor = (phase: WaterPhase) =>
       : HabitabilityLabColors.tooHotColorProperty;
 
 export class GreenhouseScreenView extends ScreenView {
-  public constructor(model: GreenhouseModel, providedOptions?: GreenhouseScreenViewOptions) {
+  public constructor(
+    model: GreenhouseModel,
+    preferences: HabitabilityLabPreferencesModel,
+    providedOptions?: GreenhouseScreenViewOptions,
+  ) {
     const options = optionize<GreenhouseScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new GreenhouseScreenSummaryContent(model),
@@ -144,7 +149,7 @@ export class GreenhouseScreenView extends ScreenView {
           albedoControl,
           opticalDepthControl,
           pressureControl,
-          createEquationNode(strings.equationStringProperty, CONTROL_PANEL_WIDTH),
+          createEquationNode(preferences.showEquationsProperty, strings.equationStringProperty, CONTROL_PANEL_WIDTH),
           createExplanationRow(explanationButton),
         ],
       }),

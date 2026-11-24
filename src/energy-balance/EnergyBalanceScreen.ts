@@ -8,18 +8,20 @@
  * Registered in the screens array in src/main.ts. Its home-screen and navigation-bar
  * icons come from createEnergyBalanceIcon() in src/common/HabitabilityLabScreenIcons.ts.
  */
+
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import { createEnergyBalanceIcon } from "../common/HabitabilityLabScreenIcons.js";
 import HabitabilityLabColors from "../HabitabilityLabColors.js";
+import type { HabitabilityLabPreferencesModel } from "../preferences/HabitabilityLabPreferencesModel.js";
 import { EnergyBalanceModel } from "./model/EnergyBalanceModel.js";
 import { EnergyBalanceKeyboardHelpContent } from "./view/EnergyBalanceKeyboardHelpContent.js";
 import { EnergyBalanceScreenView } from "./view/EnergyBalanceScreenView.js";
 
 // Require tandem to be explicit — accidental omission would break PhET-iO.
-type EnergyBalanceScreenOptions = ScreenOptions & { tandem: Tandem };
+type EnergyBalanceScreenOptions = ScreenOptions & { tandem: Tandem; preferences: HabitabilityLabPreferencesModel };
 
 export class EnergyBalanceScreen extends Screen<EnergyBalanceModel, EnergyBalanceScreenView> {
   public constructor(options: EnergyBalanceScreenOptions) {
@@ -28,7 +30,7 @@ export class EnergyBalanceScreen extends Screen<EnergyBalanceModel, EnergyBalanc
       () => new EnergyBalanceModel(),
       // View factory — receives the model instance
       (model) =>
-        new EnergyBalanceScreenView(model, {
+        new EnergyBalanceScreenView(model, options.preferences, {
           tandem: options.tandem.createTandem("view"),
         }),
       optionize<EnergyBalanceScreenOptions, EmptySelfOptions, ScreenOptions>()(

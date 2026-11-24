@@ -31,7 +31,6 @@ import { AquaRadioButtonGroup, Checkbox, type CheckboxOptions, TextPushButton } 
 import HabitabilityLabColors from "../../HabitabilityLabColors.js";
 import { FONTS } from "../../HabitabilityLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import { habitabilityLabPreferences } from "../../preferences/HabitabilityLabPreferencesModel.js";
 import { FLAT_PANEL_PUSH_BUTTON_OPTIONS, LIGHT_SURFACE_TEXT_FILL } from "../HabitabilityLabButtonOptions.js";
 import {
   HABITABILITY_LAB_CHECKBOX_OPTIONS,
@@ -231,6 +230,7 @@ export function createExplanationButton(
 
 /** Rich text visible only while the "Show equations" preference is on. */
 export function createEquationNode(
+  showEquationsProperty: TReadOnlyProperty<boolean>,
   equationProperty: TReadOnlyProperty<string>,
   maxWidth: number = CONTROLS_SETTINGS.DEFAULT_MAX_WIDTH,
 ): Node {
@@ -238,7 +238,7 @@ export function createEquationNode(
     font: FONTS.READOUT,
     fill: HabitabilityLabColors.accentColorProperty,
     maxWidth: maxWidth,
-    visibleProperty: habitabilityLabPreferences.showEquationsProperty,
+    visibleProperty: showEquationsProperty,
   });
 }
 

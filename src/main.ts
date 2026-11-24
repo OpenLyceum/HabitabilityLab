@@ -27,25 +27,29 @@ import { EscapeScreen } from "./escape/EscapeScreen.js";
 import { GreenhouseScreen } from "./greenhouse/GreenhouseScreen.js";
 import HabitabilityLabColors from "./HabitabilityLabColors.js";
 import { StringManager } from "./i18n/StringManager.js";
-import { habitabilityLabPreferences } from "./preferences/HabitabilityLabPreferencesModel.js";
+import { HabitabilityLabPreferencesModel } from "./preferences/HabitabilityLabPreferencesModel.js";
 import { HabitabilityLabPreferencesNode } from "./preferences/HabitabilityLabPreferencesNode.js";
 import { ZoneEdgesScreen } from "./zone-edges/ZoneEdgesScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
+  const simPreferences = new HabitabilityLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
   const screens = [
     new EnergyBalanceScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().energyBalanceStringProperty,
       tandem: Tandem.ROOT.createTandem("energyBalanceScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
     new GreenhouseScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().greenhouseStringProperty,
       tandem: Tandem.ROOT.createTandem("greenhouseScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
     new ZoneEdgesScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().zoneEdgesStringProperty,
       tandem: Tandem.ROOT.createTandem("zoneEdgesScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
@@ -56,6 +60,7 @@ onReadyToLaunch(() => {
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
     }),
     new EscapeScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().escapeStringProperty,
       tandem: Tandem.ROOT.createTandem("escapeScreen"),
       backgroundColorProperty: HabitabilityLabColors.backgroundColorProperty,
@@ -73,7 +78,7 @@ onReadyToLaunch(() => {
       simulationOptions: {
         customPreferences: [
           {
-            createContent: (tandem: Tandem) => new HabitabilityLabPreferencesNode(habitabilityLabPreferences, tandem),
+            createContent: (tandem: Tandem) => new HabitabilityLabPreferencesNode(simPreferences, tandem),
           },
         ],
       },

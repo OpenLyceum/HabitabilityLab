@@ -8,18 +8,20 @@
  * Registered in the screens array in src/main.ts. Its home-screen and navigation-bar
  * icons come from createEscapeIcon() in src/common/HabitabilityLabScreenIcons.ts.
  */
+
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import { createEscapeIcon } from "../common/HabitabilityLabScreenIcons.js";
 import HabitabilityLabColors from "../HabitabilityLabColors.js";
+import type { HabitabilityLabPreferencesModel } from "../preferences/HabitabilityLabPreferencesModel.js";
 import { EscapeModel } from "./model/EscapeModel.js";
 import { EscapeKeyboardHelpContent } from "./view/EscapeKeyboardHelpContent.js";
 import { EscapeScreenView } from "./view/EscapeScreenView.js";
 
 // Require tandem to be explicit — accidental omission would break PhET-iO.
-type EscapeScreenOptions = ScreenOptions & { tandem: Tandem };
+type EscapeScreenOptions = ScreenOptions & { tandem: Tandem; preferences: HabitabilityLabPreferencesModel };
 
 export class EscapeScreen extends Screen<EscapeModel, EscapeScreenView> {
   public constructor(options: EscapeScreenOptions) {
@@ -28,7 +30,7 @@ export class EscapeScreen extends Screen<EscapeModel, EscapeScreenView> {
       () => new EscapeModel(),
       // View factory — receives the model instance
       (model) =>
-        new EscapeScreenView(model, {
+        new EscapeScreenView(model, options.preferences, {
           tandem: options.tandem.createTandem("view"),
         }),
       optionize<EscapeScreenOptions, EmptySelfOptions, ScreenOptions>()(

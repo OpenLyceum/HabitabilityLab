@@ -18,8 +18,8 @@ src/common/view/    ChartFrameNode, controls, formatters, fluxArrows, StarNode, 
 src/preferences/    "Show equations" preference (query parameter ?showEquations)
 ```
 
-The five screen models are independent; nothing is shared at run time except the preferences
-singleton (`habitabilityLabPreferences`).
+The five screen models are independent. `main.ts` passes one preferences model to the dialog and
+the screens that display equations.
 
 ## Decisions
 

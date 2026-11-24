@@ -1,4 +1,5 @@
 import { ZONE_EDGES_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
+import type { HabitabilityLabPreferencesModel } from "../../preferences/HabitabilityLabPreferencesModel.js";
 /**
  * ZoneEdgesScreenView.ts
  *
@@ -91,7 +92,11 @@ function massPrefix(planet: ZonePlanet): string {
 }
 
 export class ZoneEdgesScreenView extends ScreenView {
-  public constructor(model: ZoneEdgesModel, providedOptions?: ZoneEdgesScreenViewOptions) {
+  public constructor(
+    model: ZoneEdgesModel,
+    preferences: HabitabilityLabPreferencesModel,
+    providedOptions?: ZoneEdgesScreenViewOptions,
+  ) {
     const options = optionize<ZoneEdgesScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new ZoneEdgesScreenSummaryContent(model),
@@ -234,7 +239,7 @@ export class ZoneEdgesScreenView extends ScreenView {
           createTitle(strings.planetMassStringProperty),
           massRadios,
           archiveCheckbox,
-          createEquationNode(strings.equationStringProperty, CONTROL_PANEL_WIDTH),
+          createEquationNode(preferences.showEquationsProperty, strings.equationStringProperty, CONTROL_PANEL_WIDTH),
           createExplanationRow(explanationButton),
         ],
       }),

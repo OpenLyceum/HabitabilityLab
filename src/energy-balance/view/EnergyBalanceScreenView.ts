@@ -1,4 +1,5 @@
 import { ENERGY_BALANCE_SCREEN_VIEW_SETTINGS } from "../../HabitabilityLabConstants.js";
+import type { HabitabilityLabPreferencesModel } from "../../preferences/HabitabilityLabPreferencesModel.js";
 /**
  * EnergyBalanceScreenView.ts
  *
@@ -60,7 +61,11 @@ const CHART_HEIGHT: number = ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.CHART_HEIGHT;
 const BARS_PANEL_WIDTH: number = ENERGY_BALANCE_SCREEN_VIEW_SETTINGS.BARS_PANEL_WIDTH;
 
 export class EnergyBalanceScreenView extends ScreenView {
-  public constructor(model: EnergyBalanceModel, providedOptions?: EnergyBalanceScreenViewOptions) {
+  public constructor(
+    model: EnergyBalanceModel,
+    preferences: HabitabilityLabPreferencesModel,
+    providedOptions?: EnergyBalanceScreenViewOptions,
+  ) {
     const options = optionize<EnergyBalanceScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new EnergyBalanceScreenSummaryContent(model),
@@ -118,6 +123,7 @@ export class EnergyBalanceScreenView extends ScreenView {
       a11y.controls.heatSpreadStringProperty,
     );
     const equation = createEquationNode(
+      preferences.showEquationsProperty,
       new DerivedProperty(
         [model.heatSpreadProperty, strings.equationStringProperty, strings.equationDaySideStringProperty],
         (spread, whole, day) => (spread === "wholePlanet" ? whole : day),

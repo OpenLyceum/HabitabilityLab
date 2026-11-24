@@ -5,11 +5,11 @@
  * Simulation. Each preference Property takes its initial value from the
  * corresponding query parameter in habitabilityLabQueryParameters.
  *
- * A single instance is shared by every screen (see {@link habitabilityLabPreferences}).
+ * main.ts shares one instance with the dialog and screens.
  */
 
 import { BooleanProperty } from "scenerystack/axon";
-import { Tandem } from "scenerystack/tandem";
+import type { Tandem } from "scenerystack/tandem";
 import HabitabilityLabNamespace from "../HabitabilityLabNamespace.js";
 import habitabilityLabQueryParameters from "./habitabilityLabQueryParameters.js";
 
@@ -28,8 +28,5 @@ export class HabitabilityLabPreferencesModel {
     this.showEquationsProperty.reset();
   }
 }
-
-/** The sim-wide preferences, shared by main.ts (the Preferences dialog) and the screen views. */
-export const habitabilityLabPreferences = new HabitabilityLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
 HabitabilityLabNamespace.register("HabitabilityLabPreferencesModel", HabitabilityLabPreferencesModel);
